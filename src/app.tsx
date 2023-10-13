@@ -6,7 +6,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BehaviorSubject,
   combineLatest,
-  distinctUntilChanged,
   filter,
   map,
   pairwise,
@@ -53,7 +52,7 @@ const camera$ = pointer$.pipe(
   pairwise(),
   map(([prev, next]) => {
     if (!(prev?.down && next?.down)) return null
-    return next.position.sub(prev.position)
+    return next.position.sub(prev.position).mul(-1)
   }),
   filter((delta): delta is Vec2 => delta !== null),
   scan((acc, delta) => acc.add(delta), new Vec2()),
@@ -112,6 +111,7 @@ function GridContainer() {
     <Graphics
       draw={draw}
       position={camera.position
+        .mul(-1)
         .mul(cellSize)
         .add(viewport.div(2))
         .mod(cellSize)
@@ -246,16 +246,6 @@ const hover$ = combineLatest([pointer$, viewport$, camera$, zoom$]).pipe(
   }),
 )
 const [useHover] = bind(hover$)
-
-hover$
-  .pipe(
-    filter((hover): hover is Vec2 => hover !== null),
-    map((hover) => hover.floor()),
-    distinctUntilChanged(Vec2.isEqual),
-  )
-  .subscribe((hover) => {
-    console.log('hover', hover)
-  })
 
 function HoverContainer() {
   const hover = useHover()
