@@ -4,9 +4,15 @@ export class Vec2 {
   readonly x: number
   readonly y: number
 
-  constructor(x: number = 0, y?: number) {
-    this.x = x
-    this.y = y ?? x
+  constructor(x: number | PointerEvent | WheelEvent = 0, y?: number) {
+    if (typeof x === 'number') {
+      this.x = x
+      this.y = y ?? x
+    } else {
+      invariant(typeof y === 'undefined')
+      this.x = x.clientX
+      this.y = x.clientY
+    }
   }
 
   add(v: Vec2 | number): Vec2 {

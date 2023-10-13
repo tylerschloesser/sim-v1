@@ -35,10 +35,7 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
     const { zoom, position } = camera$.value
     const cellSize = getCellSize(zoom)
 
-    const delta = new Vec2(next.clientX, next.clientY)
-      .sub(new Vec2(prev.clientX, prev.clientY))
-      .mul(-1)
-      .div(cellSize)
+    const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
 
     camera$.next({
       position: position.add(delta),
@@ -61,7 +58,7 @@ wheel$.subscribe((e) => {
     return
   }
 
-  const anchor = new Vec2(e.clientX, e.clientY).sub(viewport$.value.div(2))
+  const anchor = new Vec2(e).sub(viewport$.value.div(2))
   const adjust = anchor
     .div(getCellSize(zoom.prev))
     .sub(anchor.div(getCellSize(zoom.next)))
@@ -234,7 +231,7 @@ const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
     }
 
     return screenToWorld({
-      screen: new Vec2(pointer.clientX, pointer.clientY),
+      screen: new Vec2(pointer),
       viewport,
       camera,
     })
