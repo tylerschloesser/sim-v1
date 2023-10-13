@@ -15,6 +15,7 @@ import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
 import { clamp } from './util.js'
+import { MAX_CELL_SIZE, MAX_ZOOM, MIN_CELL_SIZE, MIN_ZOOM } from './const.js'
 
 interface Camera {
   position: Vec2
@@ -23,9 +24,6 @@ interface Camera {
 
 const pointer$ = new Subject<PointerEvent>()
 const wheel$ = new Subject<WheelEvent>()
-
-const MIN_ZOOM = 0
-const MAX_ZOOM = 1
 
 const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
@@ -61,9 +59,6 @@ const [useCamera] = bind(camera$)
 
 const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 const [useViewport] = bind(viewport$)
-
-const MAX_CELL_SIZE = 100
-const MIN_CELL_SIZE = 20
 
 function GridContainer() {
   const camera = useCamera()
