@@ -271,7 +271,7 @@ function HoverContainer() {
         g.drawRect(0, 0, cellSize, cellSize)
       }
     },
-    [hover],
+    [hover, zoom],
   )
 
   return <Graphics draw={draw} position={screen} />
