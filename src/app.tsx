@@ -46,6 +46,9 @@ const [useViewport] = bind(viewport$)
 const zoom$ = new BehaviorSubject<number>(0.5)
 const [useZoom] = bind(zoom$)
 
+const MAX_CELL_SIZE = 100
+const MIN_CELL_SIZE = 20
+
 function mod(n: number, m: number) {
   return ((n % m) + m) % m
 }
@@ -53,9 +56,10 @@ function mod(n: number, m: number) {
 function GridContainer() {
   const position = usePosition()
   const viewport = useViewport()
+
   const zoom = useZoom()
 
-  const cellSize = 100
+  const cellSize = MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
