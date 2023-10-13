@@ -206,10 +206,6 @@ function useEventListeners(container: HTMLDivElement | null) {
   }, [container])
 }
 
-function getCellSize(zoom: number): number {
-  return MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
-}
-
 function PointerContainer() {
   const pointer = usePointer()
   const viewport = useViewport()
@@ -247,4 +243,8 @@ function useResizeObserver(container: HTMLDivElement | null) {
       ro.disconnect()
     }
   }, [container])
+}
+
+function getCellSize(zoom: number): number {
+  return MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 }
