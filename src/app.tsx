@@ -24,9 +24,20 @@ interface Pointer {
 
 const wheel$ = new BehaviorSubject<number>(0)
 
-const zoom$ = new BehaviorSubject<number>(0.5).pipe(
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value))
+}
+
+const MIN_ZOOM = 0
+const MAX_ZOOM = 1
+
+const zoom$ = wheel$.pipe(
+  startWith(0.5),
+  scan((acc, delta) => {
+    return clamp(acc + delta / -1000, MIN_ZOOM, MAX_ZOOM)
+  }),
   tap((zoom) => {
-    invariant(zoom >= 0 && zoom <= 1)
+    invariant(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM)
   }),
 )
 
@@ -185,6 +196,7 @@ function useEventListeners(container: HTMLDivElement | null) {
       'wheel',
       (e) => {
         wheel$.next(e.deltaY)
+        e.preventDefault()
       },
       { signal, passive: false },
     )
