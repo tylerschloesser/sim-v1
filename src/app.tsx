@@ -116,22 +116,7 @@ export function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const rect = container?.getBoundingClientRect()
   useEventListeners(container)
-
-  useEffect(() => {
-    if (!container) return
-
-    const ro = new ResizeObserver((entries) => {
-      invariant(entries.length === 1)
-      const entry = entries.at(0)
-      invariant(entry)
-      viewport$.next([entry.contentRect.width, entry.contentRect.height])
-    })
-
-    ro.observe(container)
-    return () => {
-      ro.disconnect()
-    }
-  }, [container])
+  useResizeObserver(container)
 
   return (
     <div className={styles.app} ref={setContainer}>
@@ -227,4 +212,22 @@ function PointerContainer() {
   )
 
   return <Graphics draw={draw} />
+}
+
+function useResizeObserver(container: HTMLDivElement | null) {
+  useEffect(() => {
+    if (!container) return
+
+    const ro = new ResizeObserver((entries) => {
+      invariant(entries.length === 1)
+      const entry = entries.at(0)
+      invariant(entry)
+      viewport$.next([entry.contentRect.width, entry.contentRect.height])
+    })
+
+    ro.observe(container)
+    return () => {
+      ro.disconnect()
+    }
+  }, [container])
 }
