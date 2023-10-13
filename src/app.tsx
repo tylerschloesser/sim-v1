@@ -14,7 +14,7 @@ import {
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
-import { clamp } from './util.js'
+import { clamp, hackPointerEvent } from './util.js'
 import { MAX_CELL_SIZE, MAX_ZOOM, MIN_CELL_SIZE, MIN_ZOOM } from './const.js'
 
 interface Camera {
@@ -34,6 +34,7 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
   if (next.type === 'pointermove' && next.pressure > 0) {
     const { zoom, position } = camera$.value
     const cellSize = getCellSize(zoom)
+
     const delta = new Vec2(next.clientX, next.clientY)
       .sub(new Vec2(prev.clientX, prev.clientY))
       .mul(-1)
@@ -48,10 +49,23 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
 
 wheel$.subscribe((e) => {
   const { position, zoom } = camera$.value
-  const delta = e.deltaY / -1000
+
+  const nextZoom = clamp(zoom + e.deltaY / -1000, MIN_ZOOM, MAX_ZOOM)
+
+  const prevCellSize = getCellSize(zoom)
+  const nextCellSize = getCellSize(nextZoom)
+
+  const viewport = viewport$.value
+  const nextPosition = position.add(
+    new Vec2(e.clientX, e.clientY)
+      .sub(viewport.div(2))
+      .div(prevCellSize)
+      .mul((nextCellSize - prevCellSize) / -2),
+  )
+
   camera$.next({
-    position,
-    zoom: clamp(zoom + delta, MIN_ZOOM, MAX_ZOOM),
+    position: nextPosition,
+    zoom: nextZoom,
   })
 })
 
@@ -156,7 +170,7 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'pointermove',
       (e) => {
-        pointer$.next(e)
+        pointer$.next(hackPointerEvent(e))
       },
       { signal },
     )
@@ -164,7 +178,7 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'pointerleave',
       (e) => {
-        pointer$.next(e)
+        pointer$.next(hackPointerEvent(e))
       },
       { signal },
     )
