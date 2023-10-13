@@ -1,9 +1,18 @@
-import { BlurFilter } from 'pixi.js'
-import { Stage, Container, Sprite, Text, Graphics } from '@pixi/react'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BehaviorSubject } from 'rxjs'
-import * as PIXI from 'pixi.js'
+import { Container, Graphics, Sprite, Stage, Text } from '@pixi/react'
 import { Subscribe, bind } from '@react-rxjs/core'
+import * as PIXI from 'pixi.js'
+import { BlurFilter } from 'pixi.js'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  BehaviorSubject,
+  combineLatest,
+  filter,
+  map,
+  of,
+  pairwise,
+  scan,
+  startWith,
+} from 'rxjs'
 import invariant from 'tiny-invariant'
 
 import styles from './app.module.scss'
@@ -17,7 +26,27 @@ interface Pointer {
 const pointer$ = new BehaviorSubject<Pointer | null>(null)
 const [usePointer] = bind(pointer$)
 
-const position$ = new BehaviorSubject<Vec2>([0, 0])
+const position$ = pointer$.pipe(
+  pairwise(),
+  map(([prev, next]) => {
+    if (!(prev?.down && next?.down)) return null
+    const delta: Vec2 = [
+      next.position[0] - prev.position[0],
+      next.position[1] - prev.position[1],
+    ]
+    return delta
+  }),
+  filter((delta: Vec2 | null): delta is Vec2 => delta !== null),
+  scan<Vec2, Vec2>(
+    (acc, delta) => {
+      const next: Vec2 = [acc[0] + delta[0], acc[1] + delta[1]]
+      return next
+    },
+    [0, 0],
+  ),
+  startWith([0, 0]),
+)
+
 const [usePosition] = bind(position$)
 
 const viewport$ = new BehaviorSubject<Vec2>([0, 0])
