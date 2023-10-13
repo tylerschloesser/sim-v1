@@ -18,11 +18,14 @@ import {
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
-import { ContextReplacementPlugin } from 'webpack'
 
 interface Pointer {
   position: Vec2
   down: boolean
+}
+
+interface Camera {
+  position: Vec2
 }
 
 const wheel$ = new BehaviorSubject<number>(0)
@@ -47,7 +50,7 @@ const zoom$ = wheel$.pipe(
 const pointer$ = new BehaviorSubject<Pointer | null>(null)
 const [usePointer] = bind(pointer$)
 
-const position$ = pointer$.pipe(
+const camera$ = pointer$.pipe(
   pairwise(),
   map(([prev, next]) => {
     if (!(prev?.down && next?.down)) return null
@@ -61,9 +64,10 @@ const position$ = pointer$.pipe(
     const cellSize = getCellSize(zoom)
     return position.div(cellSize)
   }),
+  map<Vec2, Camera>((position) => ({ position })),
 )
 
-const [usePosition] = bind(position$)
+const [useCamera] = bind(camera$)
 
 const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 const [useViewport] = bind(viewport$)
@@ -74,7 +78,7 @@ const MAX_CELL_SIZE = 100
 const MIN_CELL_SIZE = 20
 
 function GridContainer() {
-  const position = usePosition()
+  const camera = useCamera()
   const viewport = useViewport()
   const zoom = useZoom()
 
@@ -108,7 +112,10 @@ function GridContainer() {
   return (
     <Graphics
       draw={draw}
-      position={position.mul(cellSize).mod(cellSize).sub(new Vec2(cellSize))}
+      position={camera.position
+        .mul(cellSize)
+        .mod(cellSize)
+        .sub(new Vec2(cellSize))}
     />
   )
 }
@@ -200,40 +207,40 @@ function useEventListeners(container: HTMLDivElement | null) {
 function screenToWorld({
   screen,
   viewport,
-  position,
+  camera,
   zoom,
 }: {
   screen: Vec2
   viewport: Vec2
-  position: Vec2
+  camera: Camera
   zoom: number
 }): Vec2 {
   const cellSize = getCellSize(zoom)
-  return screen.sub(viewport.div(2)).div(cellSize).add(position)
+  return screen.sub(viewport.div(2)).div(cellSize).add(camera.position)
 }
 
 function worldToScreen({
   world,
   viewport,
-  position,
+  camera,
   zoom,
 }: {
   world: Vec2
   viewport: Vec2
-  position: Vec2
+  camera: Camera
   zoom: number
 }): Vec2 {
   const cellSize = getCellSize(zoom)
-  return world.sub(position).mul(cellSize).add(viewport.div(2))
+  return world.sub(camera.position).mul(cellSize).add(viewport.div(2))
 }
 
-const hover$ = combineLatest([pointer$, viewport$, position$, zoom$]).pipe(
-  map(([pointer, viewport, position, zoom]) => {
+const hover$ = combineLatest([pointer$, viewport$, camera$, zoom$]).pipe(
+  map(([pointer, viewport, camera, zoom]) => {
     if (pointer === null) return null
     return screenToWorld({
       screen: pointer.position,
       viewport,
-      position,
+      camera,
       zoom,
     })
   }),
@@ -254,12 +261,12 @@ function HoverContainer() {
   const hover = useHover()
   const zoom = useZoom()
   const viewport = useViewport()
-  const position = usePosition()
+  const camera = useCamera()
 
   const screen = hover
     ? worldToScreen({
         world: hover.floor(),
-        position,
+        camera,
         viewport,
         zoom,
       })
