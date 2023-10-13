@@ -95,6 +95,14 @@ function useEventListeners(container: Container) {
     )
 
     container.addEventListener(
+      'pointerleave',
+      () => {
+        pointer$.next(null)
+      },
+      { signal },
+    )
+
+    container.addEventListener(
       'wheel',
       (e) => {
         console.log('wheel')
