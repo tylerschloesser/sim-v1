@@ -35,7 +35,7 @@ const position$ = pointer$.pipe(
     },
     [0, 0],
   ),
-  startWith([0, 0]),
+  startWith([0, 0] as Vec2),
 )
 
 const [usePosition] = bind(position$)
@@ -51,6 +51,8 @@ function GridContainer() {
   const viewport = useViewport()
   const zoom = useZoom()
 
+  const cellSize = 100
+
   const draw = useCallback(
     (g: PIXI.Graphics) => {
       g.clear()
@@ -60,25 +62,28 @@ function GridContainer() {
         color: '0xFFFFFF11',
       })
 
-      const cellSize = 100
-
-      const cols = Math.ceil(viewport[0] / cellSize)
-      const rows = Math.ceil(viewport[1] / cellSize)
+      const cols = Math.ceil(viewport[0] / cellSize) + 1
+      const rows = Math.ceil(viewport[1] / cellSize) + 1
 
       for (let col = 0; col < cols; col++) {
         for (let row = 0; row < rows; row++) {
-          g.moveTo(position[0] + col * cellSize, position[1])
-          g.lineTo(position[0] + col * cellSize, position[1] + viewport[1])
+          g.moveTo(col * cellSize, 0)
+          g.lineTo(col * cellSize, cellSize * rows)
 
-          g.moveTo(position[0], position[1] + row * cellSize)
-          g.lineTo(position[0] + viewport[0], position[1] + row * cellSize)
+          g.moveTo(0, row * cellSize)
+          g.lineTo(cellSize * cols, row * cellSize)
         }
       }
     },
-    [position, viewport, zoom],
+    [viewport, cellSize],
   )
 
-  return <Graphics draw={draw} />
+  return (
+    <Graphics
+      draw={draw}
+      position={[position[0] % cellSize, position[1] % cellSize]}
+    />
+  )
 }
 
 export function App() {
