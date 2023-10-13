@@ -46,6 +46,10 @@ const [useViewport] = bind(viewport$)
 const zoom$ = new BehaviorSubject<number>(0.5)
 const [useZoom] = bind(zoom$)
 
+function mod(n: number, m: number) {
+  return ((n % m) + m) % m
+}
+
 function GridContainer() {
   const position = usePosition()
   const viewport = useViewport()
@@ -81,7 +85,10 @@ function GridContainer() {
   return (
     <Graphics
       draw={draw}
-      position={[position[0] % cellSize, position[1] % cellSize]}
+      position={[
+        mod(position[0], cellSize) - cellSize,
+        mod(position[1], cellSize) - cellSize,
+      ]}
     />
   )
 }
