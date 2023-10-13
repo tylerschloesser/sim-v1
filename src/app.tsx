@@ -31,11 +31,7 @@ function PointerContainer() {
     [pointer],
   )
 
-  return (
-    <Container>
-      <Graphics draw={draw} />
-    </Container>
-  )
+  return <Graphics draw={draw} />
 }
 
 export function App() {
