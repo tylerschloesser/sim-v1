@@ -9,9 +9,7 @@ import {
   combineLatest,
   map,
   pairwise,
-  scan,
   startWith,
-  tap,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
@@ -22,7 +20,7 @@ interface Camera {
   zoom: number
 }
 
-const wheel$ = new BehaviorSubject<number>(0)
+const wheel$ = new Subject<WheelEvent>()
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value))
@@ -30,16 +28,6 @@ function clamp(value: number, min: number, max: number): number {
 
 const MIN_ZOOM = 0
 const MAX_ZOOM = 1
-
-const zoom$ = wheel$.pipe(
-  startWith(0.5),
-  scan((acc, delta) => {
-    return clamp(acc + delta / -1000, MIN_ZOOM, MAX_ZOOM)
-  }),
-  tap((zoom) => {
-    invariant(zoom >= MIN_ZOOM && zoom <= MAX_ZOOM)
-  }),
-)
 
 const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
@@ -63,12 +51,19 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
   }
 })
 
+wheel$.subscribe((e) => {
+  const { position, zoom } = camera$.value
+  const delta = e.deltaY / -1000
+  camera$.next({
+    position,
+    zoom: clamp(zoom + delta, MIN_ZOOM, MAX_ZOOM),
+  })
+})
+
 const [useCamera] = bind(camera$)
 
 const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 const [useViewport] = bind(viewport$)
-
-const [useZoom] = bind(zoom$)
 
 const MAX_CELL_SIZE = 100
 const MIN_CELL_SIZE = 20
@@ -76,9 +71,7 @@ const MIN_CELL_SIZE = 20
 function GridContainer() {
   const camera = useCamera()
   const viewport = useViewport()
-  const zoom = useZoom()
-
-  const cellSize = getCellSize(zoom)
+  const cellSize = getCellSize(camera.zoom)
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
@@ -187,7 +180,7 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'wheel',
       (e) => {
-        wheel$.next(e.deltaY)
+        wheel$.next(e)
         e.preventDefault()
       },
       { signal, passive: false },
@@ -203,14 +196,12 @@ function screenToWorld({
   screen,
   viewport,
   camera,
-  zoom,
 }: {
   screen: Vec2
   viewport: Vec2
   camera: Camera
-  zoom: number
 }): Vec2 {
-  const cellSize = getCellSize(zoom)
+  const cellSize = getCellSize(camera.zoom)
   return screen.sub(viewport.div(2)).div(cellSize).add(camera.position)
 }
 
@@ -218,19 +209,17 @@ function worldToScreen({
   world,
   viewport,
   camera,
-  zoom,
 }: {
   world: Vec2
   viewport: Vec2
   camera: Camera
-  zoom: number
 }): Vec2 {
-  const cellSize = getCellSize(zoom)
+  const cellSize = getCellSize(camera.zoom)
   return world.sub(camera.position).mul(cellSize).add(viewport.div(2))
 }
 
-const hover$ = combineLatest([pointer$, viewport$, camera$, zoom$]).pipe(
-  map(([pointer, viewport, camera, zoom]) => {
+const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
+  map(([pointer, viewport, camera]) => {
     if (pointer.type === 'pointerleave' || pointer.type === 'pointerout') {
       return null
     }
@@ -239,7 +228,6 @@ const hover$ = combineLatest([pointer$, viewport$, camera$, zoom$]).pipe(
       screen: new Vec2(pointer.clientX, pointer.clientY),
       viewport,
       camera,
-      zoom,
     })
   }),
   startWith(null),
@@ -248,32 +236,31 @@ const [useHover] = bind(hover$)
 
 function HoverContainer() {
   const hover = useHover()
-  const zoom = useZoom()
   const viewport = useViewport()
   const camera = useCamera()
-
-  const screen = hover
-    ? worldToScreen({
-        world: hover.floor(),
-        camera,
-        viewport,
-        zoom,
-      })
-    : new Vec2()
+  const cellSize = getCellSize(camera.zoom)
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
       g.clear()
-      if (hover) {
-        const cellSize = getCellSize(zoom)
-        g.lineStyle(2, 'red')
-        g.drawRect(0, 0, cellSize, cellSize)
-      }
+      g.lineStyle(2, 'red')
+      g.drawRect(0, 0, cellSize, cellSize)
     },
-    [hover, zoom],
+    [cellSize],
   )
 
-  return <Graphics draw={draw} position={screen} />
+  if (hover === null) return null
+
+  return (
+    <Graphics
+      draw={draw}
+      position={worldToScreen({
+        world: hover.floor(),
+        camera,
+        viewport,
+      })}
+    />
+  )
 }
 
 function useResizeObserver(container: HTMLDivElement | null) {
