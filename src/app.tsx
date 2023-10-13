@@ -4,13 +4,42 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BehaviorSubject } from 'rxjs'
 import * as PIXI from 'pixi.js'
 import { Subscribe, bind } from '@react-rxjs/core'
+import invariant from 'tiny-invariant'
 
 import styles from './app.module.scss'
 type Vec2 = [number, number]
 
-const position$ = new BehaviorSubject<Vec2>([0, 0])
 const pointer$ = new BehaviorSubject<Vec2 | null>(null)
 const [usePointer] = bind(pointer$)
+
+const position$ = new BehaviorSubject<Vec2>([0, 0])
+const [usePosition] = bind(position$)
+
+const viewport$ = new BehaviorSubject<Vec2>([0, 0])
+const [useViewport] = bind(viewport$)
+
+const zoom$ = new BehaviorSubject<number>(0.5)
+const [useZoom] = bind(zoom$)
+
+function GridContainer() {
+  const position = usePosition()
+  const viewport = useViewport()
+
+  const draw = useCallback(
+    (g: PIXI.Graphics) => {
+      g.clear()
+      g.lineStyle({
+        width: 2,
+        color: '0xFFFFFF11',
+      })
+      g.moveTo(position[0], position[1])
+      g.lineTo(viewport[0], viewport[1])
+    },
+    [position, viewport],
+  )
+
+  return <Graphics draw={draw} />
+}
 
 export function App() {
   const blurFilter = useMemo(() => new BlurFilter(4), [])
@@ -18,6 +47,22 @@ export function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const rect = container?.getBoundingClientRect()
   useEventListeners(container)
+
+  useEffect(() => {
+    if (!container) return
+
+    const ro = new ResizeObserver((entries) => {
+      invariant(entries.length === 1)
+      const entry = entries.at(0)
+      invariant(entry)
+      viewport$.next([entry.contentRect.width, entry.contentRect.height])
+    })
+
+    ro.observe(container)
+    return () => {
+      ro.disconnect()
+    }
+  }, [container])
 
   return (
     <div className={styles.app} ref={setContainer}>
@@ -32,6 +77,7 @@ export function App() {
         >
           <Subscribe>
             <PointerContainer />
+            <GridContainer />
             <Sprite
               image="https://pixijs.io/pixi-react/img/bunny.png"
               x={400}
