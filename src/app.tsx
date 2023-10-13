@@ -48,7 +48,6 @@ const zoom$ = wheel$.pipe(
 )
 
 const pointer$ = new BehaviorSubject<Pointer | null>(null)
-const [usePointer] = bind(pointer$)
 
 const camera$ = pointer$.pipe(
   pairwise(),
