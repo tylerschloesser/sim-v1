@@ -24,6 +24,12 @@ interface Pointer {
 
 const wheel$ = new BehaviorSubject<number>(0)
 
+const zoom$ = new BehaviorSubject<number>(0.5).pipe(
+  tap((zoom) => {
+    invariant(zoom >= 0 && zoom <= 1)
+  }),
+)
+
 const pointer$ = new BehaviorSubject<Pointer | null>(null)
 const [usePointer] = bind(pointer$)
 
@@ -52,12 +58,6 @@ const [usePosition] = bind(position$)
 
 const viewport$ = new BehaviorSubject<Vec2>([0, 0])
 const [useViewport] = bind(viewport$)
-
-const zoom$ = new BehaviorSubject<number>(0.5).pipe(
-  tap((zoom) => {
-    invariant(zoom >= 0 && zoom <= 1)
-  }),
-)
 
 const [useZoom] = bind(zoom$)
 
