@@ -93,7 +93,7 @@ function GridContainer() {
 
       g.lineStyle({
         width: 1,
-        color: '0xFFFFFF11',
+        color: '0x111',
       })
 
       const cols = Math.ceil(viewport[0] / cellSize) + 1
