@@ -7,6 +7,8 @@ import { Subscribe, bind } from '@react-rxjs/core'
 
 import styles from './app.module.scss'
 type Vec2 = [number, number]
+
+const position$ = new BehaviorSubject<Vec2>([0, 0])
 const pointer$ = new BehaviorSubject<Vec2 | null>(null)
 const [usePointer] = bind(pointer$)
 
