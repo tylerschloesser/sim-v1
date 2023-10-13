@@ -1,8 +1,7 @@
-import { Container, Graphics, Sprite, Stage, Text } from '@pixi/react'
+import { Graphics, Stage } from '@pixi/react'
 import { Subscribe, bind } from '@react-rxjs/core'
 import * as PIXI from 'pixi.js'
-import { BlurFilter } from 'pixi.js'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { camera$, hover$, pointer$, viewport$, wheel$ } from './state.js'
@@ -10,8 +9,8 @@ import { getCellSize, hackPointerEvent, worldToScreen } from './util.js'
 import { Vec2 } from './vec2.js'
 
 const [useCamera] = bind(camera$)
-
 const [useViewport] = bind(viewport$)
+const [useHover] = bind(hover$)
 
 function GridContainer() {
   const camera = useCamera()
@@ -57,8 +56,6 @@ function GridContainer() {
 }
 
 export function App() {
-  const blurFilter = useMemo(() => new BlurFilter(4), [])
-
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const rect = container?.getBoundingClientRect()
   useEventListeners(container)
@@ -78,20 +75,6 @@ export function App() {
           <Subscribe>
             <HoverContainer />
             <GridContainer />
-            <Sprite
-              image="https://pixijs.io/pixi-react/img/bunny.png"
-              x={400}
-              y={270}
-              anchor={{ x: 0.5, y: 0.5 }}
-            />
-
-            <Container x={400} y={330}>
-              <Text
-                text="Hello World"
-                anchor={{ x: 0.5, y: 0.5 }}
-                filters={[blurFilter]}
-              />
-            </Container>
           </Subscribe>
         </Stage>
       )}
@@ -136,8 +119,6 @@ function useEventListeners(container: HTMLDivElement | null) {
     }
   }, [container])
 }
-
-const [useHover] = bind(hover$)
 
 function HoverContainer() {
   const hover = useHover()
