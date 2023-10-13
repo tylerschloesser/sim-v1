@@ -113,6 +113,7 @@ function GridContainer() {
       draw={draw}
       position={camera.position
         .mul(cellSize)
+        .add(viewport.div(2))
         .mod(cellSize)
         .sub(new Vec2(cellSize))}
     />
@@ -250,7 +251,7 @@ hover$
   .pipe(
     filter((hover): hover is Vec2 => hover !== null),
     map((hover) => hover.floor()),
-    distinctUntilChanged(),
+    distinctUntilChanged(Vec2.isEqual),
   )
   .subscribe((hover) => {
     console.log('hover', hover)

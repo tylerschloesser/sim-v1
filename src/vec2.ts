@@ -33,4 +33,8 @@ export class Vec2 {
   mod(m: number): Vec2 {
     return new Vec2(((this.x % m) + m) % m, ((this.y % m) + m) % m)
   }
+
+  static isEqual(a: Vec2, b: Vec2) {
+    return a.x === b.x && a.y === b.y
+  }
 }
