@@ -9,7 +9,12 @@ import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 type Vec2 = [number, number]
 
-const pointer$ = new BehaviorSubject<Vec2 | null>(null)
+interface Pointer {
+  position: Vec2
+  down: boolean
+}
+
+const pointer$ = new BehaviorSubject<Pointer | null>(null)
 const [usePointer] = bind(pointer$)
 
 const position$ = new BehaviorSubject<Vec2>([0, 0])
@@ -124,7 +129,10 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'pointermove',
       (e) => {
-        pointer$.next([e.clientX, e.clientY])
+        pointer$.next({
+          position: [e.clientX, e.clientY],
+          down: e.pressure > 0,
+        })
       },
       { signal },
     )
@@ -161,7 +169,7 @@ function PointerContainer() {
       g.clear()
 
       if (pointer) {
-        const [x, y] = pointer
+        const [x, y] = pointer.position
         g.beginFill('red')
         g.drawCircle(x, y, 10)
       }
