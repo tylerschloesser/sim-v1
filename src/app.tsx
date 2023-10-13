@@ -3,16 +3,7 @@ import { Subscribe, bind } from '@react-rxjs/core'
 import * as PIXI from 'pixi.js'
 import { BlurFilter } from 'pixi.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import {
-  BehaviorSubject,
-  combineLatest,
-  filter,
-  map,
-  of,
-  pairwise,
-  scan,
-  startWith,
-} from 'rxjs'
+import { BehaviorSubject, filter, map, pairwise, scan, startWith } from 'rxjs'
 import invariant from 'tiny-invariant'
 
 import styles from './app.module.scss'
