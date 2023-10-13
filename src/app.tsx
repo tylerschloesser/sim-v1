@@ -13,9 +13,9 @@ import {
 } from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
+import { MAX_ZOOM, MIN_ZOOM } from './const.js'
+import { clamp, getCellSize, hackPointerEvent } from './util.js'
 import { Vec2 } from './vec2.js'
-import { clamp, hackPointerEvent } from './util.js'
-import { MAX_CELL_SIZE, MAX_ZOOM, MIN_CELL_SIZE, MIN_ZOOM } from './const.js'
 
 interface Camera {
   position: Vec2
@@ -287,8 +287,4 @@ function useResizeObserver(container: HTMLDivElement | null) {
       ro.disconnect()
     }
   }, [container])
-}
-
-function getCellSize(zoom: number): number {
-  return MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 }
