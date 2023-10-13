@@ -6,12 +6,14 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BehaviorSubject,
   combineLatest,
+  distinctUntilChanged,
   filter,
   map,
   pairwise,
   scan,
   startWith,
   tap,
+  withLatestFrom,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
@@ -48,17 +50,16 @@ const position$ = pointer$.pipe(
   pairwise(),
   map(([prev, next]) => {
     if (!(prev?.down && next?.down)) return null
-    const delta = new Vec2(
-      next.position.x - prev.position.x,
-      next.position.y - prev.position.y,
-    )
-    return delta
+    return next.position.sub(prev.position)
   }),
-  filter((delta: Vec2 | null): delta is Vec2 => delta !== null),
-  scan<Vec2, Vec2>((acc, delta) => {
-    return new Vec2(acc.x + delta.x, acc.y + delta.y)
-  }, new Vec2()),
+  filter((delta): delta is Vec2 => delta !== null),
+  scan((acc, delta) => acc.add(delta), new Vec2()),
   startWith(new Vec2()),
+  withLatestFrom(zoom$),
+  map(([position, zoom]) => {
+    const cellSize = getCellSize(zoom)
+    return position.div(cellSize)
+  }),
 )
 
 const [usePosition] = bind(position$)
@@ -88,7 +89,7 @@ function GridContainer() {
 
       g.lineStyle({
         width: 1,
-        color: '0x111',
+        color: '0x222',
       })
 
       const cols = Math.ceil(viewport.x / cellSize) + 1
@@ -111,8 +112,8 @@ function GridContainer() {
     <Graphics
       draw={draw}
       position={[
-        mod(position.x, cellSize) - cellSize,
-        mod(position.y, cellSize) - cellSize,
+        mod(position.x * cellSize, cellSize) - cellSize,
+        mod(position.y * cellSize, cellSize) - cellSize,
       ]}
     />
   )
@@ -138,7 +139,7 @@ export function App() {
           }}
         >
           <Subscribe>
-            <PointerContainer />
+            <HoverContainer />
             <GridContainer />
             <Sprite
               image="https://pixijs.io/pixi-react/img/bunny.png"
@@ -202,34 +203,87 @@ function useEventListeners(container: HTMLDivElement | null) {
   }, [container])
 }
 
+function screenToWorld({
+  screen,
+  viewport,
+  position,
+  zoom,
+}: {
+  screen: Vec2
+  viewport: Vec2
+  position: Vec2
+  zoom: number
+}): Vec2 {
+  const cellSize = getCellSize(zoom)
+  return screen.sub(viewport.div(2)).div(cellSize).add(position)
+}
+
+function worldToScreen({
+  world,
+  viewport,
+  position,
+  zoom,
+}: {
+  world: Vec2
+  viewport: Vec2
+  position: Vec2
+  zoom: number
+}): Vec2 {
+  const cellSize = getCellSize(zoom)
+  return world.sub(position).mul(cellSize).add(viewport.div(2))
+}
+
 const hover$ = combineLatest([pointer$, viewport$, position$, zoom$]).pipe(
   map(([pointer, viewport, position, zoom]) => {
-    return null
+    if (pointer === null) return null
+    return screenToWorld({
+      screen: pointer.position,
+      viewport,
+      position,
+      zoom,
+    })
   }),
 )
 const [useHover] = bind(hover$)
 
-function PointerContainer() {
-  const pointer = usePointer()
-  const viewport = useViewport()
-  const zoom = useZoom()
+hover$
+  .pipe(
+    filter((hover): hover is Vec2 => hover !== null),
+    map((hover) => hover.floor()),
+    distinctUntilChanged(),
+  )
+  .subscribe((hover) => {
+    console.log('hover', hover)
+  })
 
-  const cellSize = getCellSize(zoom)
+function HoverContainer() {
+  const hover = useHover()
+  const zoom = useZoom()
+  const viewport = useViewport()
+  const position = usePosition()
+
+  const screen = hover
+    ? worldToScreen({
+        world: hover.floor(),
+        position,
+        viewport,
+        zoom,
+      })
+    : new Vec2()
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
       g.clear()
-
-      if (pointer) {
-        const { x, y } = pointer.position
-        g.beginFill('red')
-        g.drawCircle(x, y, 10)
+      if (hover) {
+        const cellSize = getCellSize(zoom)
+        g.lineStyle(2, 'red')
+        g.drawRect(0, 0, cellSize, cellSize)
       }
     },
-    [pointer],
+    [hover],
   )
 
-  return <Graphics draw={draw} />
+  return <Graphics draw={draw} position={screen} />
 }
 
 function useResizeObserver(container: HTMLDivElement | null) {
