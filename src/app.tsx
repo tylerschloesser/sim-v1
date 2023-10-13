@@ -59,6 +59,7 @@ function GridContainer() {
 
   const zoom = useZoom()
 
+  invariant(zoom >= 0 && zoom <= 1)
   const cellSize = MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 
   const draw = useCallback(
