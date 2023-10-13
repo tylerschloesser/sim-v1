@@ -22,6 +22,8 @@ interface Pointer {
   down: boolean
 }
 
+const wheel$ = new BehaviorSubject<number>(0)
+
 const pointer$ = new BehaviorSubject<Pointer | null>(null)
 const [usePointer] = bind(pointer$)
 
@@ -182,9 +184,7 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'wheel',
       (e) => {
-        console.log('wheel')
-
-        e.preventDefault()
+        wheel$.next(e.deltaY)
       },
       { signal, passive: false },
     )
