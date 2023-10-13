@@ -3,7 +3,15 @@ import { Subscribe, bind } from '@react-rxjs/core'
 import * as PIXI from 'pixi.js'
 import { BlurFilter } from 'pixi.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { BehaviorSubject, filter, map, pairwise, scan, startWith } from 'rxjs'
+import {
+  BehaviorSubject,
+  filter,
+  map,
+  pairwise,
+  scan,
+  startWith,
+  tap,
+} from 'rxjs'
 import invariant from 'tiny-invariant'
 
 import styles from './app.module.scss'
@@ -43,7 +51,12 @@ const [usePosition] = bind(position$)
 const viewport$ = new BehaviorSubject<Vec2>([0, 0])
 const [useViewport] = bind(viewport$)
 
-const zoom$ = new BehaviorSubject<number>(0.5)
+const zoom$ = new BehaviorSubject<number>(0.5).pipe(
+  tap((zoom) => {
+    invariant(zoom >= 0 && zoom <= 1)
+  }),
+)
+
 const [useZoom] = bind(zoom$)
 
 const MAX_CELL_SIZE = 100
@@ -59,7 +72,6 @@ function GridContainer() {
 
   const zoom = useZoom()
 
-  invariant(zoom >= 0 && zoom <= 1)
   const cellSize = MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 
   const draw = useCallback(
