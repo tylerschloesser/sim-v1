@@ -24,18 +24,33 @@ const [useZoom] = bind(zoom$)
 function GridContainer() {
   const position = usePosition()
   const viewport = useViewport()
+  const zoom = useZoom()
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
       g.clear()
+
       g.lineStyle({
-        width: 2,
+        width: 1,
         color: '0xFFFFFF11',
       })
-      g.moveTo(position[0], position[1])
-      g.lineTo(viewport[0], viewport[1])
+
+      const cellSize = 100
+
+      const cols = Math.ceil(viewport[0] / cellSize)
+      const rows = Math.ceil(viewport[1] / cellSize)
+
+      for (let col = 0; col < cols; col++) {
+        for (let row = 0; row < rows; row++) {
+          g.moveTo(position[0] + col * cellSize, position[1])
+          g.lineTo(position[0] + col * cellSize, position[1] + viewport[1])
+
+          g.moveTo(position[0], position[1] + row * cellSize)
+          g.lineTo(position[0] + viewport[0], position[1] + row * cellSize)
+        }
+      }
     },
-    [position, viewport],
+    [position, viewport, zoom],
   )
 
   return <Graphics draw={draw} />
