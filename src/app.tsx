@@ -1,16 +1,19 @@
 import { Graphics, Stage } from '@pixi/react'
-import { Subscribe, bind } from '@react-rxjs/core'
+import { Subscribe } from '@react-rxjs/core'
 import * as PIXI from 'pixi.js'
 import { useCallback, useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
-import { camera$, hover$, pointer$, viewport$, wheel$ } from './state.js'
+import {
+  pointer$,
+  useCamera,
+  useHover,
+  useViewport,
+  viewport$,
+  wheel$,
+} from './state.js'
 import { getCellSize, hackPointerEvent, worldToScreen } from './util.js'
 import { Vec2 } from './vec2.js'
-
-const [useCamera] = bind(camera$)
-const [useViewport] = bind(viewport$)
-const [useHover] = bind(hover$)
 
 function GridContainer() {
   const camera = useCamera()

@@ -9,6 +9,7 @@ import {
 import { MAX_ZOOM, MIN_ZOOM } from './const.js'
 import { clamp, getCellSize, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
+import { bind } from '@react-rxjs/core'
 
 export interface Camera {
   position: Vec2
@@ -17,13 +18,30 @@ export interface Camera {
 
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
-
 export const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
-
 export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: 0.5,
 })
+
+export const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
+  map(([pointer, viewport, camera]) => {
+    if (pointer.type === 'pointerleave' || pointer.type === 'pointerout') {
+      return null
+    }
+
+    return screenToWorld({
+      screen: new Vec2(pointer),
+      viewport,
+      camera,
+    })
+  }),
+  startWith(null),
+)
+
+export const [useCamera] = bind(camera$)
+export const [useViewport] = bind(viewport$)
+export const [useHover] = bind(hover$)
 
 pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
   if (next.type === 'pointermove' && next.pressure > 0) {
@@ -63,18 +81,3 @@ wheel$.subscribe((e) => {
     zoom: zoom.next,
   })
 })
-
-export const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
-  map(([pointer, viewport, camera]) => {
-    if (pointer.type === 'pointerleave' || pointer.type === 'pointerout') {
-      return null
-    }
-
-    return screenToWorld({
-      screen: new Vec2(pointer),
-      viewport,
-      camera,
-    })
-  }),
-  startWith(null),
-)
