@@ -9,11 +9,17 @@ export class Vec2 {
     this.y = y ?? x
   }
 
-  add(v: Vec2): Vec2 {
+  add(v: Vec2 | number): Vec2 {
+    if (typeof v === 'number') {
+      return new Vec2(this.x + v, this.y + v)
+    }
     return new Vec2(this.x + v.x, this.y + v.y)
   }
 
-  sub(v: Vec2): Vec2 {
+  sub(v: Vec2 | number): Vec2 {
+    if (typeof v === 'number') {
+      return new Vec2(this.x - v, this.y - v)
+    }
     return new Vec2(this.x - v.x, this.y - v.y)
   }
 

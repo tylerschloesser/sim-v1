@@ -115,7 +115,7 @@ function GridContainer() {
         .mul(cellSize)
         .add(viewport.div(2))
         .mod(cellSize)
-        .sub(new Vec2(cellSize))}
+        .sub(cellSize)}
     />
   )
 }
