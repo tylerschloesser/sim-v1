@@ -48,24 +48,27 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
 })
 
 wheel$.subscribe((e) => {
-  const { position, zoom } = camera$.value
+  const zoom = {
+    prev: camera$.value.zoom,
+    next: clamp(camera$.value.zoom + e.deltaY / -1000, MIN_ZOOM, MAX_ZOOM),
+  }
 
-  const nextZoom = clamp(zoom + e.deltaY / -1000, MIN_ZOOM, MAX_ZOOM)
+  if (zoom.prev === zoom.next) {
+    camera$.next({
+      position: camera$.value.position,
+      zoom: zoom.next,
+    })
+    return
+  }
 
-  const prevCellSize = getCellSize(zoom)
-  const nextCellSize = getCellSize(nextZoom)
-
-  const viewport = viewport$.value
-  const nextPosition = position.add(
-    new Vec2(e.clientX, e.clientY)
-      .sub(viewport.div(2))
-      .div(prevCellSize)
-      .mul((nextCellSize - prevCellSize) / -2),
-  )
+  const anchor = new Vec2(e.clientX, e.clientY).sub(viewport$.value.div(2))
+  const adjust = anchor
+    .div(getCellSize(zoom.prev))
+    .sub(anchor.div(getCellSize(zoom.next)))
 
   camera$.next({
-    position: nextPosition,
-    zoom: nextZoom,
+    position: camera$.value.position.add(adjust),
+    zoom: zoom.next,
   })
 })
 
