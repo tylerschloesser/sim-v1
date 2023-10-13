@@ -29,4 +29,8 @@ export class Vec2 {
   floor(): Vec2 {
     return new Vec2(Math.floor(this.x), Math.floor(this.y))
   }
+
+  mod(m: number): Vec2 {
+    return new Vec2(((this.x % m) + m) % m, ((this.y % m) + m) % m)
+  }
 }

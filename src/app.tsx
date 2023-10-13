@@ -18,6 +18,7 @@ import {
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
+import { ContextReplacementPlugin } from 'webpack'
 
 interface Pointer {
   position: Vec2
@@ -72,10 +73,6 @@ const [useZoom] = bind(zoom$)
 const MAX_CELL_SIZE = 100
 const MIN_CELL_SIZE = 20
 
-function mod(n: number, m: number) {
-  return ((n % m) + m) % m
-}
-
 function GridContainer() {
   const position = usePosition()
   const viewport = useViewport()
@@ -111,10 +108,7 @@ function GridContainer() {
   return (
     <Graphics
       draw={draw}
-      position={[
-        mod(position.x * cellSize, cellSize) - cellSize,
-        mod(position.y * cellSize, cellSize) - cellSize,
-      ]}
+      position={position.mul(cellSize).mod(cellSize).sub(new Vec2(cellSize))}
     />
   )
 }
