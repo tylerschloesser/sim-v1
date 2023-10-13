@@ -5,26 +5,21 @@ import { BlurFilter } from 'pixi.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import {
   BehaviorSubject,
+  Subject,
   combineLatest,
-  filter,
   map,
   pairwise,
   scan,
   startWith,
   tap,
-  withLatestFrom,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
 
-interface Pointer {
-  position: Vec2
-  down: boolean
-}
-
 interface Camera {
   position: Vec2
+  zoom: number
 }
 
 const wheel$ = new BehaviorSubject<number>(0)
@@ -46,24 +41,27 @@ const zoom$ = wheel$.pipe(
   }),
 )
 
-const pointer$ = new BehaviorSubject<Pointer | null>(null)
+const camera$ = new BehaviorSubject<Camera>({
+  position: new Vec2(),
+  zoom: 0.5,
+})
+const pointer$ = new Subject<PointerEvent>()
 
-const camera$ = pointer$.pipe(
-  pairwise(),
-  map(([prev, next]) => {
-    if (!(prev?.down && next?.down)) return null
-    return next.position.sub(prev.position).mul(-1)
-  }),
-  filter((delta): delta is Vec2 => delta !== null),
-  scan((acc, delta) => acc.add(delta), new Vec2()),
-  startWith(new Vec2()),
-  withLatestFrom(zoom$),
-  map(([position, zoom]) => {
+pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
+  if (next.type === 'pointermove' && next.pressure > 0) {
+    const { zoom, position } = camera$.value
     const cellSize = getCellSize(zoom)
-    return position.div(cellSize)
-  }),
-  map<Vec2, Camera>((position) => ({ position })),
-)
+    const delta = new Vec2(next.clientX, next.clientY)
+      .sub(new Vec2(prev.clientX, prev.clientY))
+      .mul(-1)
+      .div(cellSize)
+
+    camera$.next({
+      position: position.add(delta),
+      zoom,
+    })
+  }
+})
 
 const [useCamera] = bind(camera$)
 
@@ -173,18 +171,15 @@ function useEventListeners(container: HTMLDivElement | null) {
     container.addEventListener(
       'pointermove',
       (e) => {
-        pointer$.next({
-          position: new Vec2(e.clientX, e.clientY),
-          down: e.pressure > 0,
-        })
+        pointer$.next(e)
       },
       { signal },
     )
 
     container.addEventListener(
       'pointerleave',
-      () => {
-        pointer$.next(null)
+      (e) => {
+        pointer$.next(e)
       },
       { signal },
     )
@@ -236,14 +231,18 @@ function worldToScreen({
 
 const hover$ = combineLatest([pointer$, viewport$, camera$, zoom$]).pipe(
   map(([pointer, viewport, camera, zoom]) => {
-    if (pointer === null) return null
+    if (pointer.type === 'pointerleave' || pointer.type === 'pointerout') {
+      return null
+    }
+
     return screenToWorld({
-      screen: pointer.position,
+      screen: new Vec2(pointer.clientX, pointer.clientY),
       viewport,
       camera,
       zoom,
     })
   }),
+  startWith(null),
 )
 const [useHover] = bind(hover$)
 
