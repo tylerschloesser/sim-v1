@@ -82,10 +82,9 @@ function mod(n: number, m: number) {
 function GridContainer() {
   const position = usePosition()
   const viewport = useViewport()
-
   const zoom = useZoom()
 
-  const cellSize = MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
+  const cellSize = getCellSize(zoom)
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
@@ -207,8 +206,14 @@ function useEventListeners(container: HTMLDivElement | null) {
   }, [container])
 }
 
+function getCellSize(zoom: number): number {
+  return MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
+}
+
 function PointerContainer() {
   const pointer = usePointer()
+  const viewport = useViewport()
+  const zoom = useZoom()
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
