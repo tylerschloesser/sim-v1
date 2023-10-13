@@ -1,20 +1,13 @@
-import { Graphics, Stage } from '@pixi/react'
+import { Stage } from '@pixi/react'
 import { Subscribe } from '@react-rxjs/core'
-import * as PIXI from 'pixi.js'
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
-import {
-  pointer$,
-  useCamera,
-  useHover,
-  useViewport,
-  viewport$,
-  wheel$,
-} from './state.js'
-import { getCellSize, hackPointerEvent, worldToScreen } from './util.js'
-import { Vec2 } from './vec2.js'
 import { GridContainer } from './grid-container.js'
+import { HoverContainer } from './hover-container.js'
+import { pointer$, viewport$, wheel$ } from './state.js'
+import { hackPointerEvent } from './util.js'
+import { Vec2 } from './vec2.js'
 
 export function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
@@ -79,35 +72,6 @@ function useEventListeners(container: HTMLDivElement | null) {
       ac.abort()
     }
   }, [container])
-}
-
-function HoverContainer() {
-  const hover = useHover()
-  const viewport = useViewport()
-  const camera = useCamera()
-  const cellSize = getCellSize(camera.zoom)
-
-  const draw = useCallback(
-    (g: PIXI.Graphics) => {
-      g.clear()
-      g.lineStyle(2, 'red')
-      g.drawRect(0, 0, cellSize, cellSize)
-    },
-    [cellSize],
-  )
-
-  if (hover === null) return null
-
-  return (
-    <Graphics
-      draw={draw}
-      position={worldToScreen({
-        world: hover.floor(),
-        camera,
-        viewport,
-      })}
-    />
-  )
 }
 
 function useResizeObserver(container: HTMLDivElement | null) {
