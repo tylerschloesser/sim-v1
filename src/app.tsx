@@ -14,17 +14,15 @@ import {
 import invariant from 'tiny-invariant'
 import styles from './app.module.scss'
 import { Vec2 } from './vec2.js'
+import { clamp } from './util.js'
 
 interface Camera {
   position: Vec2
   zoom: number
 }
 
+const pointer$ = new Subject<PointerEvent>()
 const wheel$ = new Subject<WheelEvent>()
-
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value))
-}
 
 const MIN_ZOOM = 0
 const MAX_ZOOM = 1
@@ -33,7 +31,6 @@ const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: 0.5,
 })
-const pointer$ = new Subject<PointerEvent>()
 
 pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
   if (next.type === 'pointermove' && next.pressure > 0) {
