@@ -1,7 +1,7 @@
 import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import { useCallback } from 'react'
-import { useCamera, useViewport } from './state.js'
+import { useCamera, useConfig, useViewport } from './state.js'
 import { getCellSize } from './util.js'
 import { CHUNK_SIZE } from './const.js'
 
@@ -80,10 +80,14 @@ function ChunkGrid() {
 }
 
 export function GridContainer() {
-  return (
-    <>
-      <CellGrid />
-      <ChunkGrid />
-    </>
-  )
+  const config = useConfig()
+  if (config.showGrid) {
+    return (
+      <>
+        <CellGrid />
+        <ChunkGrid />
+      </>
+    )
+  }
+  return null
 }

@@ -24,3 +24,7 @@ export interface Chunk {
   position: Vec2
   cells: Cell[]
 }
+
+export interface Config {
+  showGrid: boolean
+}

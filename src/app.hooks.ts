@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import invariant from 'tiny-invariant'
-import { pointer$, viewport$, wheel$ } from './state.js'
+import { keyboard$, pointer$, viewport$, wheel$ } from './state.js'
 import { hackPointerEvent } from './util.js'
 import { Vec2 } from './vec2.js'
 
@@ -34,6 +34,14 @@ export function useEventListeners(container: HTMLDivElement | null) {
         e.preventDefault()
       },
       { signal, passive: false },
+    )
+
+    window.addEventListener(
+      'keyup',
+      (e) => {
+        keyboard$.next(e)
+      },
+      { signal },
     )
 
     return () => {

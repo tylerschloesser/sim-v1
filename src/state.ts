@@ -16,16 +16,33 @@ import {
   MIN_ZOOM,
   WHEEL_SCALE,
 } from './const.js'
-import { Camera, Chunk, ChunkId } from './types.js'
+import { Camera, Chunk, ChunkId, Config } from './types.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 
+export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
 export const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: INITIAL_ZOOM,
+})
+
+export const config$ = new BehaviorSubject<Config>({
+  showGrid: false,
+})
+export const [useConfig] = bind(config$)
+
+keyboard$.subscribe((e) => {
+  if (e.type === 'keyup') {
+    if (e.key === 'g') {
+      config$.next({
+        ...config$.value,
+        showGrid: !config$.value.showGrid,
+      })
+    }
+  }
 })
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
