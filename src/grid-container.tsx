@@ -7,42 +7,36 @@ import { getCellSize } from './util.js'
 export function GridContainer() {
   const camera = useCamera()
   const viewport = useViewport()
-  const cellSize = getCellSize(camera.zoom)
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
+      const cellSize = getCellSize(camera.zoom)
+
       g.clear()
 
       g.lineStyle({
-        width: 1,
-        color: '0x222',
+        width: 1 / cellSize,
+        color: '0x111',
       })
 
-      const cols = Math.ceil(viewport.x / cellSize) + 1
-      const rows = Math.ceil(viewport.y / cellSize) + 1
+      let topLeft = camera.position.sub(viewport.div(2).div(cellSize))
+      let bottomRight = topLeft.add(viewport.div(cellSize))
 
-      for (let col = 0; col < cols; col++) {
-        for (let row = 0; row < rows; row++) {
-          g.moveTo(col * cellSize, 0)
-          g.lineTo(col * cellSize, cellSize * rows)
+      topLeft = topLeft.floor()
+      bottomRight = bottomRight.ceil()
 
-          g.moveTo(0, row * cellSize)
-          g.lineTo(cellSize * cols, row * cellSize)
-        }
+      for (let x = topLeft.x; x <= bottomRight.x; x++) {
+        g.moveTo(x, topLeft.y)
+        g.lineTo(x, bottomRight.y)
+      }
+
+      for (let y = topLeft.y; y <= bottomRight.y; y++) {
+        g.moveTo(topLeft.x, y)
+        g.lineTo(bottomRight.x, y)
       }
     },
-    [viewport, cellSize],
+    [viewport, camera],
   )
 
-  return (
-    <Graphics
-      draw={draw}
-      position={camera.position
-        .mul(-1)
-        .mul(cellSize)
-        .add(viewport.div(2))
-        .mod(cellSize)
-        .sub(cellSize)}
-    />
-  )
+  return <Graphics draw={draw} />
 }

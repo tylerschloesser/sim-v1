@@ -38,13 +38,14 @@ export function App() {
           className={styles.app__canvas}
           options={{
             resizeTo: container,
+            antialias: true,
           }}
         >
           <Subscribe>
             <WorldContainer>
               <ChunkContainer />
+              <GridContainer />
             </WorldContainer>
-            <GridContainer />
             <HoverContainer />
           </Subscribe>
         </Stage>
