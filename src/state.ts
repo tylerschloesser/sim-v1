@@ -19,6 +19,7 @@ import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
 import invariant from 'tiny-invariant'
 import { Camera, CellType, Chunk, ChunkId } from './types.js'
+import { generateChunk } from './chunk-gen.js'
 
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
@@ -68,32 +69,6 @@ export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
     }
   }),
 )
-
-export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
-  const match = chunkId.match(/(-?\d+)\.(-?\d+)/)
-  invariant(match?.length === 3)
-  const [x, y] = match.slice(1)
-  invariant(x)
-  invariant(y)
-  return new Vec2(parseInt(x), parseInt(y)).mul(CHUNK_SIZE)
-}
-
-function generateChunk(chunkId: ChunkId): Chunk {
-  console.debug(`generating chunk ${chunkId}`)
-
-  const cells: Chunk['cells'] = new Array(CHUNK_SIZE ** 2)
-  for (let i = 0; i < cells.length; i++) {
-    cells[i] = {
-      type: Math.random() < 0.8 ? CellType.Grass : CellType.Water,
-    }
-  }
-
-  return {
-    id: chunkId,
-    position: chunkIdToPosition(chunkId),
-    cells,
-  }
-}
 
 visibleChunkIds$.subscribe((visibleChunkIds) => {
   const chunks = chunks$.value

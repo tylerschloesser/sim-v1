@@ -1,5 +1,6 @@
-import { MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import { Camera } from './types.js'
+import invariant from 'tiny-invariant'
+import { CHUNK_SIZE, MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
+import { Camera, ChunkId } from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
@@ -49,4 +50,13 @@ export function worldToScreen({
 
 export function isEqual<T>(a: Set<T>, b: Set<T>) {
   return a.size === b.size && [...a].every((v) => b.has(v))
+}
+
+export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
+  const match = chunkId.match(/(-?\d+)\.(-?\d+)/)
+  invariant(match?.length === 3)
+  const [x, y] = match.slice(1)
+  invariant(x)
+  invariant(y)
+  return new Vec2(parseInt(x), parseInt(y)).mul(CHUNK_SIZE)
 }
