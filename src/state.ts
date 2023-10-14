@@ -1,3 +1,4 @@
+import { bind } from '@react-rxjs/core'
 import {
   BehaviorSubject,
   Subject,
@@ -7,6 +8,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs'
+import { generateChunk } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
   INITIAL_ZOOM,
@@ -14,12 +16,9 @@ import {
   MIN_ZOOM,
   WHEEL_SCALE,
 } from './const.js'
+import { Camera, Chunk, ChunkId } from './types.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
-import { bind } from '@react-rxjs/core'
-import invariant from 'tiny-invariant'
-import { Camera, CellType, Chunk, ChunkId } from './types.js'
-import { generateChunk } from './chunk-gen.js'
 
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
