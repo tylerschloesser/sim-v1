@@ -23,6 +23,22 @@ function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   )
 }
 
+function BottomMenu() {
+  return (
+    <div className={styles['bottom-menu']}>
+      <button
+        className={styles['build-button']}
+        onPointerUp={(e) => {
+          console.log('todo build')
+          e.preventDefault()
+        }}
+      >
+        BUILD
+      </button>
+    </div>
+  )
+}
+
 export function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const rect = container?.getBoundingClientRect()
@@ -50,6 +66,7 @@ export function App() {
           </Subscribe>
         </Stage>
       )}
+      <BottomMenu />
     </div>
   )
 }
