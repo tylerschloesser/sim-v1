@@ -35,7 +35,21 @@ export function ChunkContainer() {
             .add(chunk.position)
           const cell = chunk.cells[i]
           invariant(cell)
-          g.beginFill(cell.type === CellType.Grass ? 'green' : 'blue')
+
+          let color: string
+          switch (cell.type) {
+            case CellType.Grass:
+              color = 'hsl(121, 67%, 26%)'
+              break
+            case CellType.WaterDeep:
+              color = 'hsl(220, 90%, 32%)'
+              break
+            case CellType.WaterShallow:
+              color = 'hsl(220, 64%, 64%)'
+              break
+          }
+
+          g.beginFill(color)
           g.drawRect(cellPosition.x, cellPosition.y, 1, 1)
         }
       }

@@ -67,9 +67,16 @@ export function generateChunk(chunkId: ChunkId): Chunk {
     const z = 1
     const noise = noise3d(x * scale.x, y * scale.y, z * scale.z)
 
-    cells[i] = {
-      type: noise < 0.5 ? CellType.Grass : CellType.Water,
+    let cellType: CellType
+    if (noise > 0.5) {
+      cellType = CellType.WaterDeep
+    } else if (noise > 0.3) {
+      cellType = CellType.WaterShallow
+    } else {
+      cellType = CellType.Grass
     }
+
+    cells[i] = { type: cellType }
   }
 
   return {
