@@ -6,7 +6,9 @@ export interface Camera {
 }
 
 export enum CellType {
-  Grass = 'grass',
+  Grass1 = 'grass-1',
+  Grass2 = 'grass-2',
+  Grass3 = 'grass-3',
   WaterDeep = 'water-deep',
   WaterShallow = 'water-shallow',
 }

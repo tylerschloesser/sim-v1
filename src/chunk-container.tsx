@@ -38,8 +38,14 @@ export function ChunkContainer() {
 
           let color: string
           switch (cell.type) {
-            case CellType.Grass:
+            case CellType.Grass1:
               color = 'hsl(121, 67%, 26%)'
+              break
+            case CellType.Grass2:
+              color = 'hsl(121, 67%, 20%)'
+              break
+            case CellType.Grass3:
+              color = 'hsl(121, 67%, 14%)'
               break
             case CellType.WaterDeep:
               color = 'hsl(220, 90%, 32%)'

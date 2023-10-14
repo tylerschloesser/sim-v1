@@ -1,16 +1,10 @@
-import { createNoise3D } from 'simplex-noise'
+import { NoiseFunction3D, createNoise3D } from 'simplex-noise'
 import { CHUNK_SIZE } from './const.js'
 import { CellType, Chunk, ChunkId } from './types.js'
 import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
 import invariant from 'tiny-invariant'
 import Prando from 'prando'
-
-const scale = {
-  x: 0.05,
-  y: 0.05,
-  z: 1,
-}
 
 const INITIAL_CHUNK_RADIUS = 3
 
@@ -27,7 +21,7 @@ function removeWater({
   for (let i = 0; i < chunk.cells.length; i++) {
     const cell = chunk.cells[i]
     invariant(cell)
-    cell.type = CellType.Grass
+    cell.type = CellType.Grass1
   }
 }
 
@@ -41,18 +35,29 @@ export function generateInitialChunks(): Record<ChunkId, Chunk> {
     }
   }
 
-  for (let x = -1; x < 1; x++) {
-    for (let y = -1; y < 1; y++) {
-      const chunkId = `${x}.${y}`
-      removeWater({ chunkId, chunks })
-    }
-  }
+  // for (let x = -1; x < 1; x++) {
+  //   for (let y = -1; y < 1; y++) {
+  //     const chunkId = `${x}.${y}`
+  //     removeWater({ chunkId, chunks })
+  //   }
+  // }
 
   return chunks
 }
 
 const rng = new Prando()
-const noise3d = createNoise3D(rng.next.bind(rng))
+const noise3d = (() => {
+  const original = createNoise3D(rng.next.bind(rng))
+  return (
+    x: number,
+    y: number,
+    z: number,
+    scale: { x: number; y: number; z: number } = { x: 1, y: 1, z: 1 },
+  ) => {
+    const v = original(x * scale.x, y * scale.y, z * scale.z)
+    return (v + 1) / 2
+  }
+})()
 
 export function generateChunk(chunkId: ChunkId): Chunk {
   console.debug(`generating chunk ${chunkId}`)
@@ -65,15 +70,39 @@ export function generateChunk(chunkId: ChunkId): Chunk {
 
     const { x, y } = chunkPosition.add(cellPosition)
     const z = 1
-    const noise = noise3d(x * scale.x, y * scale.y, z * scale.z)
 
     let cellType: CellType
-    if (noise > 0.5) {
-      cellType = CellType.WaterDeep
-    } else if (noise > 0.3) {
-      cellType = CellType.WaterShallow
-    } else {
-      cellType = CellType.Grass
+
+    // grass
+    {
+      const scale = {
+        x: 0.05,
+        y: 0.05,
+        z: 1,
+      }
+      const noise = noise3d(x, y, z, scale)
+      if (noise > 0.66) {
+        cellType = CellType.Grass1
+      } else if (noise > 0.33) {
+        cellType = CellType.Grass2
+      } else {
+        cellType = CellType.Grass3
+      }
+    }
+
+    // water
+    {
+      const scale = {
+        x: 0.05,
+        y: 0.05,
+        z: 2,
+      }
+      const noise = noise3d(x, y, z, scale)
+      if (noise > 0.8) {
+        cellType = CellType.WaterDeep
+      } else if (noise > 0.7) {
+        cellType = CellType.WaterShallow
+      }
     }
 
     cells[i] = { type: cellType }
