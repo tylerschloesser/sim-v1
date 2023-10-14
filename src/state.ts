@@ -11,6 +11,7 @@ import { CHUNK_SIZE, MAX_ZOOM, MIN_ZOOM } from './const.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
+import invariant from 'tiny-invariant'
 
 export interface Camera {
   position: Vec2
@@ -29,6 +30,7 @@ export interface Cell {
 export type ChunkId = string
 export interface Chunk {
   id: ChunkId
+  position: Vec2
   cells: Cell[]
 }
 
@@ -41,6 +43,7 @@ export const camera$ = new BehaviorSubject<Camera>({
 })
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>({})
+export const [useChunks] = bind(chunks$)
 
 const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   map(([camera, viewport]) => {
@@ -66,6 +69,7 @@ const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   }),
   distinctUntilChanged(isEqual),
 )
+export const [useVisibleChunkIds] = bind(visibleChunkIds$)
 
 export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
   map(([chunks, visibleChunkIds]) => {
@@ -79,13 +83,29 @@ export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
   }),
 )
 
+export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
+  const match = chunkId.match(/(-?\d+)\.(-?\d+)/)
+  invariant(match?.length === 3)
+  const [x, y] = match.slice(1)
+  invariant(x)
+  invariant(y)
+  return new Vec2(parseInt(x), parseInt(y)).mul(CHUNK_SIZE)
+}
+
 function generateChunk(chunkId: ChunkId): Chunk {
   console.debug(`generating chunk ${chunkId}`)
+
+  const cells: Chunk['cells'] = new Array(CHUNK_SIZE ** 2)
+  for (let i = 0; i < cells.length; i++) {
+    cells[i] = {
+      type: Math.random() < 0.8 ? CellType.Grass : CellType.Water,
+    }
+  }
+
   return {
     id: chunkId,
-    cells: new Array<Cell>(CHUNK_SIZE ** 2).fill({
-      type: CellType.Grass,
-    }),
+    position: chunkIdToPosition(chunkId),
+    cells,
   }
 }
 
