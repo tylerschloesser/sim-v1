@@ -25,6 +25,7 @@
     "prettier": "^3.0.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-router-dom": "^6.16.0",
     "rxjs": "^7.8.1",
     "sass": "^1.69.3",
     "sass-loader": "^13.3.2",
