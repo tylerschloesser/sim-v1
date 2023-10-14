@@ -1,23 +1,32 @@
 import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
-import { useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE } from './const.js'
-import { CellType, useChunks, useVisibleChunkIds } from './state.js'
+import { CellType, ChunkId, useChunks, useVisibleChunkIds } from './state.js'
 import { Vec2 } from './vec2.js'
+
+type DrawFn = (g: PIXI.Graphics) => void
 
 export function ChunkContainer() {
   const chunks = useChunks()
   const visibleChunkIds = useVisibleChunkIds()
 
-  const draw = useCallback(
-    (g: PIXI.Graphics) => {
-      g.clear()
+  const [cache, setCache] = useState<Record<ChunkId, DrawFn>>({})
 
-      for (const chunkId of visibleChunkIds) {
+  useEffect(() => {
+    const newChunks: Record<ChunkId, DrawFn> = {}
+
+    for (const chunkId of visibleChunkIds) {
+      // TODO this won't re-render if the chunk changes
+      if (cache[chunkId]) {
+        continue
+      }
+      newChunks[chunkId] = (g) => {
+        g.clear()
+
         const chunk = chunks[chunkId]
-
-        if (!chunk) continue
+        if (!chunk) return
 
         for (let i = 0; i < chunk.cells.length; i++) {
           const cellPosition = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
@@ -29,9 +38,12 @@ export function ChunkContainer() {
           g.drawRect(cellPosition.x, cellPosition.y, 1, 1)
         }
       }
-    },
-    [chunks, visibleChunkIds],
-  )
+    }
 
-  return <Graphics draw={draw} />
+    setCache((prev) => ({ ...prev, ...newChunks }))
+  }, [chunks, visibleChunkIds])
+
+  return Object.entries(cache).map(([chunkId, draw]) => (
+    <Graphics key={chunkId} draw={draw} />
+  ))
 }
