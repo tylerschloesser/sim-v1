@@ -1,29 +1,11 @@
+import Prando from 'prando'
 import { NoiseFunction3D, createNoise3D } from 'simplex-noise'
 import { CHUNK_SIZE } from './const.js'
 import { CellType, Chunk, ChunkId } from './types.js'
 import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
-import invariant from 'tiny-invariant'
-import Prando from 'prando'
 
 const INITIAL_CHUNK_RADIUS = 3
-
-function removeWater({
-  chunkId,
-  chunks,
-}: {
-  chunkId: ChunkId
-  chunks: Record<ChunkId, Chunk>
-}) {
-  const chunk = chunks[chunkId]
-  invariant(chunk)
-
-  for (let i = 0; i < chunk.cells.length; i++) {
-    const cell = chunk.cells[i]
-    invariant(cell)
-    cell.type = CellType.Grass1
-  }
-}
 
 export function generateInitialChunks(): Record<ChunkId, Chunk> {
   const chunks: Record<ChunkId, Chunk> = {}
@@ -35,26 +17,14 @@ export function generateInitialChunks(): Record<ChunkId, Chunk> {
     }
   }
 
-  // for (let x = -1; x < 1; x++) {
-  //   for (let y = -1; y < 1; y++) {
-  //     const chunkId = `${x}.${y}`
-  //     removeWater({ chunkId, chunks })
-  //   }
-  // }
-
   return chunks
 }
 
 const rng = new Prando()
-const noise3d = (() => {
+const noise3d: NoiseFunction3D = (() => {
   const original = createNoise3D(rng.next.bind(rng))
-  return (
-    x: number,
-    y: number,
-    z: number,
-    scale: { x: number; y: number; z: number } = { x: 1, y: 1, z: 1 },
-  ) => {
-    const v = original(x * scale.x, y * scale.y, z * scale.z)
+  return (x: number, y: number, z: number) => {
+    const v = original(x, y, z)
     return (v + 1) / 2
   }
 })()
@@ -66,38 +36,35 @@ export function generateChunk(chunkId: ChunkId): Chunk {
 
   const cells: Chunk['cells'] = new Array(CHUNK_SIZE ** 2)
   for (let i = 0; i < cells.length; i++) {
-    const cellPosition = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor()
-
-    const { x, y } = chunkPosition.add(cellPosition)
-    const z = 1
+    const cellPosition = chunkPosition.add(
+      new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor(),
+    )
+    const { x, y } = cellPosition
 
     let cellType: CellType
+    let tree: undefined | true
 
     // grass
     {
-      const scale = {
-        x: 0.05,
-        y: 0.05,
-        z: 1,
-      }
-      const noise = noise3d(x, y, z, scale)
-      if (noise > 0.66) {
-        cellType = CellType.Grass1
-      } else if (noise > 0.33) {
+      const scale = 0.01
+      cellType = CellType.Grass1
+      if (noise3d(x * scale, y * scale, 10) > 0.5) {
         cellType = CellType.Grass2
-      } else {
+      } else if (noise3d(x * scale, y * scale, 20) > 0.5) {
         cellType = CellType.Grass3
       }
     }
 
     // water
     {
-      const scale = {
-        x: 0.05,
-        y: 0.05,
-        z: 2,
+      const scale = 0.02
+      let noise = noise3d(x * scale, y * scale, 30)
+
+      const dist = cellPosition.dist()
+      if (dist < CHUNK_SIZE) {
+        noise = 0
       }
-      const noise = noise3d(x, y, z, scale)
+
       if (noise > 0.8) {
         cellType = CellType.WaterDeep
       } else if (noise > 0.7) {
@@ -105,7 +72,20 @@ export function generateChunk(chunkId: ChunkId): Chunk {
       }
     }
 
-    cells[i] = { type: cellType }
+    // tree
+    {
+      if (
+        [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cellType)
+      ) {
+        let scale = 0.01
+        let noise = noise3d(x * scale, y * scale, 40)
+        if (noise > 0.5) {
+          tree = true
+        }
+      }
+    }
+
+    cells[i] = { type: cellType, tree }
   }
 
   return {

@@ -15,6 +15,7 @@ export enum CellType {
 
 export interface Cell {
   type: CellType
+  tree?: true
 }
 
 export type ChunkId = string
