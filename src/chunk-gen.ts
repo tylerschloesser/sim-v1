@@ -12,6 +12,10 @@ const scale = {
   z: 1,
 }
 
+export function generateInitialChunks(): Record<ChunkId, Chunk> {
+  return {}
+}
+
 export function generateChunk(chunkId: ChunkId): Chunk {
   console.debug(`generating chunk ${chunkId}`)
 

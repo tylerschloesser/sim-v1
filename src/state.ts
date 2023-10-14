@@ -8,7 +8,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs'
-import { generateChunk } from './chunk-gen.js'
+import { generateChunk, generateInitialChunks } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
   INITIAL_ZOOM,
@@ -28,7 +28,9 @@ export const camera$ = new BehaviorSubject<Camera>({
   zoom: INITIAL_ZOOM,
 })
 
-export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>({})
+export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
+  generateInitialChunks(),
+)
 export const [useChunks] = bind(chunks$)
 
 const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
