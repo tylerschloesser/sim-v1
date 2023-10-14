@@ -6,3 +6,5 @@ export const MAX_CELL_SIZE = 100
 export const MIN_CELL_SIZE = 10
 
 export const CHUNK_SIZE = 32
+
+export const WHEEL_SCALE = 1000

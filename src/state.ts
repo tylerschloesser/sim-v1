@@ -7,7 +7,13 @@ import {
   pairwise,
   startWith,
 } from 'rxjs'
-import { CHUNK_SIZE, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from './const.js'
+import {
+  CHUNK_SIZE,
+  INITIAL_ZOOM,
+  MAX_ZOOM,
+  MIN_ZOOM,
+  WHEEL_SCALE,
+} from './const.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
@@ -160,7 +166,11 @@ pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
 wheel$.subscribe((e) => {
   const zoom = {
     prev: camera$.value.zoom,
-    next: clamp(camera$.value.zoom + e.deltaY / -1000, MIN_ZOOM, MAX_ZOOM),
+    next: clamp(
+      camera$.value.zoom + e.deltaY / -WHEEL_SCALE,
+      MIN_ZOOM,
+      MAX_ZOOM,
+    ),
   }
 
   if (zoom.prev === zoom.next) {
