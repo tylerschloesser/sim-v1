@@ -3,6 +3,7 @@ import { CHUNK_SIZE } from './const.js'
 import { CellType, Chunk, ChunkId } from './types.js'
 import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
+import invariant from 'tiny-invariant'
 
 const noise3d = createNoise3D()
 
@@ -12,8 +13,43 @@ const scale = {
   z: 1,
 }
 
+const INITIAL_CHUNK_RADIUS = 3
+
+function removeWater({
+  chunkId,
+  chunks,
+}: {
+  chunkId: ChunkId
+  chunks: Record<ChunkId, Chunk>
+}) {
+  const chunk = chunks[chunkId]
+  invariant(chunk)
+
+  for (let i = 0; i < chunk.cells.length; i++) {
+    const cell = chunk.cells[i]
+    invariant(cell)
+    cell.type = CellType.Grass
+  }
+}
+
 export function generateInitialChunks(): Record<ChunkId, Chunk> {
-  return {}
+  const chunks: Record<ChunkId, Chunk> = {}
+
+  for (let x = -INITIAL_CHUNK_RADIUS; x < INITIAL_CHUNK_RADIUS; x++) {
+    for (let y = -INITIAL_CHUNK_RADIUS; y < INITIAL_CHUNK_RADIUS; y++) {
+      const chunkId = `${x}.${y}`
+      chunks[chunkId] = generateChunk(chunkId)
+    }
+  }
+
+  for (let x = -1; x < 1; x++) {
+    for (let y = -1; y < 1; y++) {
+      const chunkId = `${x}.${y}`
+      removeWater({ chunkId, chunks })
+    }
+  }
+
+  return chunks
 }
 
 export function generateChunk(chunkId: ChunkId): Chunk {
