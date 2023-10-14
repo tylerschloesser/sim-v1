@@ -1,23 +1,14 @@
+import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
-import { Container, Graphics } from '@pixi/react'
-import {
-  CellType,
-  useCamera,
-  useChunks,
-  useViewport,
-  useVisibleChunkIds,
-} from './state.js'
 import { useCallback } from 'react'
-import { CHUNK_SIZE } from './const.js'
-import { Vec2 } from './vec2.js'
 import invariant from 'tiny-invariant'
-import { getCellSize } from './util.js'
+import { CHUNK_SIZE } from './const.js'
+import { CellType, useChunks, useVisibleChunkIds } from './state.js'
+import { Vec2 } from './vec2.js'
 
 export function ChunkContainer() {
   const chunks = useChunks()
   const visibleChunkIds = useVisibleChunkIds()
-  const camera = useCamera()
-  const viewport = useViewport()
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
@@ -42,14 +33,5 @@ export function ChunkContainer() {
     [chunks, visibleChunkIds],
   )
 
-  const cellSize = getCellSize(camera.zoom)
-
-  return (
-    <Container
-      position={camera.position.mul(cellSize * -1).add(viewport.div(2))}
-      scale={cellSize}
-    >
-      <Graphics draw={draw} />
-    </Container>
-  )
+  return <Graphics draw={draw} />
 }
