@@ -71,6 +71,43 @@ visibleChunkIds$.subscribe((visibleChunkIds) => {
   console.log(visibleChunkIds)
 })
 
+export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
+  map(([chunks, visibleChunkIds]) => {
+    const visibleChunks: Record<ChunkId, Chunk> = {}
+    for (const chunkId of visibleChunkIds) {
+      const chunk = chunks[chunkId]
+      if (chunk) {
+        visibleChunks[chunkId] = chunk
+      }
+    }
+  }),
+)
+
+function generateChunk(chunkId: ChunkId): Chunk {
+  console.debug(`generating chunk ${chunkId}`)
+  return {
+    id: chunkId,
+    cells: new Array<Cell>(CHUNK_SIZE ** 2).fill({
+      type: CellType.Grass,
+    }),
+  }
+}
+
+visibleChunkIds$.subscribe((visibleChunkIds) => {
+  const chunks = chunks$.value
+  const newChunks: Record<ChunkId, Chunk> = {}
+
+  for (const chunkId of visibleChunkIds) {
+    if (!chunks[chunkId]) {
+      newChunks[chunkId] = generateChunk(chunkId)
+    }
+  }
+
+  if (Object.keys(newChunks).length > 0) {
+    chunks$.next({ ...chunks, ...newChunks })
+  }
+})
+
 export const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
   map(([pointer, viewport, camera]) => {
     if (pointer.type === 'pointerleave' || pointer.type === 'pointerout') {
