@@ -5,7 +5,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve"
+    "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve",
+    "postinstall": "patch-package"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
     "@types/react-dom": "^18.2.13",
     "css-loader": "^6.8.1",
     "html-webpack-plugin": "^5.5.3",
+    "patch-package": "^8.0.0",
     "pixi.js": "^7.3.1",
     "postcss-loader": "^7.3.3",
     "postcss-preset-env": "^9.2.0",

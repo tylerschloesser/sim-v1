@@ -4,8 +4,7 @@ import { CellType, Chunk, ChunkId } from './types.js'
 import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
 import invariant from 'tiny-invariant'
-
-const noise3d = createNoise3D()
+import Prando from 'prando'
 
 const scale = {
   x: 0.05,
@@ -51,6 +50,9 @@ export function generateInitialChunks(): Record<ChunkId, Chunk> {
 
   return chunks
 }
+
+const rng = new Prando()
+const noise3d = createNoise3D(rng.next.bind(rng))
 
 export function generateChunk(chunkId: ChunkId): Chunk {
   console.debug(`generating chunk ${chunkId}`)
