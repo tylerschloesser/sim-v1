@@ -5,6 +5,7 @@ import styles from './app.module.scss'
 import { GridContainer } from './grid-container.js'
 import { HoverContainer } from './hover-container.js'
 import { useEventListeners, useResizeObserver } from './app.hooks.js'
+import { ChunkContainer } from './chunk-container.js'
 
 export function App() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
@@ -24,6 +25,7 @@ export function App() {
           }}
         >
           <Subscribe>
+            <ChunkContainer />
             <GridContainer />
             <HoverContainer />
           </Subscribe>
