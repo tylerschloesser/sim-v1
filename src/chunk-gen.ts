@@ -46,19 +46,22 @@ export function generateChunk(chunkId: ChunkId): Chunk {
 
     // grass
     {
-      const scale = 0.01
-      cellType = CellType.Grass1
-      if (noise3d(x * scale, y * scale, 10) > 0.5) {
+      let noise = noise3d(x * 0.01, y * 0.01, 10)
+      noise = noise + noise3d(x * 0.1, y * 0.1, 20) / 2
+
+      cellType = CellType.Grass3
+      if (noise > 0.66) {
+        cellType = CellType.Grass1
+      } else if (noise > 0.33) {
         cellType = CellType.Grass2
-      } else if (noise3d(x * scale, y * scale, 20) > 0.5) {
-        cellType = CellType.Grass3
       }
     }
 
     // water
     {
       const scale = 0.02
-      let noise = noise3d(x * scale, y * scale, 30)
+      let noise = noise3d(x * scale, y * scale, 30) * 0.85
+      noise += noise3d(x * 0.1, y * 0.1, 35) * 0.15
 
       const dist = cellPosition.dist()
       if (dist < CHUNK_SIZE) {
