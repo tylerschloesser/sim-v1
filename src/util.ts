@@ -46,3 +46,7 @@ export function worldToScreen({
   const cellSize = getCellSize(camera.zoom)
   return world.sub(camera.position).mul(cellSize).add(viewport.div(2))
 }
+
+export function isEqual<T>(a: Set<T>, b: Set<T>) {
+  return a.size === b.size && [...a].every((v) => b.has(v))
+}

@@ -2,12 +2,13 @@ import {
   BehaviorSubject,
   Subject,
   combineLatest,
+  distinctUntilChanged,
   map,
   pairwise,
   startWith,
 } from 'rxjs'
-import { MAX_ZOOM, MIN_ZOOM } from './const.js'
-import { clamp, getCellSize, screenToWorld } from './util.js'
+import { CHUNK_SIZE, MAX_ZOOM, MIN_ZOOM } from './const.js'
+import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
 
@@ -16,12 +17,58 @@ export interface Camera {
   zoom: number
 }
 
+export enum CellType {
+  Grass = 'grass',
+  Water = 'water',
+}
+
+export interface Cell {
+  type: CellType
+}
+
+export type ChunkId = string
+export interface Chunk {
+  id: ChunkId
+  cells: Cell[]
+}
+
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
 export const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: 0.5,
+})
+
+export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>({})
+
+const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
+  map(([camera, viewport]) => {
+    const visibleChunkIds = new Set<ChunkId>()
+
+    const cellSize = getCellSize(camera.zoom)
+    let topLeft = camera.position
+      .sub(viewport.div(2).div(cellSize))
+      .div(CHUNK_SIZE)
+
+    let bottomRight = topLeft.add(viewport.div(cellSize).div(CHUNK_SIZE))
+
+    topLeft = topLeft.floor()
+    bottomRight = bottomRight.floor()
+
+    for (let x = topLeft.x; x <= bottomRight.x; x++) {
+      for (let y = topLeft.y; y <= bottomRight.y; y++) {
+        visibleChunkIds.add(`${x}.${y}`)
+      }
+    }
+
+    return visibleChunkIds
+  }),
+  distinctUntilChanged(isEqual),
+)
+
+visibleChunkIds$.subscribe((visibleChunkIds) => {
+  console.log(visibleChunkIds)
 })
 
 export const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
