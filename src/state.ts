@@ -7,7 +7,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs'
-import { CHUNK_SIZE, MAX_ZOOM, MIN_ZOOM } from './const.js'
+import { CHUNK_SIZE, INITIAL_ZOOM, MAX_ZOOM, MIN_ZOOM } from './const.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
@@ -39,7 +39,7 @@ export const wheel$ = new Subject<WheelEvent>()
 export const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
 export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
-  zoom: 0.5,
+  zoom: INITIAL_ZOOM,
 })
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>({})
