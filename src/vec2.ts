@@ -50,6 +50,10 @@ export class Vec2 {
     return new Vec2(((this.x % m) + m) % m, ((this.y % m) + m) % m)
   }
 
+  dist(): number {
+    return Math.sqrt(this.x ** 2 + this.y ** 2)
+  }
+
   static isEqual(a: Vec2, b: Vec2) {
     return a.x === b.x && a.y === b.y
   }
