@@ -59,8 +59,7 @@ export function generateChunk(chunkId: ChunkId): Chunk {
 
     // water
     {
-      const scale = 0.02
-      let noise = noise3d(x * scale, y * scale, 30) * 0.85
+      let noise = noise3d(x * 0.02, y * 0.02, 30) * 0.85
       noise += noise3d(x * 0.1, y * 0.1, 35) * 0.15
 
       const dist = cellPosition.dist()
@@ -80,8 +79,8 @@ export function generateChunk(chunkId: ChunkId): Chunk {
       if (
         [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cellType)
       ) {
-        let scale = 0.03
-        let noise = noise3d(x * scale, y * scale, 40)
+        let noise = noise3d(x * 0.02, y * 0.02, 40) * 0.7
+        noise += noise3d(x * 0.1, y * 0.1, 45) * 0.3
 
         const dist = cellPosition.dist()
         if (dist < CHUNK_SIZE) {
