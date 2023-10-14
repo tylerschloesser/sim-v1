@@ -77,10 +77,20 @@ export function generateChunk(chunkId: ChunkId): Chunk {
       if (
         [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cellType)
       ) {
-        let scale = 0.01
+        let scale = 0.03
         let noise = noise3d(x * scale, y * scale, 40)
+
+        const dist = cellPosition.dist()
+        if (dist < CHUNK_SIZE) {
+          noise = 0
+        }
+
         if (noise > 0.5) {
-          tree = true
+          noise = (noise - 0.5) * 2
+
+          if (noise * noise3d(x * 1, y * 1, 50) > 0.2) {
+            tree = true
+          }
         }
       }
     }

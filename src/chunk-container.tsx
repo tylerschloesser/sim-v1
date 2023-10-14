@@ -60,7 +60,7 @@ export function ChunkContainer() {
 
           if (cell.tree) {
             g.beginFill('hsl(121, 67%, 8%)')
-            g.drawCircle(cellPosition.x + 0.5, cellPosition.y + 0.5, 0.5)
+            g.drawCircle(cellPosition.x + 0.5, cellPosition.y + 0.5, 0.45)
           }
         }
       }
