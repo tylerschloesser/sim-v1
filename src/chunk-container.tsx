@@ -3,8 +3,9 @@ import * as PIXI from 'pixi.js'
 import { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE } from './const.js'
-import { CellType, ChunkId, useChunks, useVisibleChunkIds } from './state.js'
+import { useChunks, useVisibleChunkIds } from './state.js'
 import { Vec2 } from './vec2.js'
+import { CellType, ChunkId } from './types.js'
 
 type DrawFn = (g: PIXI.Graphics) => void
 

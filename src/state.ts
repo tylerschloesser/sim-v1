@@ -18,27 +18,7 @@ import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 import { bind } from '@react-rxjs/core'
 import invariant from 'tiny-invariant'
-
-export interface Camera {
-  position: Vec2
-  zoom: number
-}
-
-export enum CellType {
-  Grass = 'grass',
-  Water = 'water',
-}
-
-export interface Cell {
-  type: CellType
-}
-
-export type ChunkId = string
-export interface Chunk {
-  id: ChunkId
-  position: Vec2
-  cells: Cell[]
-}
+import { Camera, CellType, Chunk, ChunkId } from './types.js'
 
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()

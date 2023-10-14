@@ -1,5 +1,5 @@
 import { MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import { Camera } from './state.js'
+import { Camera } from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
