@@ -67,10 +67,6 @@ const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   distinctUntilChanged(isEqual),
 )
 
-visibleChunkIds$.subscribe((visibleChunkIds) => {
-  console.log(visibleChunkIds)
-})
-
 export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
   map(([chunks, visibleChunkIds]) => {
     const visibleChunks: Record<ChunkId, Chunk> = {}
