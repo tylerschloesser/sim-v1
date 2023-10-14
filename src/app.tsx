@@ -24,8 +24,8 @@ export function App() {
           }}
         >
           <Subscribe>
-            <HoverContainer />
             <GridContainer />
+            <HoverContainer />
           </Subscribe>
         </Stage>
       )}
