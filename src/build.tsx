@@ -12,7 +12,9 @@ export function Build() {
 
   useEffect(() => {
     build$.next({ entityType })
-    return build$.next(null)
+    return () => {
+      build$.next(null)
+    }
   }, [entityType])
 
   return <div className={styles.build}>todo build {entityType}</div>

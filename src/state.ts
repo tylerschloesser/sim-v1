@@ -30,6 +30,7 @@ export const camera$ = new BehaviorSubject<Camera>({
 })
 
 export const build$ = new BehaviorSubject<BuildState | null>(null)
+export const [useBuild] = bind(build$)
 
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
