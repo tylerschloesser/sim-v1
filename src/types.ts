@@ -35,4 +35,5 @@ export enum EntityType {
 
 export interface BuildState {
   entityType: EntityType
+  position: Vec2
 }

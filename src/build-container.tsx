@@ -12,10 +12,10 @@ export function BuildContainer() {
       g.beginFill('red')
       g.drawRect(0, 0, 2, 2)
     },
-    [build],
+    [build?.entityType],
   )
 
   if (build === null) return null
 
-  return <Graphics draw={draw} />
+  return <Graphics position={build.position} draw={draw} />
 }

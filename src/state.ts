@@ -50,6 +50,7 @@ combineLatest([buildEntityType$, camera$]).subscribe(([entityType, camera]) => {
   }
 
   build$.next({
+    position: camera.position,
     entityType,
   })
 })
