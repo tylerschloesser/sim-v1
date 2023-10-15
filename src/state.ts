@@ -28,6 +28,7 @@ import {
   Entity,
   EntityId,
   EntityType,
+  PointerMode,
 } from './types.js'
 import {
   canBuild,
@@ -62,12 +63,24 @@ export const config$ = new BehaviorSubject<Config>({
 export const [useConfig] = bind(config$)
 
 keyboard$.subscribe((e) => {
-  if (e.type === 'keyup') {
-    if (e.key === 'g') {
-      config$.next({
-        ...config$.value,
-        showGrid: !config$.value.showGrid,
-      })
+  switch (e.type) {
+    case 'keyup': {
+      if (e.key === 'g') {
+        config$.next({
+          ...config$.value,
+          showGrid: !config$.value.showGrid,
+        })
+      }
+      if (e.key === 'Shift') {
+        pointerMode$.next(PointerMode.Move)
+      }
+      break
+    }
+    case 'keydown': {
+      if (e.key === 'Shift') {
+        pointerMode$.next(PointerMode.Select)
+      }
+      break
     }
   }
 })
@@ -261,3 +274,9 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   },
 })
 export const [useAgents] = bind(agents$)
+
+export const pointerMode$ = new BehaviorSubject<PointerMode>(PointerMode.Move)
+
+pointerMode$.subscribe((pointerMode) => {
+  console.log('pointer mode', pointerMode)
+})

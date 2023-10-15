@@ -44,6 +44,14 @@ export function useEventListeners(container: HTMLDivElement | null) {
       { signal },
     )
 
+    window.addEventListener(
+      'keydown',
+      (e) => {
+        keyboard$.next(e)
+      },
+      { signal },
+    )
+
     return () => {
       ac.abort()
     }

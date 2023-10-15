@@ -62,3 +62,8 @@ export interface Agent {
   id: AgentId
   position: Vec2
 }
+
+export enum PointerMode {
+  Move = 'move',
+  Select = 'select',
+}
