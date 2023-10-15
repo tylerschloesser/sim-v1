@@ -10,6 +10,7 @@ import { getCellSize } from './util.js'
 import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
 import { BuildContainer } from './build-container.js'
+import { EntityContainer } from './entity-container.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -46,6 +47,7 @@ export function World() {
           <Subscribe>
             <WorldContainer>
               <ChunkContainer />
+              <EntityContainer />
               <BuildContainer />
               <GridContainer />
             </WorldContainer>
