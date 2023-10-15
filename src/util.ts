@@ -77,5 +77,6 @@ export function getCell(chunks: Record<ChunkId, Chunk>, position: Vec2): Cell {
 
 export function canBuild(cell: Cell): boolean {
   if (cell.tree) return false
+  if (cell.entityId) return false
   return [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cell.type)
 }

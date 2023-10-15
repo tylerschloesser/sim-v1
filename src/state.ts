@@ -223,8 +223,6 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
 )
 
 confirmBuild$.subscribe((build) => {
-  console.log('confirm build', build)
-
   let entity: Entity
   switch (build.entityType) {
     case EntityType.House:
@@ -241,4 +239,15 @@ confirmBuild$.subscribe((build) => {
     ...entities$.value,
     [entity.id]: entity,
   })
+
+  const chunks = chunks$.value
+
+  for (let x = 0; x < entity.size.x; x++) {
+    for (let y = 0; y < entity.size.y; y++) {
+      const cell = getCell(chunks, entity.position.add(new Vec2(x, y)))
+      cell.entityId = entity.id
+    }
+  }
+
+  chunks$.next({ ...chunks })
 })

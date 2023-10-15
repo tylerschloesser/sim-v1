@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import styles from './build.module.scss'
 import { confirmBuild, setBuildEntityType, useBuild } from './state.js'
@@ -7,12 +7,10 @@ import { BuildState, EntityType } from './types.js'
 
 function BuildButton({ build }: { build: BuildState }) {
   let onPointerUp
-  const navigate = useNavigate()
 
   if (build.valid) {
     onPointerUp = () => {
       confirmBuild(build)
-      navigate('/')
     }
   }
 
