@@ -32,3 +32,7 @@ export interface Config {
 export enum EntityType {
   House = 'house',
 }
+
+export interface BuildState {
+  entityType: EntityType
+}

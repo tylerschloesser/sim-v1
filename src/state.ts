@@ -16,7 +16,7 @@ import {
   MIN_ZOOM,
   WHEEL_SCALE,
 } from './const.js'
-import { Camera, Chunk, ChunkId, Config } from './types.js'
+import { BuildState, Camera, Chunk, ChunkId, Config } from './types.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 
@@ -28,6 +28,8 @@ export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: INITIAL_ZOOM,
 })
+
+export const build$ = new BehaviorSubject<BuildState | null>(null)
 
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
