@@ -5,6 +5,10 @@ import styles from './build.module.scss'
 import { setBuildEntityType } from './state.js'
 import { EntityType } from './types.js'
 
+function BuildButton() {
+  return <button className={styles['build-button']}>BUILD</button>
+}
+
 export function Build() {
   const { entityType } = useParams<{ entityType: EntityType }>()
   invariant(entityType)
@@ -17,5 +21,9 @@ export function Build() {
     }
   }, [entityType])
 
-  return <div className={styles.build}>todo build {entityType}</div>
+  return (
+    <div className={styles.build}>
+      <BuildButton />
+    </div>
+  )
 }
