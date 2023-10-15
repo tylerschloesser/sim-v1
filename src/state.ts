@@ -49,8 +49,11 @@ combineLatest([buildEntityType$, camera$]).subscribe(([entityType, camera]) => {
     return
   }
 
+  const size = new Vec2(2)
+
   build$.next({
     position: camera.position,
+    size,
     entityType,
   })
 })

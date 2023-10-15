@@ -8,11 +8,12 @@ export function BuildContainer() {
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
+      if (!build) return
       g.clear()
       g.beginFill('red')
-      g.drawRect(0, 0, 2, 2)
+      g.drawRect(0, 0, build.size.x, build.size.y)
     },
-    [build?.entityType],
+    [build],
   )
 
   if (build === null) return null
