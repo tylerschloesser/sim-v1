@@ -46,6 +46,10 @@ export class Vec2 {
     return new Vec2(Math.ceil(this.x), Math.ceil(this.y))
   }
 
+  round(): Vec2 {
+    return new Vec2(Math.round(this.x), Math.round(this.y))
+  }
+
   mod(m: number): Vec2 {
     return new Vec2(((this.x % m) + m) % m, ((this.y % m) + m) % m)
   }
