@@ -1,13 +1,27 @@
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import invariant from 'tiny-invariant'
 import styles from './build.module.scss'
-import { setBuildEntityType, useBuild } from './state.js'
-import { EntityType } from './types.js'
+import { confirmBuild, setBuildEntityType, useBuild } from './state.js'
+import { BuildState, EntityType } from './types.js'
 
-function BuildButton({ disabled }: { disabled: boolean }) {
+function BuildButton({ build }: { build: BuildState }) {
+  let onPointerUp
+  const navigate = useNavigate()
+
+  if (build.valid) {
+    onPointerUp = () => {
+      confirmBuild(build)
+      navigate('/')
+    }
+  }
+
   return (
-    <button disabled={disabled} className={styles['build-button']}>
+    <button
+      disabled={!build.valid}
+      className={styles['build-button']}
+      onPointerUp={onPointerUp}
+    >
       BUILD
     </button>
   )
@@ -31,7 +45,7 @@ export function Build() {
 
   return (
     <div className={styles.build}>
-      <BuildButton disabled={!build.valid} />
+      <BuildButton build={build} />
     </div>
   )
 }

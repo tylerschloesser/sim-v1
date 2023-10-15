@@ -23,6 +23,8 @@ import {
   Chunk,
   ChunkId,
   Config,
+  Entity,
+  EntityId,
   EntityType,
 } from './types.js'
 import {
@@ -47,6 +49,8 @@ export const camera$ = new BehaviorSubject<Camera>({
 export const [buildEntityType$, setBuildEntityType] =
   createSignal<EntityType | null>()
 
+export const [confirmBuild$, confirmBuild] = createSignal<BuildState>()
+
 export const build$ = new BehaviorSubject<BuildState | null>(null)
 export const [useBuild] = bind(build$)
 
@@ -65,6 +69,8 @@ keyboard$.subscribe((e) => {
     }
   }
 })
+
+export const entities$ = new BehaviorSubject<Record<EntityId, Entity>>({})
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
   generateInitialChunks(),
@@ -214,3 +220,24 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
     })
   },
 )
+
+confirmBuild$.subscribe((build) => {
+  console.log('confirm build', build)
+
+  let entity: Entity
+  switch (build.entityType) {
+    case EntityType.House:
+      entity = {
+        id: `entity.${build.position.x}.${build.position.y}`,
+        type: EntityType.House,
+        position: build.position,
+        size: build.size,
+      }
+      break
+  }
+
+  entities$.next({
+    ...entities$.value,
+    [entity.id]: entity,
+  })
+})

@@ -16,6 +16,7 @@ export enum CellType {
 export interface Cell {
   type: CellType
   tree?: true
+  entityId?: EntityId
 }
 
 export type ChunkId = string
@@ -39,3 +40,18 @@ export interface BuildState {
   size: Vec2
   valid: boolean
 }
+
+export type EntityId = string
+
+export interface BaseEntity {
+  id: EntityId
+  type: EntityType
+  position: Vec2
+  size: Vec2
+}
+
+export interface HouseEntity extends BaseEntity {
+  type: EntityType.House
+}
+
+export type Entity = HouseEntity

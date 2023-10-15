@@ -7,10 +7,8 @@ export function WorldRoot() {
     <div className={styles['world-root']}>
       <button
         className={styles['build-button']}
-        onPointerUp={(e) => {
+        onPointerUp={() => {
           navigate('build/house')
-          console.log('todo build')
-          e.preventDefault()
         }}
       >
         BUILD
