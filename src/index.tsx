@@ -4,6 +4,7 @@ import invariant from 'tiny-invariant'
 import './index.scss'
 import { World } from './world.js'
 import { WorldRoot } from './world-root.js'
+import { Build } from './build.js'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -20,7 +21,7 @@ const router = createBrowserRouter([
       },
       {
         path: 'build',
-        element: <>todo build</>,
+        element: <Build />,
       },
     ],
   },
