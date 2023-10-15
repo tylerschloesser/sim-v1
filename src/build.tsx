@@ -1,9 +1,9 @@
-import { useParams } from 'react-router-dom'
-import styles from './build.module.scss'
-import invariant from 'tiny-invariant'
-import { EntityType } from './types.js'
 import { useEffect } from 'react'
-import { build$ } from './state.js'
+import { useParams } from 'react-router-dom'
+import invariant from 'tiny-invariant'
+import styles from './build.module.scss'
+import { setBuildEntityType } from './state.js'
+import { EntityType } from './types.js'
 
 export function Build() {
   const { entityType } = useParams<{ entityType: EntityType }>()
@@ -11,9 +11,9 @@ export function Build() {
   invariant(Object.values(EntityType).includes(entityType))
 
   useEffect(() => {
-    build$.next({ entityType })
+    setBuildEntityType(entityType)
     return () => {
-      build$.next(null)
+      setBuildEntityType(null)
     }
   }, [entityType])
 

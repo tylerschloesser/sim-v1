@@ -1,4 +1,5 @@
 import { bind } from '@react-rxjs/core'
+import { createSignal } from '@react-rxjs/utils'
 import {
   BehaviorSubject,
   Subject,
@@ -16,7 +17,14 @@ import {
   MIN_ZOOM,
   WHEEL_SCALE,
 } from './const.js'
-import { BuildState, Camera, Chunk, ChunkId, Config } from './types.js'
+import {
+  BuildState,
+  Camera,
+  Chunk,
+  ChunkId,
+  Config,
+  EntityType,
+} from './types.js'
 import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
 import { Vec2 } from './vec2.js'
 
@@ -29,8 +37,22 @@ export const camera$ = new BehaviorSubject<Camera>({
   zoom: INITIAL_ZOOM,
 })
 
+export const [buildEntityType$, setBuildEntityType] =
+  createSignal<EntityType | null>()
+
 export const build$ = new BehaviorSubject<BuildState | null>(null)
 export const [useBuild] = bind(build$)
+
+combineLatest([buildEntityType$, camera$]).subscribe(([entityType, camera]) => {
+  if (entityType === null) {
+    build$.next(null)
+    return
+  }
+
+  build$.next({
+    entityType,
+  })
+})
 
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
