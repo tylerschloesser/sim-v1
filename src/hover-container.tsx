@@ -1,7 +1,7 @@
 import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import { useCallback } from 'react'
-import { useCamera, useHover, useViewport } from './state.js'
+import { useCamera, useHover, useSelect, useViewport } from './state.js'
 import { getCellSize, worldToScreen } from './util.js'
 
 export function HoverContainer() {
@@ -9,6 +9,7 @@ export function HoverContainer() {
   const viewport = useViewport()
   const camera = useCamera()
   const cellSize = getCellSize(camera.zoom)
+  const select = useSelect()
 
   const draw = useCallback(
     (g: PIXI.Graphics) => {
@@ -20,6 +21,7 @@ export function HoverContainer() {
   )
 
   if (hover === null) return null
+  if (select !== null) return null
 
   return (
     <Graphics

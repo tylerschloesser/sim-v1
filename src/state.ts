@@ -52,7 +52,7 @@ export const camera$ = new BehaviorSubject<Camera>({
   zoom: INITIAL_ZOOM,
 })
 export const select$ = new BehaviorSubject<Select | null>(null)
-export const [useSelection] = bind(select$)
+export const [useSelect] = bind(select$)
 export const pointerMode$ = new BehaviorSubject<PointerMode>(PointerMode.Move)
 
 export const [buildEntityType$, setBuildEntityType] =
@@ -177,39 +177,47 @@ export const [useHover] = bind(hover$)
 
 combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
   ([[prev, next], mode]) => {
-    if (next.type === 'pointermove' && next.pressure > 0) {
-      if (mode === PointerMode.Move) {
-        const { zoom, position } = camera$.value
-        const cellSize = getCellSize(zoom)
+    switch (next.type) {
+      case 'pointermove': {
+        if (next.pressure === 0) return
 
-        const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
+        if (mode === PointerMode.Move) {
+          const { zoom, position } = camera$.value
+          const cellSize = getCellSize(zoom)
 
-        camera$.next({
-          position: position.add(delta),
-          zoom,
-        })
-      } else {
-        invariant(mode === PointerMode.Select)
+          const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
 
-        const cellPosition = screenToWorld({
-          screen: new Vec2(next),
-          camera: camera$.value,
-          viewport: viewport$.value,
-        }).floor()
-
-        if (select$.value === null) {
-          select$.next({
-            start: cellPosition,
+          camera$.next({
+            position: position.add(delta),
+            zoom,
           })
         } else {
-          select$.next({
-            start: select$.value.start,
-            end: cellPosition,
-          })
+          invariant(mode === PointerMode.Select)
+
+          const cellPosition = screenToWorld({
+            screen: new Vec2(next),
+            camera: camera$.value,
+            viewport: viewport$.value,
+          }).floor()
+
+          if (select$.value === null) {
+            select$.next({
+              start: cellPosition,
+            })
+          } else {
+            select$.next({
+              start: select$.value.start,
+              end: cellPosition,
+            })
+          }
         }
+
+        break
       }
-    } else if (next.type === 'pointerup') {
-      select$.next(null)
+      case 'pointerup': {
+        select$.next(null)
+        break
+      }
     }
   },
 )
@@ -309,3 +317,9 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   },
 })
 export const [useAgents] = bind(agents$)
+
+pointerMode$.subscribe((mode) => {
+  if (mode === PointerMode.Move) {
+    select$.next(null)
+  }
+})

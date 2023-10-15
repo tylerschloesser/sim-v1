@@ -12,6 +12,7 @@ import styles from './world.module.scss'
 import { BuildContainer } from './build-container.js'
 import { EntityContainer } from './entity-container.js'
 import { AgentContainer } from './agent-container.js'
+import { SelectContainer } from './select-container.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -51,6 +52,7 @@ export function World() {
               <EntityContainer />
               <AgentContainer />
               <BuildContainer />
+              <SelectContainer />
               <GridContainer />
             </WorldContainer>
             <HoverContainer />
