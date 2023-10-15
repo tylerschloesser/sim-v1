@@ -8,7 +8,7 @@ export function EntityContainer() {
   const draw = (g: PIXI.Graphics) => {
     g.clear()
     for (const entity of Object.values(entities)) {
-      g.beginFill('pink')
+      g.beginFill('hsl(36, 87%, 20%)')
       g.drawRect(
         entity.position.x,
         entity.position.y,
