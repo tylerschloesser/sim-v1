@@ -42,6 +42,7 @@ import {
 } from './util.js'
 import { Vec2 } from './vec2.js'
 import invariant from 'tiny-invariant'
+import { NavigateFunction } from 'react-router-dom'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -60,6 +61,8 @@ export const [buildEntityType$, setBuildEntityType] =
   createSignal<EntityType | null>()
 
 export const [confirmBuild$, confirmBuild] = createSignal<BuildState>()
+
+export const navigate$ = new BehaviorSubject<NavigateFunction | null>(null)
 
 export const build$ = new BehaviorSubject<BuildState | null>(null)
 export const [useBuild] = bind(build$)
@@ -231,6 +234,11 @@ combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
         break
       }
       case 'pointerup': {
+        if (select$.value?.end) {
+          const navigate = navigate$.value
+          invariant(navigate)
+          navigate('/select')
+        }
         select$.next(null)
         break
       }
@@ -336,12 +344,6 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
 })
 export const [useAgents] = bind(agents$)
 
-pointerMode$.subscribe((mode) => {
-  if (mode === PointerMode.Move) {
-    select$.next(null)
-  }
-})
-
 select$
   .pipe
   // distinctUntilChanged((a, b) => {
@@ -367,12 +369,17 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
     const entityIds = new Set<EntityId>()
 
     const bb = getCellBoundingBox(select.start, select.end)
-    for (let y = bb.tl.y; y < bb.br.y; y++) {
-      for (let x = bb.tl.x; x < bb.br.x; x++) {
+    for (let y = bb.tl.y; y <= bb.br.y; y++) {
+      for (let x = bb.tl.x; x <= bb.br.x; x++) {
         const cell = getCell(chunks, new Vec2(x, y))
         if (cell.entityId) {
+          entityIds.add(cell.entityId)
         }
       }
     }
+
+    return entityIds
   }),
 )
+
+export const [useSelectedEntityIds] = bind(selectedEntityIds$)

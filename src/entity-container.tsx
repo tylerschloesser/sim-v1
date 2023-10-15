@@ -1,10 +1,11 @@
 import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
-import { useEntities } from './state.js'
+import { useEntities, useSelectedEntityIds } from './state.js'
 import { useCallback } from 'react'
 import { EntityType } from './types.js'
 
 export function EntityContainer() {
+  const selectedEntityIds = useSelectedEntityIds()
   const entities = useEntities()
 
   const draw = useCallback(
@@ -21,6 +22,7 @@ export function EntityContainer() {
             break
         }
 
+        g.lineStyle(0)
         g.beginFill(color)
 
         if (entity.type === EntityType.Tree) {
@@ -33,9 +35,20 @@ export function EntityContainer() {
             entity.size.y,
           )
         }
+
+        if (selectedEntityIds?.has(entity.id)) {
+          g.beginFill('transparent')
+          g.lineStyle(0.1, 'yellow')
+          g.drawRect(
+            entity.position.x,
+            entity.position.y,
+            entity.size.x,
+            entity.size.y,
+          )
+        }
       }
     },
-    [entities],
+    [entities, selectedEntityIds],
   )
 
   return <Graphics draw={draw} />

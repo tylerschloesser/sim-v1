@@ -20,7 +20,31 @@ export function useEventListeners(container: HTMLDivElement | null) {
     )
 
     container.addEventListener(
+      'pointerenter',
+      (e) => {
+        pointer$.next(hackPointerEvent(e))
+      },
+      { signal },
+    )
+
+    container.addEventListener(
       'pointerleave',
+      (e) => {
+        pointer$.next(hackPointerEvent(e))
+      },
+      { signal },
+    )
+
+    container.addEventListener(
+      'pointerdown',
+      (e) => {
+        pointer$.next(hackPointerEvent(e))
+      },
+      { signal },
+    )
+
+    container.addEventListener(
+      'pointerup',
       (e) => {
         pointer$.next(hackPointerEvent(e))
       },

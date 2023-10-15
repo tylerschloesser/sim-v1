@@ -1,11 +1,11 @@
 import { Container, Stage } from '@pixi/react'
 import { Subscribe } from '@react-rxjs/core'
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { ChunkContainer } from './chunk-container.js'
 import { GridContainer } from './grid-container.js'
 import { HoverContainer } from './hover-container.js'
-import { useCamera, useViewport } from './state.js'
+import { navigate$, useCamera, useViewport } from './state.js'
 import { getCellSize } from './util.js'
 import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
@@ -33,6 +33,14 @@ export function World() {
   const rect = container?.getBoundingClientRect()
   useEventListeners(container)
   useResizeObserver(container)
+
+  const navigate = useNavigate()
+  useEffect(() => {
+    navigate$.next(navigate)
+    return () => {
+      navigate$.next(null)
+    }
+  }, [navigate])
 
   return (
     <div className={styles.world} ref={setContainer}>
