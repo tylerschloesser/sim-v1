@@ -1,23 +1,38 @@
 import Prando from 'prando'
 import { NoiseFunction3D, createNoise3D } from 'simplex-noise'
 import { CHUNK_SIZE } from './const.js'
-import { CellType, Chunk, ChunkId } from './types.js'
+import {
+  CellType,
+  Chunk,
+  ChunkId,
+  Entity,
+  EntityId,
+  EntityType,
+  TreeEntity,
+} from './types.js'
 import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
 
 const INITIAL_CHUNK_RADIUS = 3
+const TREE_SIZE = new Vec2(1)
 
-export function generateInitialChunks(): Record<ChunkId, Chunk> {
+export function generateInitialChunks(): {
+  chunks: Record<ChunkId, Chunk>
+  entities: Record<EntityId, Entity>
+} {
   const chunks: Record<ChunkId, Chunk> = {}
+  let entities: Record<EntityId, Entity> = {}
 
   for (let x = -INITIAL_CHUNK_RADIUS; x < INITIAL_CHUNK_RADIUS; x++) {
     for (let y = -INITIAL_CHUNK_RADIUS; y < INITIAL_CHUNK_RADIUS; y++) {
       const chunkId = `${x}.${y}`
-      chunks[chunkId] = generateChunk(chunkId)
+      const result = generateChunk(chunkId)
+      chunks[chunkId] = result.chunk
+      entities = { ...entities, ...result.entities }
     }
   }
 
-  return chunks
+  return { chunks, entities }
 }
 
 const rng = new Prando()
@@ -29,12 +44,17 @@ const noise3d: NoiseFunction3D = (() => {
   }
 })()
 
-export function generateChunk(chunkId: ChunkId): Chunk {
+export function generateChunk(chunkId: ChunkId): {
+  chunk: Chunk
+  entities: Record<EntityId, Entity>
+} {
   console.debug(`generating chunk ${chunkId}`)
 
   const chunkPosition = chunkIdToPosition(chunkId)
 
+  const entities: Record<EntityId, Entity> = {}
   const cells: Chunk['cells'] = new Array(CHUNK_SIZE ** 2)
+
   for (let i = 0; i < cells.length; i++) {
     const cellPosition = chunkPosition.add(
       new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor(),
@@ -42,7 +62,7 @@ export function generateChunk(chunkId: ChunkId): Chunk {
     const { x, y } = cellPosition
 
     let cellType: CellType
-    let tree: undefined | true
+    let entityId: undefined | EntityId
 
     // grass
     {
@@ -91,18 +111,28 @@ export function generateChunk(chunkId: ChunkId): Chunk {
           noise = (noise - 0.5) * 2
 
           if (noise * noise3d(x * 1, y * 1, 50) > 0.2) {
-            tree = true
+            const tree: TreeEntity = {
+              id: `${x}.${y}`,
+              position: cellPosition,
+              size: TREE_SIZE,
+              type: EntityType.Tree,
+            }
+            entities[tree.id] = tree
+            entityId = tree.id
           }
         }
       }
     }
 
-    cells[i] = { type: cellType, tree }
+    cells[i] = { type: cellType, entityId }
   }
 
   return {
-    id: chunkId,
-    position: chunkPosition,
-    cells,
+    chunk: {
+      id: chunkId,
+      position: chunkPosition,
+      cells,
+    },
+    entities,
   }
 }

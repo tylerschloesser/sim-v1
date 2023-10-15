@@ -15,7 +15,6 @@ export enum CellType {
 
 export interface Cell {
   type: CellType
-  tree?: true
   entityId?: EntityId
 }
 
@@ -32,6 +31,7 @@ export interface Config {
 
 export enum EntityType {
   House = 'house',
+  Tree = 'tree',
 }
 
 export interface BuildState {
@@ -54,7 +54,11 @@ export interface HouseEntity extends BaseEntity {
   type: EntityType.House
 }
 
-export type Entity = HouseEntity
+export interface TreeEntity extends BaseEntity {
+  type: EntityType.Tree
+}
+
+export type Entity = HouseEntity | TreeEntity
 
 export type AgentId = string
 

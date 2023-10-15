@@ -57,11 +57,6 @@ export function ChunkContainer() {
 
           g.beginFill(color)
           g.drawRect(cellPosition.x, cellPosition.y, 1, 1)
-
-          if (cell.tree) {
-            g.beginFill('hsl(121, 67%, 8%)')
-            g.drawCircle(cellPosition.x + 0.5, cellPosition.y + 0.5, 0.45)
-          }
         }
       }
     }

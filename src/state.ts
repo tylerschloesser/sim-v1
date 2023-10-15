@@ -96,11 +96,16 @@ blur$.subscribe(() => {
   pointerMode$.next(PointerMode.Move)
 })
 
-export const entities$ = new BehaviorSubject<Record<EntityId, Entity>>({})
+const { chunks: initialChunks, entities: initialEntities } =
+  generateInitialChunks()
+
+export const entities$ = new BehaviorSubject<Record<EntityId, Entity>>(
+  initialEntities,
+)
 export const [useEntities] = bind(entities$)
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
-  generateInitialChunks(),
+  initialChunks,
 )
 export const [useChunks] = bind(chunks$)
 
@@ -145,15 +150,25 @@ export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
 visibleChunkIds$.subscribe((visibleChunkIds) => {
   const chunks = chunks$.value
   const newChunks: Record<ChunkId, Chunk> = {}
+  let newEntities: Record<EntityId, Entity> = {}
 
   for (const chunkId of visibleChunkIds) {
     if (!chunks[chunkId]) {
-      newChunks[chunkId] = generateChunk(chunkId)
+      const result = generateChunk(chunkId)
+      newChunks[chunkId] = result.chunk
+      newEntities = { ...newEntities, ...result.entities }
     }
   }
 
   if (Object.keys(newChunks).length > 0) {
     chunks$.next({ ...chunks, ...newChunks })
+  }
+
+  if (Object.keys(newEntities).length > 0) {
+    entities$.next({
+      ...entities$.value,
+      ...newEntities,
+    })
   }
 })
 
@@ -292,6 +307,8 @@ confirmBuild$.subscribe((build) => {
         size: build.size,
       }
       break
+    case EntityType.Tree:
+      invariant(false, `cannot build ${build.entityType}`)
   }
 
   entities$.next({
