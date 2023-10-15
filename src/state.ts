@@ -1,5 +1,6 @@
 import { bind } from '@react-rxjs/core'
 import { createSignal } from '@react-rxjs/utils'
+import { NavigateFunction } from 'react-router-dom'
 import {
   BehaviorSubject,
   Subject,
@@ -9,6 +10,7 @@ import {
   pairwise,
   startWith,
 } from 'rxjs'
+import invariant from 'tiny-invariant'
 import { generateChunk, generateInitialChunks } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
@@ -28,6 +30,8 @@ import {
   Entity,
   EntityId,
   EntityType,
+  Job,
+  JobId,
   PointerMode,
   Select,
 } from './types.js'
@@ -41,8 +45,6 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
-import invariant from 'tiny-invariant'
-import { NavigateFunction } from 'react-router-dom'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -88,6 +90,7 @@ keyboard$.subscribe((e) => {
     }
     case 'keydown': {
       if (e.key === 'Shift') {
+        select$.next(null)
         pointerMode$.next(PointerMode.Select)
       }
       break
@@ -233,15 +236,6 @@ combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
 
         break
       }
-      case 'pointerup': {
-        if (select$.value?.end) {
-          const navigate = navigate$.value
-          invariant(navigate)
-          navigate('/select')
-        }
-        select$.next(null)
-        break
-      }
     }
   },
 )
@@ -383,3 +377,5 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 )
 
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
+
+export const jobs = new BehaviorSubject<Record<JobId, Job>>({})

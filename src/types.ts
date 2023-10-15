@@ -1,3 +1,4 @@
+import { BehaviorSubject } from 'rxjs'
 import { Vec2 } from './vec2.js'
 
 export interface Camera {
@@ -81,3 +82,19 @@ export interface BoundingBox {
   tl: Vec2
   br: Vec2
 }
+
+export enum JobType {
+  CutTrees = 'cut-trees',
+}
+
+export type JobId = string
+
+export interface BaseJob {
+  id: JobId
+}
+
+export interface CutTreesJob extends BaseJob {
+  type: JobType.CutTrees
+}
+
+export type Job = CutTreesJob
