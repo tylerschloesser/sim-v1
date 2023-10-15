@@ -35,7 +35,7 @@ export function Select() {
     invariant(trees.length > 0)
     const job: CutTreesJob = {
       id: getNextJobId(),
-      entityIds: new Set(trees.map(({ id }) => id)),
+      entityIds: trees.map(({ id }) => id),
       type: JobType.CutTrees,
     }
 

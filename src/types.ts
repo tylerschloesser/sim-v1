@@ -66,6 +66,7 @@ export type AgentId = string
 export interface Agent {
   id: AgentId
   position: Vec2
+  jobId?: JobId
 }
 
 export enum PointerMode {
@@ -95,7 +96,7 @@ export interface BaseJob {
 
 export interface CutTreesJob extends BaseJob {
   type: JobType.CutTrees
-  entityIds: Set<EntityId>
+  entityIds: EntityId[]
 }
 
 export type Job = CutTreesJob

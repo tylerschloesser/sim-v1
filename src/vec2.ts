@@ -58,6 +58,12 @@ export class Vec2 {
     return Math.sqrt(this.x ** 2 + this.y ** 2)
   }
 
+  norm(): Vec2 {
+    const dist = this.dist()
+    invariant(dist !== 0)
+    return this.div(dist)
+  }
+
   static isEqual(a: Vec2, b: Vec2) {
     return a.x === b.x && a.y === b.y
   }
