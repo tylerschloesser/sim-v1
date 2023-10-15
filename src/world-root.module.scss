@@ -1,0 +1,13 @@
+.world-root {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100dvw;
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.build-button {
+  padding: 0.5em;
+  margin: 0;
+}

@@ -8,6 +8,7 @@ import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import { ChunkContainer } from './chunk-container.js'
 import { useCamera, useViewport } from './state.js'
 import { getCellSize } from './util.js'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -20,22 +21,6 @@ function WorldContainer({ children }: React.PropsWithChildren<{}>) {
     >
       {children}
     </Container>
-  )
-}
-
-function BottomMenu() {
-  return (
-    <div className={styles['bottom-menu']}>
-      <button
-        className={styles['build-button']}
-        onPointerUp={(e) => {
-          console.log('todo build')
-          e.preventDefault()
-        }}
-      >
-        BUILD
-      </button>
-    </div>
   )
 }
 
@@ -66,7 +51,7 @@ export function World() {
           </Subscribe>
         </Stage>
       )}
-      <BottomMenu />
+      <Outlet />
     </div>
   )
 }
