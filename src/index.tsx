@@ -6,6 +6,7 @@ import { World } from './world.js'
 import { WorldRoot } from './world-root.js'
 import { Build } from './build.js'
 import { Subscribe } from '@react-rxjs/core'
+import { ErrorPage } from './error-page.js'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -14,7 +15,7 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <World />,
-    errorElement: <>TODO handle errors</>,
+    errorElement: <ErrorPage />,
     children: [
       {
         path: '/',

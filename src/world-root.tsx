@@ -13,6 +13,14 @@ export function WorldRoot() {
       >
         BUILD
       </button>
+      <button
+        className={styles['select-button']}
+        onPointerUp={() => {
+          navigate('select')
+        }}
+      >
+        SELECT
+      </button>
     </div>
   )
 }
