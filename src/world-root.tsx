@@ -8,7 +8,7 @@ export function WorldRoot() {
       <button
         className={styles['build-button']}
         onPointerUp={(e) => {
-          navigate('build')
+          navigate('build/house')
           console.log('todo build')
           e.preventDefault()
         }}

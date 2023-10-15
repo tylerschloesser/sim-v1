@@ -20,7 +20,7 @@ const router = createBrowserRouter([
         element: <WorldRoot />,
       },
       {
-        path: 'build',
+        path: 'build/:entityType',
         element: <Build />,
       },
     ],

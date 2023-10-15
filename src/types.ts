@@ -28,3 +28,7 @@ export interface Chunk {
 export interface Config {
   showGrid: boolean
 }
+
+export enum EntityType {
+  House = 'house',
+}
