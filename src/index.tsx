@@ -7,6 +7,7 @@ import { WorldRoot } from './world-root.js'
 import { Build } from './build.js'
 import { Subscribe } from '@react-rxjs/core'
 import { ErrorPage } from './error-page.js'
+import { Select } from './select.js'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -24,6 +25,10 @@ const router = createBrowserRouter([
       {
         path: 'build/:entityType',
         element: <Build />,
+      },
+      {
+        path: '/select',
+        element: <Select />,
       },
     ],
   },
