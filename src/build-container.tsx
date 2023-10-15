@@ -10,7 +10,8 @@ export function BuildContainer() {
     (g: PIXI.Graphics) => {
       if (!build) return
       g.clear()
-      g.beginFill('red')
+      const color = build.valid ? 'brown' : 'red'
+      g.beginFill(color)
       g.drawRect(0, 0, build.size.x, build.size.y)
     },
     [build],

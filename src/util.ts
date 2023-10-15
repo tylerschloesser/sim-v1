@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import { Camera, ChunkId } from './types.js'
+import { Camera, Cell, CellType, Chunk, ChunkId } from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
@@ -59,4 +59,23 @@ export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
   invariant(x)
   invariant(y)
   return new Vec2(parseInt(x), parseInt(y)).mul(CHUNK_SIZE)
+}
+
+export function getCell(chunks: Record<ChunkId, Chunk>, position: Vec2): Cell {
+  const chunkPosition = position.div(CHUNK_SIZE).floor()
+  const chunkId = `${chunkPosition.x}.${chunkPosition.y}`
+  const chunk = chunks[chunkId]
+  invariant(chunk)
+
+  const relativePosition = position.mod(CHUNK_SIZE)
+  const cellIndex = relativePosition.y * CHUNK_SIZE + relativePosition.x
+  const cell = chunk.cells[cellIndex]
+  invariant(cell)
+
+  return cell
+}
+
+export function canBuild(cell: Cell): boolean {
+  if (cell.tree) return false
+  return [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cell.type)
 }

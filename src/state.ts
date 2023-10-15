@@ -25,7 +25,14 @@ import {
   Config,
   EntityType,
 } from './types.js'
-import { clamp, getCellSize, isEqual, screenToWorld } from './util.js'
+import {
+  canBuild,
+  clamp,
+  getCell,
+  getCellSize,
+  isEqual,
+  screenToWorld,
+} from './util.js'
 import { Vec2 } from './vec2.js'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
@@ -187,14 +194,23 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
     }
 
     const size = new Vec2(2)
-
     const buildPosition = camera.position.sub(size.div(2)).round()
+
+    let valid = true
+
+    for (let x = 0; x < size.x && valid; x++) {
+      for (let y = 0; y < size.y && valid; y++) {
+        const cellPosition = buildPosition.add(new Vec2(x, y))
+        const cell = getCell(chunks, cellPosition)
+        valid = canBuild(cell)
+      }
+    }
 
     build$.next({
       position: buildPosition,
       size,
       entityType,
-      valid: true,
+      valid,
     })
   },
 )
