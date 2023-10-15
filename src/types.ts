@@ -37,4 +37,5 @@ export interface BuildState {
   entityType: EntityType
   position: Vec2
   size: Vec2
+  valid: boolean
 }

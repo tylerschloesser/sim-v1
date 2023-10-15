@@ -43,21 +43,6 @@ export const [buildEntityType$, setBuildEntityType] =
 export const build$ = new BehaviorSubject<BuildState | null>(null)
 export const [useBuild] = bind(build$)
 
-combineLatest([buildEntityType$, camera$]).subscribe(([entityType, camera]) => {
-  if (entityType === null) {
-    build$.next(null)
-    return
-  }
-
-  const size = new Vec2(2)
-
-  build$.next({
-    position: camera.position.sub(size.div(2)).round(),
-    size,
-    entityType,
-  })
-})
-
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
 })
@@ -193,3 +178,23 @@ wheel$.subscribe((e) => {
     zoom: zoom.next,
   })
 })
+
+combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
+  ([entityType, camera, chunks]) => {
+    if (entityType === null) {
+      build$.next(null)
+      return
+    }
+
+    const size = new Vec2(2)
+
+    const buildPosition = camera.position.sub(size.div(2)).round()
+
+    build$.next({
+      position: buildPosition,
+      size,
+      entityType,
+      valid: true,
+    })
+  },
+)
