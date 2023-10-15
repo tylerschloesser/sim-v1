@@ -71,6 +71,7 @@ keyboard$.subscribe((e) => {
 })
 
 export const entities$ = new BehaviorSubject<Record<EntityId, Entity>>({})
+export const [useEntities] = bind(entities$)
 
 export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
   generateInitialChunks(),
