@@ -5,6 +5,7 @@ import './index.scss'
 import { World } from './world.js'
 import { WorldRoot } from './world-root.js'
 import { Build } from './build.js'
+import { Subscribe } from '@react-rxjs/core'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -27,4 +28,8 @@ const router = createBrowserRouter([
   },
 ])
 
-createRoot(container).render(<RouterProvider router={router} />)
+createRoot(container).render(
+  <Subscribe>
+    <RouterProvider router={router} />
+  </Subscribe>,
+)
