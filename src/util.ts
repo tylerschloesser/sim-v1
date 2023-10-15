@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import { Camera, Cell, CellType, Chunk, ChunkId } from './types.js'
+import { BoundingBox, Camera, Cell, CellType, Chunk, ChunkId } from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
@@ -79,4 +79,10 @@ export function canBuild(cell: Cell): boolean {
   if (cell.tree) return false
   if (cell.entityId) return false
   return [CellType.Grass1, CellType.Grass2, CellType.Grass3].includes(cell.type)
+}
+
+export function getCellBoundingBox(a: Vec2, b: Vec2): BoundingBox {
+  const tl = new Vec2(Math.min(a.x, b.x), Math.min(a.y, b.y))
+  const br = new Vec2(Math.max(a.x, b.x), Math.max(a.y, b.y)).add(1)
+  return { tl, br }
 }

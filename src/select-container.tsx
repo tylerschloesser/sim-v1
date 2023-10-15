@@ -2,7 +2,7 @@ import { Graphics } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import { useCallback } from 'react'
 import { useCamera, useSelect } from './state.js'
-import { getCellSize } from './util.js'
+import { getCellBoundingBox, getCellSize } from './util.js'
 
 export function SelectContainer() {
   const camera = useCamera()
@@ -21,8 +21,9 @@ export function SelectContainer() {
       if (select.end) {
         g.drawRect(select.end.x, select.end.y, 1, 1)
 
-        const size = select.end.sub(select.start)
-        g.drawRect(select.start.x, select.start.y, size.x, size.y)
+        const bb = getCellBoundingBox(select.start, select.end)
+        const size = bb.br.sub(bb.tl)
+        g.drawRect(bb.tl.x, bb.tl.y, size.x, size.y)
       }
     },
     [select, camera],

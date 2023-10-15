@@ -72,3 +72,8 @@ export interface Select {
   start: Vec2
   end?: Vec2
 }
+
+export interface BoundingBox {
+  tl: Vec2
+  br: Vec2
+}
