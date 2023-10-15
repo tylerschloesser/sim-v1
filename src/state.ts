@@ -44,10 +44,13 @@ export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
 export const wheel$ = new Subject<WheelEvent>()
 export const viewport$ = new BehaviorSubject<Vec2>(new Vec2())
+export const blur$ = new Subject<void>()
 export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: INITIAL_ZOOM,
 })
+export const selection$ = new BehaviorSubject<Selection | null>(null)
+export const [useSelection] = bind(selection$)
 
 export const [buildEntityType$, setBuildEntityType] =
   createSignal<EntityType | null>()
@@ -83,6 +86,10 @@ keyboard$.subscribe((e) => {
       break
     }
   }
+})
+
+blur$.subscribe(() => {
+  pointerMode$.next(PointerMode.Move)
 })
 
 export const entities$ = new BehaviorSubject<Record<EntityId, Entity>>({})
