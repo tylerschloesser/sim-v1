@@ -1,14 +1,6 @@
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import {
-  BoundingBox,
-  Camera,
-  Cell,
-  CellType,
-  Chunk,
-  ChunkId,
-  Select,
-} from './types.js'
+import { BoundingBox, Camera, Cell, CellType, Chunk, ChunkId } from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
