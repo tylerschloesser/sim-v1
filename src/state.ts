@@ -39,6 +39,7 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
+import invariant from 'tiny-invariant'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -51,6 +52,7 @@ export const camera$ = new BehaviorSubject<Camera>({
 })
 export const selection$ = new BehaviorSubject<Selection | null>(null)
 export const [useSelection] = bind(selection$)
+export const pointerMode$ = new BehaviorSubject<PointerMode>(PointerMode.Move)
 
 export const [buildEntityType$, setBuildEntityType] =
   createSignal<EntityType | null>()
@@ -172,19 +174,25 @@ export const [useCamera] = bind(camera$)
 export const [useViewport] = bind(viewport$)
 export const [useHover] = bind(hover$)
 
-pointer$.pipe(pairwise()).subscribe(([prev, next]) => {
-  if (next.type === 'pointermove' && next.pressure > 0) {
-    const { zoom, position } = camera$.value
-    const cellSize = getCellSize(zoom)
+combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
+  ([[prev, next], mode]) => {
+    if (next.type === 'pointermove' && next.pressure > 0) {
+      if (mode === PointerMode.Move) {
+        const { zoom, position } = camera$.value
+        const cellSize = getCellSize(zoom)
 
-    const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
+        const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
 
-    camera$.next({
-      position: position.add(delta),
-      zoom,
-    })
-  }
-})
+        camera$.next({
+          position: position.add(delta),
+          zoom,
+        })
+      } else {
+        invariant(mode === PointerMode.Select)
+      }
+    }
+  },
+)
 
 wheel$.subscribe((e) => {
   const zoom = {
@@ -281,8 +289,6 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   },
 })
 export const [useAgents] = bind(agents$)
-
-export const pointerMode$ = new BehaviorSubject<PointerMode>(PointerMode.Move)
 
 pointerMode$.subscribe((pointerMode) => {
   console.log('pointer mode', pointerMode)
