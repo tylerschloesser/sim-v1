@@ -1,6 +1,14 @@
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE, MIN_CELL_SIZE } from './const.js'
-import { BoundingBox, Camera, Cell, CellType, Chunk, ChunkId } from './types.js'
+import {
+  BoundingBox,
+  Camera,
+  Cell,
+  CellType,
+  Chunk,
+  ChunkId,
+  Select,
+} from './types.js'
 import { Vec2 } from './vec2.js'
 
 export function clamp(value: number, min: number, max: number): number {
@@ -48,8 +56,12 @@ export function worldToScreen({
   return world.sub(camera.position).mul(cellSize).add(viewport.div(2))
 }
 
-export function isEqual<T>(a: Set<T>, b: Set<T>) {
-  return a.size === b.size && [...a].every((v) => b.has(v))
+export function isEqual<T>(a: T, b: T): boolean {
+  if (a instanceof Set) {
+    invariant(b instanceof Set)
+    return a.size === b.size && [...a].every((v) => b.has(v))
+  }
+  invariant(false, 'isEqual not implemented')
 }
 
 export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
@@ -83,6 +95,6 @@ export function canBuild(cell: Cell): boolean {
 
 export function getCellBoundingBox(a: Vec2, b: Vec2): BoundingBox {
   const tl = new Vec2(Math.min(a.x, b.x), Math.min(a.y, b.y))
-  const br = new Vec2(Math.max(a.x, b.x), Math.max(a.y, b.y)).add(1)
+  const br = new Vec2(Math.max(a.x, b.x), Math.max(a.y, b.y))
   return { tl, br }
 }

@@ -35,6 +35,7 @@ import {
   canBuild,
   clamp,
   getCell,
+  getCellBoundingBox,
   getCellSize,
   isEqual,
   screenToWorld,
@@ -323,3 +324,38 @@ pointerMode$.subscribe((mode) => {
     select$.next(null)
   }
 })
+
+select$
+  .pipe
+  // distinctUntilChanged((a, b) => {
+  //   if (a === null || b === null) {
+  //     return a === b
+  //   }
+  //   if (!Vec2.isEqual(a.start, b.start)) {
+  //     return false
+  //   }
+  //   if (!a.end || !b.end) {
+  //     return a.end === b.end
+  //   }
+  //   return Vec2.isEqual(a.end, b.end)
+  // }),
+  ()
+
+const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
+  map(([select, chunks]) => {
+    if (select === null || !select.end) {
+      return null
+    }
+
+    const entityIds = new Set<EntityId>()
+
+    const bb = getCellBoundingBox(select.start, select.end)
+    for (let y = bb.tl.y; y < bb.br.y; y++) {
+      for (let x = bb.tl.x; x < bb.br.x; x++) {
+        const cell = getCell(chunks, new Vec2(x, y))
+        if (cell.entityId) {
+        }
+      }
+    }
+  }),
+)

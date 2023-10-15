@@ -22,7 +22,7 @@ export function SelectContainer() {
         g.drawRect(select.end.x, select.end.y, 1, 1)
 
         const bb = getCellBoundingBox(select.start, select.end)
-        const size = bb.br.sub(bb.tl)
+        const size = bb.br.sub(bb.tl).add(1)
         g.drawRect(bb.tl.x, bb.tl.y, size.x, size.y)
       }
     },
