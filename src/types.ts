@@ -68,7 +68,7 @@ export enum PointerMode {
   Select = 'select',
 }
 
-export interface Selection {
+export interface Select {
   start: Vec2
   end?: Vec2
 }

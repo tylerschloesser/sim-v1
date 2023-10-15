@@ -29,6 +29,7 @@ import {
   EntityId,
   EntityType,
   PointerMode,
+  Select,
 } from './types.js'
 import {
   canBuild,
@@ -50,8 +51,8 @@ export const camera$ = new BehaviorSubject<Camera>({
   position: new Vec2(),
   zoom: INITIAL_ZOOM,
 })
-export const selection$ = new BehaviorSubject<Selection | null>(null)
-export const [useSelection] = bind(selection$)
+export const select$ = new BehaviorSubject<Select | null>(null)
+export const [useSelection] = bind(select$)
 export const pointerMode$ = new BehaviorSubject<PointerMode>(PointerMode.Move)
 
 export const [buildEntityType$, setBuildEntityType] =
@@ -189,7 +190,26 @@ combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
         })
       } else {
         invariant(mode === PointerMode.Select)
+
+        const cellPosition = screenToWorld({
+          screen: new Vec2(next),
+          camera: camera$.value,
+          viewport: viewport$.value,
+        }).floor()
+
+        if (select$.value === null) {
+          select$.next({
+            start: cellPosition,
+          })
+        } else {
+          select$.next({
+            start: select$.value.start,
+            end: cellPosition,
+          })
+        }
       }
+    } else if (next.type === 'pointerup') {
+      select$.next(null)
     }
   },
 )
@@ -289,7 +309,3 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   },
 })
 export const [useAgents] = bind(agents$)
-
-pointerMode$.subscribe((pointerMode) => {
-  console.log('pointer mode', pointerMode)
-})
