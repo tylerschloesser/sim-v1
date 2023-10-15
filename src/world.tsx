@@ -11,6 +11,7 @@ import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
 import { BuildContainer } from './build-container.js'
 import { EntityContainer } from './entity-container.js'
+import { AgentContainer } from './agent-container.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -48,6 +49,7 @@ export function World() {
             <WorldContainer>
               <ChunkContainer />
               <EntityContainer />
+              <AgentContainer />
               <BuildContainer />
               <GridContainer />
             </WorldContainer>

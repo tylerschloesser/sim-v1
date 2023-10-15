@@ -18,6 +18,8 @@ import {
   WHEEL_SCALE,
 } from './const.js'
 import {
+  Agent,
+  AgentId,
   BuildState,
   Camera,
   Chunk,
@@ -251,3 +253,11 @@ confirmBuild$.subscribe((build) => {
 
   chunks$.next({ ...chunks })
 })
+
+export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
+  '0': {
+    id: '0',
+    position: new Vec2(0, 0),
+  },
+})
+export const [useAgents] = bind(agents$)

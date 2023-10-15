@@ -55,3 +55,10 @@ export interface HouseEntity extends BaseEntity {
 }
 
 export type Entity = HouseEntity
+
+export type AgentId = string
+
+export interface Agent {
+  id: AgentId
+  position: Vec2
+}
