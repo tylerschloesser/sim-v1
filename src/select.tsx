@@ -1,17 +1,22 @@
-import { useEffect, useMemo } from 'react'
-import styles from './select.module.scss'
-import { select$, useEntities, useSelectedEntityIds } from './state.js'
-import { Entity, EntityType } from './types.js'
+import { useCallback, useEffect, useMemo } from 'react'
 import invariant from 'tiny-invariant'
+import styles from './select.module.scss'
+import { jobs$, select$, useEntities, useSelectedEntityIds } from './state.js'
+import { CutTreesJob, Entity, EntityType, JobType } from './types.js'
+import { getNextJobId } from './util.js'
+import { useNavigate } from 'react-router-dom'
 
 const EMPTY_SET = new Set<string>()
 
 export function Select() {
   const entities = useEntities()
   const selectedEntityIds = useSelectedEntityIds() ?? EMPTY_SET
+  const navigate = useNavigate()
 
   useEffect(() => {
-    select$.next(null)
+    return () => {
+      select$.next(null)
+    }
   }, [])
 
   const selectedEntities = useMemo(() => {
@@ -24,6 +29,24 @@ export function Select() {
     return result
   }, [entities, selectedEntityIds])
 
+  const cutTrees = useCallback(() => {
+    const trees = selectedEntities[EntityType.Tree]
+    invariant(trees)
+    invariant(trees.length > 0)
+    const job: CutTreesJob = {
+      id: getNextJobId(),
+      entityIds: new Set(trees.map(({ id }) => id)),
+      type: JobType.CutTrees,
+    }
+
+    jobs$.next({
+      ...jobs$.value,
+      [job.id]: job,
+    })
+
+    navigate('/')
+  }, [selectedEntities, navigate])
+
   const trees = selectedEntities[EntityType.Tree] ?? []
 
   return (
@@ -35,7 +58,7 @@ export function Select() {
       )}
 
       {trees.length > 0 && (
-        <button>
+        <button onPointerUp={cutTrees}>
           CUT {trees.length} TREE{trees.length > 1 ? 'S' : ''}
         </button>
       )}

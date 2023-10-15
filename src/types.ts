@@ -95,6 +95,7 @@ export interface BaseJob {
 
 export interface CutTreesJob extends BaseJob {
   type: JobType.CutTrees
+  entityIds: Set<EntityId>
 }
 
 export type Job = CutTreesJob

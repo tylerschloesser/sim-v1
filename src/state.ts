@@ -378,4 +378,8 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
 
-export const jobs = new BehaviorSubject<Record<JobId, Job>>({})
+export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
+
+jobs$.subscribe((jobs) => {
+  console.log(jobs)
+})

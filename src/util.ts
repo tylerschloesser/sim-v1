@@ -89,3 +89,8 @@ export function getCellBoundingBox(a: Vec2, b: Vec2): BoundingBox {
   const br = new Vec2(Math.max(a.x, b.x), Math.max(a.y, b.y))
   return { tl, br }
 }
+
+let nextJobId = 0
+export function getNextJobId() {
+  return `${nextJobId++}`
+}

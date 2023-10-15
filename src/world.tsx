@@ -13,6 +13,7 @@ import { BuildContainer } from './build-container.js'
 import { EntityContainer } from './entity-container.js'
 import { AgentContainer } from './agent-container.js'
 import { SelectContainer } from './select-container.js'
+import { tickWorld } from './tick.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -41,6 +42,15 @@ export function World() {
       navigate$.next(null)
     }
   }, [navigate])
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      tickWorld()
+    }, 100)
+    return () => {
+      window.clearInterval(interval)
+    }
+  }, [])
 
   return (
     <div className={styles.world} ref={setContainer}>
