@@ -48,7 +48,8 @@ export function SelectedEntityContainer() {
       <Sprite
         key={entity.id}
         texture={texture}
-        position={entity.position}
+        // center the outline rectangle
+        position={entity.position.sub(new Vec2(5 / 2 / 100))}
         scale={1 / 100}
       />
     )
