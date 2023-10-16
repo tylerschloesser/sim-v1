@@ -21,7 +21,9 @@ const SingleEntity = React.memo(
         break
     }
 
-    return <Sprite texture={texture} position={entity.position} />
+    return (
+      <Sprite texture={texture} position={entity.position} scale={1 / 100} />
+    )
   },
 )
 
@@ -34,12 +36,17 @@ export function EntityContainer() {
 
   useEffect(() => {
     const tree = new PIXI.Graphics()
+
+    // hack so that tree is centered
+    tree.beginFill('hsla(121, 67%, 8%, .01)')
+    tree.drawRect(0, 0, 100, 100)
+
     tree.beginFill('hsl(121, 67%, 8%)')
-    tree.drawCircle(0.5, 0.5, 0.45)
+    tree.drawRect(10, 10, 80, 80)
 
     const house = new PIXI.Graphics()
     house.beginFill('hsl(36, 87%, 20%)')
-    house.drawRect(0, 0, 2, 2)
+    house.drawRect(0, 0, 200, 200)
 
     setTextures({
       tree: app.renderer.generateTexture(tree),
