@@ -17,15 +17,10 @@ export function SelectedEntityContainer() {
     const g = new PIXI.Graphics()
     for (const size of [new Vec2(1), new Vec2(2)]) {
       g.clear()
-      const lineWidth = 0.1
+      const lineWidth = 5
       g.beginFill('transparent')
       g.lineStyle(lineWidth, 'yellow')
-      g.drawRect(
-        lineWidth / 2,
-        lineWidth / 2,
-        size.x - lineWidth,
-        size.y - lineWidth,
-      )
+      g.drawRect(lineWidth, lineWidth, size.x * 100, size.y * 100)
       _textures[`${size.x}.${size.y}`] = app.renderer.generateTexture(g)
     }
     setTextures(_textures)
@@ -50,7 +45,12 @@ export function SelectedEntityContainer() {
     invariant(texture)
 
     return (
-      <Sprite key={entity.id} texture={texture} position={entity.position} />
+      <Sprite
+        key={entity.id}
+        texture={texture}
+        position={entity.position}
+        scale={1 / 100}
+      />
     )
   })
 }
