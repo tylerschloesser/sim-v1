@@ -1,55 +1,78 @@
-import { Graphics } from '@pixi/react'
+import { Sprite, useApp } from '@pixi/react'
 import * as PIXI from 'pixi.js'
+import React, { useEffect, useState } from 'react'
 import { useEntities, useSelectedEntityIds } from './state.js'
-import { useCallback } from 'react'
-import { EntityType } from './types.js'
+import { Entity, EntityType } from './types.js'
+
+interface Textures {
+  tree: PIXI.Texture
+  house: PIXI.Texture
+}
+
+const SingleEntity = React.memo(
+  ({
+    entity,
+    selected,
+    textures,
+  }: {
+    entity: Entity
+    selected: boolean
+    textures: Textures
+  }) => {
+    let texture: PIXI.Texture
+    switch (entity.type) {
+      case EntityType.Tree:
+        texture = textures.tree
+        break
+      case EntityType.House:
+        texture = textures.house
+        break
+    }
+
+    return (
+      <>
+        <Sprite texture={texture} position={entity.position} />
+
+        {/*
+        <Graphics draw={drawEntity} />
+        <Graphics draw={drawOutline} visible={selected} />
+        */}
+      </>
+    )
+  },
+)
 
 export function EntityContainer() {
   const selectedEntityIds = useSelectedEntityIds()
   const entities = useEntities()
 
-  const draw = useCallback(
-    (g: PIXI.Graphics) => {
-      g.clear()
-      for (const entity of Object.values(entities)) {
-        let color
-        switch (entity.type) {
-          case EntityType.House:
-            color = 'hsl(36, 87%, 20%)'
-            break
-          case EntityType.Tree:
-            color = 'hsl(121, 67%, 8%)'
-            break
-        }
+  const app = useApp()
 
-        g.lineStyle(0)
-        g.beginFill(color)
+  const [textures, setTextures] = useState<Textures | null>(null)
 
-        if (entity.type === EntityType.Tree) {
-          g.drawCircle(entity.position.x + 0.5, entity.position.y + 0.5, 0.45)
-        } else {
-          g.drawRect(
-            entity.position.x,
-            entity.position.y,
-            entity.size.x,
-            entity.size.y,
-          )
-        }
+  useEffect(() => {
+    const tree = new PIXI.Graphics()
+    tree.beginFill('hsl(121, 67%, 8%)')
+    tree.drawCircle(0.5, 0.5, 0.45)
 
-        if (selectedEntityIds?.has(entity.id)) {
-          g.beginFill('transparent')
-          g.lineStyle(0.1, 'yellow')
-          g.drawRect(
-            entity.position.x,
-            entity.position.y,
-            entity.size.x,
-            entity.size.y,
-          )
-        }
-      }
-    },
-    [entities, selectedEntityIds],
-  )
+    const house = new PIXI.Graphics()
+    house.beginFill('hsl(36, 87%, 20%)')
+    house.drawRect(0, 0, 2, 2)
 
-  return <Graphics draw={draw} />
+    setTextures({
+      tree: app.renderer.generateTexture(tree),
+      house: app.renderer.generateTexture(house),
+    })
+  }, [app])
+
+  if (!textures) return null
+
+  return Object.values(entities).map((entity) => (
+    <SingleEntity
+      key={entity.id}
+      entity={entity}
+      selected={selectedEntityIds?.has(entity.id) ?? false}
+      textures={textures}
+    />
+  ))
 }
