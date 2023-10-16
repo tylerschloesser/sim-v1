@@ -31,6 +31,7 @@ import {
   EntityId,
   EntityStateType,
   EntityType,
+  ItemType,
   Job,
   JobId,
   PointerMode,
@@ -308,7 +309,12 @@ confirmBuild$.subscribe((build) => {
         type: EntityType.House,
         position: build.position,
         size: build.size,
-        state: { type: EntityStateType.Active },
+        state: {
+          type: EntityStateType.Build,
+          materials: {
+            [ItemType.Wood]: 2,
+          },
+        },
       }
       break
     case EntityType.Tree:
