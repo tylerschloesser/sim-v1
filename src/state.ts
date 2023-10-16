@@ -346,22 +346,6 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
 })
 export const [useAgents] = bind(agents$)
 
-select$
-  .pipe
-  // distinctUntilChanged((a, b) => {
-  //   if (a === null || b === null) {
-  //     return a === b
-  //   }
-  //   if (!Vec2.isEqual(a.start, b.start)) {
-  //     return false
-  //   }
-  //   if (!a.end || !b.end) {
-  //     return a.end === b.end
-  //   }
-  //   return Vec2.isEqual(a.end, b.end)
-  // }),
-  ()
-
 const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
   map(([select, chunks]) => {
     if (select === null || !select.end) {
@@ -382,6 +366,7 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 
     return entityIds
   }),
+  distinctUntilChanged(isEqual),
 )
 
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)

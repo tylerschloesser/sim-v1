@@ -48,14 +48,6 @@ export function worldToScreen({
   return world.sub(camera.position).mul(cellSize).add(viewport.div(2))
 }
 
-export function isEqual<T>(a: T, b: T): boolean {
-  if (a instanceof Set) {
-    invariant(b instanceof Set)
-    return a.size === b.size && [...a].every((v) => b.has(v))
-  }
-  invariant(false, 'isEqual not implemented')
-}
-
 export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
   const match = chunkId.match(/(-?\d+)\.(-?\d+)/)
   invariant(match?.length === 3)
@@ -98,4 +90,16 @@ export function getCellBoundingBox(a: Vec2, b: Vec2): BoundingBox {
 let nextJobId = 0
 export function getNextJobId() {
   return `${nextJobId++}`
+}
+
+export function isEqual<T>(a: T, b: T) {
+  if (a === b) return true
+  if (a === null || b === null) return false
+
+  if (a instanceof Set && b instanceof Set) {
+    if (a.size !== b.size) return false
+    return [...a].every((v) => b.has(v))
+  }
+
+  invariant(false, 'unsupported isEqual')
 }
