@@ -14,6 +14,7 @@ import { EntityContainer } from './entity-container.js'
 import { AgentContainer } from './agent-container.js'
 import { SelectContainer } from './select-container.js'
 import { tickWorld } from './tick.js'
+import { SelectedEntityContainer } from './selected-entity-container.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -68,6 +69,7 @@ export function World() {
             <WorldContainer>
               <ChunkContainer />
               <EntityContainer />
+              <SelectedEntityContainer />
               <AgentContainer />
               <BuildContainer />
               <SelectContainer />

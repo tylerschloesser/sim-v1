@@ -1,7 +1,7 @@
 import { Sprite, useApp } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import React, { useEffect, useState } from 'react'
-import { useEntities, useSelectedEntityIds } from './state.js'
+import { useEntities } from './state.js'
 import { Entity, EntityType } from './types.js'
 
 interface Textures {
@@ -10,15 +10,7 @@ interface Textures {
 }
 
 const SingleEntity = React.memo(
-  ({
-    entity,
-    selected,
-    textures,
-  }: {
-    entity: Entity
-    selected: boolean
-    textures: Textures
-  }) => {
+  ({ entity, textures }: { entity: Entity; textures: Textures }) => {
     let texture: PIXI.Texture
     switch (entity.type) {
       case EntityType.Tree:
@@ -29,21 +21,11 @@ const SingleEntity = React.memo(
         break
     }
 
-    return (
-      <>
-        <Sprite texture={texture} position={entity.position} />
-
-        {/*
-        <Graphics draw={drawEntity} />
-        <Graphics draw={drawOutline} visible={selected} />
-        */}
-      </>
-    )
+    return <Sprite texture={texture} position={entity.position} />
   },
 )
 
 export function EntityContainer() {
-  const selectedEntityIds = useSelectedEntityIds()
   const entities = useEntities()
 
   const app = useApp()
@@ -68,11 +50,6 @@ export function EntityContainer() {
   if (!textures) return null
 
   return Object.values(entities).map((entity) => (
-    <SingleEntity
-      key={entity.id}
-      entity={entity}
-      selected={selectedEntityIds?.has(entity.id) ?? false}
-      textures={textures}
-    />
+    <SingleEntity key={entity.id} entity={entity} textures={textures} />
   ))
 }
