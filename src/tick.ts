@@ -5,6 +5,7 @@ import { getCell, getChunkId } from './util.js'
 import {
   Agent,
   AgentId,
+  BuildJob,
   ChunkId,
   CutTreesJob,
   EntityId,
@@ -19,6 +20,18 @@ interface WorldUpdates {
   jobIds: Set<JobId>
   chunkIds: Set<ChunkId>
 }
+
+function tickBuildJob({
+  world,
+  updates,
+  job,
+  agent,
+}: {
+  world: World
+  updates: WorldUpdates
+  job: BuildJob
+  agent: Agent
+}) {}
 
 function tickCutTreesJob({
   world,
@@ -110,19 +123,22 @@ export function tickWorld() {
       case JobType.CutTrees:
         tickCutTreesJob({ world, updates, job, agent })
         break
+      case JobType.Build:
+        tickBuildJob({ world, updates, job, agent })
+        break
     }
-  }
 
-  if (updates.agentIds.size > 0) {
-    agents$.next({ ...world.agents })
-  }
-  if (updates.chunkIds.size > 0) {
-    chunks$.next({ ...world.chunks })
-  }
-  if (updates.entityIds.size > 0) {
-    entities$.next({ ...world.entities })
-  }
-  if (updates.jobIds.size > 0) {
-    jobs$.next({ ...world.jobs })
+    if (updates.agentIds.size > 0) {
+      agents$.next({ ...world.agents })
+    }
+    if (updates.chunkIds.size > 0) {
+      chunks$.next({ ...world.chunks })
+    }
+    if (updates.entityIds.size > 0) {
+      entities$.next({ ...world.entities })
+    }
+    if (updates.jobIds.size > 0) {
+      jobs$.next({ ...world.jobs })
+    }
   }
 }
