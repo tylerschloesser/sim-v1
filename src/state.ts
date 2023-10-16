@@ -29,6 +29,7 @@ import {
   Config,
   Entity,
   EntityId,
+  EntityStateType,
   EntityType,
   Job,
   JobId,
@@ -307,6 +308,7 @@ confirmBuild$.subscribe((build) => {
         type: EntityType.House,
         position: build.position,
         size: build.size,
+        state: { type: EntityStateType.Active },
       }
       break
     case EntityType.Tree:
@@ -379,7 +381,3 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
 
 export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
-
-jobs$.subscribe((jobs) => {
-  console.log(jobs)
-})

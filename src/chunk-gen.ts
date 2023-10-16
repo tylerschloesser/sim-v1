@@ -7,6 +7,7 @@ import {
   ChunkId,
   Entity,
   EntityId,
+  EntityStateType,
   EntityType,
   TreeEntity,
 } from './types.js'
@@ -116,6 +117,7 @@ export function generateChunk(chunkId: ChunkId): {
               position: cellPosition,
               size: TREE_SIZE,
               type: EntityType.Tree,
+              state: { type: EntityStateType.Active },
             }
             entities[tree.id] = tree
             entityId = tree.id

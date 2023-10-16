@@ -44,11 +44,32 @@ export interface BuildState {
 
 export type EntityId = string
 
+export enum EntityStateType {
+  Build = 'build',
+  Active = 'active',
+}
+
+export enum ItemType {
+  Wood = 'wood',
+}
+
+export interface BuildEntityState {
+  type: EntityStateType.Build
+  materials: Partial<Record<ItemType, number>>
+}
+
+export interface ActiveEntityState {
+  type: EntityStateType.Active
+}
+
+export type EntityState = BuildEntityState | ActiveEntityState
+
 export interface BaseEntity {
   id: EntityId
   type: EntityType
   position: Vec2
   size: Vec2
+  state: EntityState
 }
 
 export interface HouseEntity extends BaseEntity {
