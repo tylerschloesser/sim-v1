@@ -86,6 +86,7 @@ export interface BoundingBox {
 
 export enum JobType {
   CutTrees = 'cut-trees',
+  Build = 'build',
 }
 
 export type JobId = string
@@ -99,4 +100,16 @@ export interface CutTreesJob extends BaseJob {
   entityIds: EntityId[]
 }
 
-export type Job = CutTreesJob
+export interface BuildJob extends BaseJob {
+  type: JobType.Build
+  entityId: EntityId
+}
+
+export type Job = CutTreesJob | BuildJob
+
+export interface World {
+  chunks: Record<ChunkId, Chunk>
+  entities: Record<EntityId, Entity>
+  agents: Record<AgentId, Agent>
+  jobs: Record<JobId, Job>
+}

@@ -65,9 +65,14 @@ export function chunkIdToPosition(chunkId: ChunkId): Vec2 {
   return new Vec2(parseInt(x), parseInt(y)).mul(CHUNK_SIZE)
 }
 
-export function getCell(chunks: Record<ChunkId, Chunk>, position: Vec2): Cell {
+export function getChunkId(position: Vec2): ChunkId {
   const chunkPosition = position.div(CHUNK_SIZE).floor()
   const chunkId = `${chunkPosition.x}.${chunkPosition.y}`
+  return chunkId
+}
+
+export function getCell(chunks: Record<ChunkId, Chunk>, position: Vec2): Cell {
+  const chunkId = getChunkId(position)
   const chunk = chunks[chunkId]
   invariant(chunk)
 
