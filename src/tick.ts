@@ -9,6 +9,7 @@ import {
   ChunkId,
   CutTreesJob,
   EntityId,
+  EntityStateType,
   ItemType,
   JobId,
   JobType,
@@ -32,7 +33,53 @@ function tickBuildJob({
   updates: WorldUpdates
   job: BuildJob
   agent: Agent
-}) {}
+}) {
+  const entity = world.entities[job.entityId]
+  invariant(entity)
+  invariant(entity.state.type === EntityStateType.Build)
+
+  if (Vec2.isEqual(entity.position, agent.position)) {
+    Object.entries(entity.state.materials).forEach((entry) => {
+      const [itemType, count] = entry as [ItemType, number]
+      invariant((agent.inventory[itemType] ?? 0) >= count)
+      agent.inventory[itemType]! -= count
+      if (agent.inventory[itemType] === 0) {
+        delete agent.inventory[itemType]
+      }
+    })
+    world.entities[entity.id] = {
+      ...entity,
+      state: { type: EntityStateType.Active },
+    }
+    delete world.jobs[job.id]
+    delete agent.jobId
+
+    updates.jobIds.add(job.id)
+    updates.agentIds.add(agent.id)
+
+    for (let y = 0; y < entity.size.y; y++) {
+      for (let x = 0; x < entity.size.x; x++) {
+        const cellPosition = entity.position.add(new Vec2(x, y))
+        const chunkId = getChunkId(cellPosition)
+        updates.chunkIds.add(chunkId)
+      }
+    }
+
+    updates.entityIds.add(entity.id)
+  } else {
+    const delta = entity.position.sub(agent.position)
+    const speed = 1
+
+    if (delta.dist() <= speed) {
+      agent.position = entity.position
+    } else {
+      const velocity = delta.norm().mul(speed)
+      agent.position = agent.position.add(velocity)
+    }
+
+    updates.agentIds.add(agent.id)
+  }
+}
 
 function tickCutTreesJob({
   world,
@@ -55,8 +102,8 @@ function tickCutTreesJob({
     delete world.entities[entity.id]
     updates.entityIds.add(entity.id)
 
-    invariant(entity.size.x === 0)
-    invariant(entity.size.y === 0)
+    invariant(entity.size.x === 1)
+    invariant(entity.size.y === 1)
 
     for (let y = 0; y < entity.size.y; y++) {
       for (let x = 0; x < entity.size.x; x++) {
@@ -114,11 +161,34 @@ export function tickWorld() {
 
   for (const agent of Object.values(world.agents)) {
     if (!agent.jobId) {
-      if (Object.values(world.jobs).length > 0) {
-        const job = Object.values(world.jobs).at(0)
-        invariant(job)
-        agent.jobId = job.id
-        updates.agentIds.add(agent.id)
+      for (const job of Object.values(world.jobs)) {
+        switch (job.type) {
+          case JobType.CutTrees: {
+            agent.jobId = job.id
+            updates.agentIds.add(agent.id)
+            break
+          }
+          case JobType.Build: {
+            const entity = world.entities[job.entityId]
+            invariant(entity)
+            invariant(entity.state.type === EntityStateType.Build)
+
+            if (
+              Object.entries(entity.state.materials).every(
+                ([itemType, count]) =>
+                  (agent.inventory[itemType as ItemType] ?? 0) >= count,
+              )
+            ) {
+              agent.jobId = job.id
+              updates.agentIds.add(agent.id)
+            }
+            break
+          }
+        }
+
+        if (agent.jobId) {
+          break
+        }
       }
     }
 

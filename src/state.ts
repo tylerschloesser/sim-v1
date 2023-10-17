@@ -34,6 +34,7 @@ import {
   ItemType,
   Job,
   JobId,
+  JobType,
   PointerMode,
   Select,
 } from './types.js'
@@ -43,6 +44,7 @@ import {
   getCell,
   getCellBoundingBox,
   getCellSize,
+  getNextJobId,
   isEqual,
   screenToWorld,
 } from './util.js'
@@ -336,6 +338,16 @@ confirmBuild$.subscribe((build) => {
   }
 
   chunks$.next({ ...chunks })
+
+  const jobId = getNextJobId()
+  jobs$.next({
+    ...jobs$.value,
+    [jobId]: {
+      id: jobId,
+      type: JobType.Build,
+      entityId: entity.id,
+    },
+  })
 })
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({

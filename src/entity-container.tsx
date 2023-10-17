@@ -2,7 +2,7 @@ import { Sprite, useApp } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import React, { useEffect, useState } from 'react'
 import { useEntities } from './state.js'
-import { Entity, EntityType } from './types.js'
+import { Entity, EntityStateType, EntityType } from './types.js'
 
 interface Textures {
   tree: PIXI.Texture
@@ -21,8 +21,15 @@ const SingleEntity = React.memo(
         break
     }
 
+    const alpha = entity.state.type === EntityStateType.Build ? 0.5 : 1
+
     return (
-      <Sprite texture={texture} position={entity.position} scale={1 / 100} />
+      <Sprite
+        texture={texture}
+        position={entity.position}
+        scale={1 / 100}
+        alpha={alpha}
+      />
     )
   },
 )
