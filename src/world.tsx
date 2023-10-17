@@ -11,7 +11,13 @@ import { GridContainer } from './grid-container.js'
 import { HoverContainer } from './hover-container.js'
 import { SelectContainer } from './select-container.js'
 import { SelectedEntityContainer } from './selected-entity-container.js'
-import { confirmBuild, navigate$, useCamera, useViewport } from './state.js'
+import {
+  confirmBuild,
+  navigate$,
+  setGraphics,
+  useCamera,
+  useViewport,
+} from './state.js'
 import { tickWorld } from './tick.js'
 import { EntityType } from './types.js'
 import { getCellSize } from './util.js'
@@ -77,6 +83,7 @@ export function World() {
       return
     }
     graphics.current = new Graphics({ canvas, container })
+    setGraphics(graphics.current)
     return () => {
       graphics.current?.destroy()
       graphics.current = undefined

@@ -1,4 +1,5 @@
 import { Application, Container, Graphics as PixiGraphics } from 'pixi.js'
+import { Vec2 } from './vec2.js'
 
 export class Graphics {
   private readonly app: Application
@@ -22,11 +23,15 @@ export class Graphics {
 
     const g = new PixiGraphics()
     g.beginFill('red')
-    g.drawRect(200, 200, 100, 100)
+    g.drawRect(0, 0, 1, 1)
     this.world.addChild(g)
   }
 
   destroy() {
     this.app.destroy(false, { children: true })
+  }
+
+  transformWorld({ translate, scale }: { translate: Vec2; scale: number }) {
+    this.world.setTransform(translate.x, translate.y, scale, scale)
   }
 }

@@ -51,6 +51,7 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
+import { Graphics } from './graphics.js'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -432,3 +433,15 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
 
 export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
+
+export const [graphics$, setGraphics] = createSignal<Graphics>()
+
+combineLatest([graphics$, camera$, viewport$]).subscribe(
+  ([graphics, camera, viewport]) => {
+    const cellSize = getCellSize(camera.zoom)
+    graphics.transformWorld({
+      translate: camera.position.mul(cellSize * -1).add(viewport.div(2)),
+      scale: cellSize,
+    })
+  },
+)
