@@ -17,6 +17,7 @@ import { tickWorld } from './tick.js'
 import { SelectedEntityContainer } from './selected-entity-container.js'
 import { EntityType } from './types.js'
 import { Vec2 } from './vec2.js'
+import { initGraphics } from './graphics.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -65,6 +66,11 @@ export function World() {
       force: true,
     })
   }, [])
+
+  useEffect(() => {
+    if (!canvas || !container) return
+    initGraphics({ canvas, container })
+  }, [canvas, container])
 
   return (
     <div className={styles.world} ref={setContainer}>
