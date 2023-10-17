@@ -469,7 +469,7 @@ const updatedChunkIds$ = visibleChunkIds$.pipe(
       }
     }
     for (const chunkId of next) {
-      if (prev.has(chunkId)) {
+      if (!prev.has(chunkId)) {
         show.add(chunkId)
       }
     }
