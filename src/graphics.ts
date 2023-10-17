@@ -32,7 +32,7 @@ export class Graphics {
 
   private readonly cellTypeToTexture: Record<CellType, Texture>
 
-  private readonly chunkIdToSprite: Map<ChunkId, Sprite>
+  private readonly chunkIdToContainer: Map<ChunkId, Container>
 
   constructor({
     canvas,
@@ -65,7 +65,7 @@ export class Graphics {
       [CellType.WaterShallow]: buildTexture(renderer, 'hsl(220, 64%, 64%)'),
     }
 
-    this.chunkIdToSprite = new Map()
+    this.chunkIdToContainer = new Map()
   }
 
   destroy() {
@@ -77,8 +77,8 @@ export class Graphics {
   }
 
   showChunk({ chunk }: { chunk: Chunk }) {
-    let sprite = this.chunkIdToSprite.get(chunk.id)
-    if (!sprite) {
+    let container = this.chunkIdToContainer.get(chunk.id)
+    if (!container) {
       const g = new PixiGraphics()
       invariant(chunk.cells.length === CHUNK_SIZE ** 2)
       for (let i = 0; i < chunk.cells.length; i++) {
@@ -92,16 +92,16 @@ export class Graphics {
       }
       const texture = this.app.renderer.generateTexture(g)
 
-      sprite = new Sprite(texture)
-      sprite.setTransform(
+      container = new Sprite(texture)
+      container.setTransform(
         chunk.position.x,
         chunk.position.y,
         1 / MAX_CELL_SIZE,
         1 / MAX_CELL_SIZE,
       )
-      this.chunkIdToSprite.set(chunk.id, sprite)
-      this.world.addChild(sprite)
+      this.chunkIdToContainer.set(chunk.id, container)
+      this.world.addChild(container)
     }
-    sprite.visible = true
+    container.visible = true
   }
 }
