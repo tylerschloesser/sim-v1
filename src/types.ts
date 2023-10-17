@@ -52,6 +52,7 @@ export enum EntityStateType {
 
 export enum ItemType {
   Wood = 'wood',
+  Food = 'food',
 }
 
 export interface BuildEntityState {
@@ -82,7 +83,8 @@ export interface TreeEntity extends BaseEntity {
 }
 
 export interface FarmCell {
-  ticks: number
+  water: number
+  maturity: number
 }
 
 export interface FarmEntity extends BaseEntity {

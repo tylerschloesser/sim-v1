@@ -15,7 +15,7 @@ export function SelectedEntityContainer() {
   useEffect(() => {
     const _textures: Textures = {}
     const g = new PIXI.Graphics()
-    for (const size of [new Vec2(1), new Vec2(2)]) {
+    for (const size of [new Vec2(1), new Vec2(2), new Vec2(4)]) {
       g.clear()
       const lineWidth = 5
       g.beginFill('transparent')

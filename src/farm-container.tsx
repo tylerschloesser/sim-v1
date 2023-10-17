@@ -1,9 +1,8 @@
-import * as PIXI from 'pixi.js'
-import { EntityStateType, FarmEntity } from './types.js'
-import { useEffect, useState } from 'react'
 import { Sprite, useApp } from '@pixi/react'
+import * as PIXI from 'pixi.js'
+import { useEffect, useState } from 'react'
+import { EntityStateType, FarmEntity } from './types.js'
 import { Vec2 } from './vec2.js'
-import invariant from 'tiny-invariant'
 
 interface Textures {
   base: PIXI.Texture
@@ -53,21 +52,22 @@ export function FarmContainer({ entity }: { entity: FarmEntity }) {
       scale={1 / 100}
       alpha={alpha}
     >
-      {entity.cells.map(({ ticks }, i) => {
+      {entity.cells.map(({ maturity }, i) => {
         let texture: PIXI.Texture
-        if (ticks < 50) {
+        if (maturity < 50) {
           texture = textures.cell1
-        } else if (ticks < 100) {
+        } else if (maturity < 100) {
           texture = textures.cell2
-        } else if (ticks < 150) {
+        } else if (maturity < 150) {
           texture = textures.cell3
-        } else if (ticks < 200) {
+        } else if (maturity < 200) {
           texture = textures.cell4
         } else {
           texture = textures.cell5
         }
         return (
           <Sprite
+            key={i}
             position={new Vec2(i % entity.size.x, i / entity.size.y)
               .floor()
               .mul(100)}
