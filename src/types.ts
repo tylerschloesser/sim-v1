@@ -88,6 +88,7 @@ export interface Agent {
   id: AgentId
   position: Vec2
   jobId?: JobId
+  inventory: Partial<Record<ItemType, number>>
 }
 
 export enum PointerMode {

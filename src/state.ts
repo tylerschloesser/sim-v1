@@ -342,6 +342,7 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   '0': {
     id: '0',
     position: new Vec2(0, 0),
+    inventory: {},
   },
 })
 export const [useAgents] = bind(agents$)
