@@ -49,7 +49,6 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
-import { EventBoundary } from 'pixi.js'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -350,6 +349,10 @@ confirmBuild$.subscribe((build) => {
       invariant(false, `cannot build ${build.entityType}`)
   }
 
+  if (build.force) {
+    entity.state = { type: EntityStateType.Active }
+  }
+
   entities$.next({
     ...entities$.value,
     [entity.id]: entity,
@@ -366,15 +369,17 @@ confirmBuild$.subscribe((build) => {
 
   chunks$.next({ ...chunks })
 
-  const jobId = getNextJobId()
-  jobs$.next({
-    ...jobs$.value,
-    [jobId]: {
-      id: jobId,
-      type: JobType.Build,
-      entityId: entity.id,
-    },
-  })
+  if (!build.force) {
+    const jobId = getNextJobId()
+    jobs$.next({
+      ...jobs$.value,
+      [jobId]: {
+        id: jobId,
+        type: JobType.Build,
+        entityId: entity.id,
+      },
+    })
+  }
 })
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({

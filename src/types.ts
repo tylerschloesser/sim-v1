@@ -41,6 +41,7 @@ export interface BuildState {
   position: Vec2
   size: Vec2
   valid: boolean
+  force?: boolean
 }
 
 export type EntityId = string

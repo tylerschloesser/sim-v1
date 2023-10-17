@@ -5,7 +5,7 @@ import { Outlet, useNavigate } from 'react-router-dom'
 import { ChunkContainer } from './chunk-container.js'
 import { GridContainer } from './grid-container.js'
 import { HoverContainer } from './hover-container.js'
-import { navigate$, useCamera, useViewport } from './state.js'
+import { confirmBuild, navigate$, useCamera, useViewport } from './state.js'
 import { getCellSize } from './util.js'
 import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
@@ -15,6 +15,8 @@ import { AgentContainer } from './agent-container.js'
 import { SelectContainer } from './select-container.js'
 import { tickWorld } from './tick.js'
 import { SelectedEntityContainer } from './selected-entity-container.js'
+import { EntityType } from './types.js'
+import { Vec2 } from './vec2.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -51,6 +53,16 @@ export function World() {
     return () => {
       window.clearInterval(interval)
     }
+  }, [])
+
+  useEffect(() => {
+    confirmBuild({
+      entityType: EntityType.Farm,
+      position: new Vec2(2, 0),
+      size: new Vec2(4),
+      valid: true,
+      force: true,
+    })
   }, [])
 
   return (
