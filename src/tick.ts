@@ -150,7 +150,10 @@ function tickCutTreesJob({
 
 function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
   for (const cell of farm.cells) {
-    cell.maturity += 1 / (60 * 10)
+    cell.maturity += (1 / (60 * 10)) * (cell.water ? 1 : 0.25)
+    if (cell.water > 0) {
+      cell.water = Math.max(cell.water - 1 / (60 * 10), 0)
+    }
   }
 
   world.entities[farm.id] = { ...farm }
