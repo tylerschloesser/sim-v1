@@ -34,6 +34,7 @@ function WorldContainer({ children }: React.PropsWithChildren<{}>) {
 
 export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
   const rect = container?.getBoundingClientRect()
   useEventListeners(container)
   useResizeObserver(container)
@@ -67,6 +68,7 @@ export function World() {
 
   return (
     <div className={styles.world} ref={setContainer}>
+      <canvas ref={setCanvas} className={styles['canvas-v2']}></canvas>
       {container && (
         <Stage
           width={rect?.width}
