@@ -8,6 +8,7 @@ import { Build } from './build.js'
 import { Subscribe } from '@react-rxjs/core'
 import { ErrorPage } from './error-page.js'
 import { Select } from './select.js'
+import { ConfigureBuild } from './configure-build.js'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: '/',
         element: <WorldRoot />,
+      },
+      {
+        path: 'build',
+        element: <ConfigureBuild />,
       },
       {
         path: 'build/:entityType',

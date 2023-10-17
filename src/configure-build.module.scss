@@ -1,0 +1,15 @@
+.container {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.button {
+  padding: 0.5em;
+  margin: 0;
+
+  text-transform: uppercase;
+}
