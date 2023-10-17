@@ -90,6 +90,23 @@ export function World() {
     }
   }, [canvas, container])
 
+  const [v1, setV1] = useState(false)
+  useEffect(() => {
+    const listener = (e: KeyboardEvent) => {
+      if (e.key === 't') {
+        setV1((prev) => !prev)
+      }
+    }
+    window.addEventListener('keyup', listener)
+    return () => {
+      window.removeEventListener('keyup', listener)
+    }
+  }, [])
+
+  useEffect(() => {
+    console.log(v1 ? 'v1' : 'v2')
+  }, [v1])
+
   return (
     <div className={styles.world} ref={setContainer}>
       <canvas ref={setCanvas} className={styles['canvas-v2']}></canvas>
@@ -99,13 +116,14 @@ export function World() {
           height={rect?.height}
           className={styles.canvas}
           options={{
+            backgroundAlpha: 0,
             resizeTo: container,
             antialias: true,
           }}
         >
           <Subscribe>
             <WorldContainer>
-              <ChunkContainer />
+              {v1 && <ChunkContainer />}
               <EntityContainer />
               <SelectedEntityContainer />
               <AgentContainer />

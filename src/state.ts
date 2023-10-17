@@ -445,3 +445,13 @@ combineLatest([graphics$, camera$, viewport$]).subscribe(
     })
   },
 )
+
+combineLatest([graphics$, chunks$, visibleChunkIds$]).subscribe(
+  ([graphics, chunks, visibleChunkIds]) => {
+    for (const visibleChunkId of visibleChunkIds) {
+      const chunk = chunks[visibleChunkId]
+      invariant(chunk)
+      graphics.showChunk({ chunk })
+    }
+  },
+)
