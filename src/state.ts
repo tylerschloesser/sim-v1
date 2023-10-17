@@ -49,6 +49,7 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
+import { EventBoundary } from 'pixi.js'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -280,7 +281,18 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
       return
     }
 
-    const size = new Vec2(2)
+    let size: Vec2
+    switch (entityType) {
+      case EntityType.Farm:
+        size = new Vec2(4)
+        break
+      case EntityType.House:
+        size = new Vec2(2)
+        break
+      default:
+        invariant(false, `invalid entity type: ${entityType}`)
+    }
+
     const buildPosition = camera.position.sub(size.div(2)).round()
 
     let valid = true
@@ -319,8 +331,22 @@ confirmBuild$.subscribe((build) => {
         },
       }
       break
+    case EntityType.Farm: {
+      entity = {
+        id: `entity.${build.position.x}.${build.position.y}`,
+        type: EntityType.Farm,
+        position: build.position,
+        size: build.size,
+        state: {
+          type: EntityStateType.Build,
+          materials: {
+            [ItemType.Wood]: 8,
+          },
+        },
+      }
+      break
+    }
     case EntityType.Tree:
-    case EntityType.Farm:
       invariant(false, `cannot build ${build.entityType}`)
   }
 

@@ -61,7 +61,7 @@ export function EntityContainer() {
 
     const farm = new PIXI.Graphics()
     farm.beginFill('hsl(27, 54%, 35%)')
-    farm.drawRect(0, 0, 400, 800)
+    farm.drawRect(0, 0, 400, 400)
 
     setTextures({
       tree: app.renderer.generateTexture(tree),
