@@ -1,13 +1,14 @@
 import { Sprite, useApp } from '@pixi/react'
 import * as PIXI from 'pixi.js'
 import React, { useEffect, useState } from 'react'
+import invariant from 'tiny-invariant'
+import { FarmContainer } from './farm-container.js'
 import { useEntities } from './state.js'
 import { Entity, EntityStateType, EntityType } from './types.js'
 
 interface Textures {
   tree: PIXI.Texture
   house: PIXI.Texture
-  farm: PIXI.Texture
 }
 
 const SingleEntity = React.memo(
@@ -21,8 +22,7 @@ const SingleEntity = React.memo(
         texture = textures.house
         break
       case EntityType.Farm:
-        texture = textures.farm
-        break
+        invariant(false, `invalid entity type: ${entity.type}`)
     }
 
     const alpha = entity.state.type === EntityStateType.Build ? 0.5 : 1
@@ -59,20 +59,22 @@ export function EntityContainer() {
     house.beginFill('hsl(36, 87%, 20%)')
     house.drawRect(0, 0, 200, 200)
 
-    const farm = new PIXI.Graphics()
-    farm.beginFill('hsl(27, 54%, 35%)')
-    farm.drawRect(0, 0, 400, 400)
-
     setTextures({
       tree: app.renderer.generateTexture(tree),
       house: app.renderer.generateTexture(house),
-      farm: app.renderer.generateTexture(farm),
     })
   }, [app])
 
   if (!textures) return null
 
-  return Object.values(entities).map((entity) => (
-    <SingleEntity key={entity.id} entity={entity} textures={textures} />
-  ))
+  return Object.values(entities).map((entity) => {
+    switch (entity.type) {
+      case EntityType.Farm:
+        return <FarmContainer key={entity.id} entity={entity} />
+      default:
+        return (
+          <SingleEntity key={entity.id} entity={entity} textures={textures} />
+        )
+    }
+  })
 }
