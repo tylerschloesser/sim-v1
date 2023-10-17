@@ -150,7 +150,7 @@ function tickCutTreesJob({
 
 function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
   for (const cell of farm.cells) {
-    cell.maturity += 1
+    cell.maturity += 1 / (60 * 10)
   }
 
   world.entities[farm.id] = { ...farm }

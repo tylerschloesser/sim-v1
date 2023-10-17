@@ -54,13 +54,13 @@ export function FarmContainer({ entity }: { entity: FarmEntity }) {
     >
       {entity.cells.map(({ maturity }, i) => {
         let texture: PIXI.Texture
-        if (maturity < 50) {
+        if (maturity < 0.33) {
           texture = textures.cell1
-        } else if (maturity < 100) {
+        } else if (maturity < 0.66) {
           texture = textures.cell2
-        } else if (maturity < 150) {
+        } else if (maturity < 1) {
           texture = textures.cell3
-        } else if (maturity < 200) {
+        } else if (maturity < 1.5) {
           texture = textures.cell4
         } else {
           texture = textures.cell5
