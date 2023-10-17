@@ -3,6 +3,7 @@ import {
   Container,
   Graphics as PixiGraphics,
   Sprite,
+  Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
@@ -13,7 +14,6 @@ import {
   Entity,
   EntityId,
   EntityType,
-  TreeEntity,
 } from './types.js'
 import { Vec2 } from './vec2.js'
 
@@ -27,14 +27,37 @@ const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
   [CellType.WaterShallow]: 'hsl(220, 64%, 64%)',
 }
 
+enum TextureType {
+  Tree = 'tree',
+}
+
+type Textures = Record<TextureType, Texture>
+
 class TreeContainer extends Container {
-  constructor() {
+  constructor(textures: Textures) {
     super()
-    const g = new PixiGraphics()
-    g.beginFill('pink')
-    g.drawCircle(0.5, 0.5, 0.5)
-    this.addChild(g)
+    const sprite = new Sprite(textures.tree)
+    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    this.addChild(sprite)
   }
+}
+
+function generateTreeTexture(app: Application): Texture {
+  const g = new PixiGraphics()
+
+  // hack so that tree is centered
+  g.beginFill('hsla(0, 0%, 0%, .01)')
+  g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+
+  g.beginFill('hsl(121, 67%, 8%)')
+  g.drawRect(
+    MAX_CELL_SIZE * 0.1,
+    MAX_CELL_SIZE * 0.1,
+    MAX_CELL_SIZE * 0.8,
+    MAX_CELL_SIZE * 0.8,
+  )
+
+  return app.renderer.generateTexture(g)
 }
 
 export class Graphics {
@@ -43,6 +66,8 @@ export class Graphics {
 
   private readonly chunkIdToContainer: Map<ChunkId, Promise<Container>>
   private readonly entityIdToContainer: Map<EntityId, Promise<Container>>
+
+  private readonly textures: Textures
 
   constructor({
     canvas,
@@ -67,6 +92,10 @@ export class Graphics {
 
     this.chunkIdToContainer = new Map()
     this.entityIdToContainer = new Map()
+
+    this.textures = {
+      tree: generateTreeTexture(this.app),
+    }
   }
 
   destroy() {
@@ -104,7 +133,11 @@ export class Graphics {
   renderEntity({ entity }: { entity: Entity }) {
     let promise = this.entityIdToContainer.get(entity.id)
     if (!promise) {
-      promise = newEntityContainer({ entity, app: this.app })
+      promise = newEntityContainer({
+        entity,
+        app: this.app,
+        textures: this.textures,
+      })
       promise.then((container) => {
         this.world.addChild(container)
       })
@@ -129,14 +162,16 @@ export class Graphics {
 async function newEntityContainer({
   entity,
   app,
+  textures,
 }: {
   entity: Entity
   app: Application
+  textures: Textures
 }): Promise<Container> {
   let container: Container
   switch (entity.type) {
     case EntityType.Tree:
-      container = new TreeContainer()
+      container = new TreeContainer(textures)
       break
     case EntityType.Farm:
     case EntityType.House:
