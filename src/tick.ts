@@ -9,6 +9,7 @@ import {
   ChunkId,
   CutTreesJob,
   EntityId,
+  ItemType,
   JobId,
   JobType,
   World,
@@ -54,6 +55,9 @@ function tickCutTreesJob({
     delete world.entities[entity.id]
     updates.entityIds.add(entity.id)
 
+    invariant(entity.size.x === 0)
+    invariant(entity.size.y === 0)
+
     for (let y = 0; y < entity.size.y; y++) {
       for (let x = 0; x < entity.size.x; x++) {
         const cellPosition = entity.position.add(new Vec2(x, y))
@@ -71,6 +75,12 @@ function tickCutTreesJob({
       updates.jobIds.add(job.id)
     }
     delete agent.jobId
+
+    agent.inventory = {
+      ...agent.inventory,
+      [ItemType.Wood]: (agent.inventory.wood ?? 0) + 1,
+    }
+
     updates.agentIds.add(agent.id)
   } else {
     const delta = entity.position.sub(agent.position)
