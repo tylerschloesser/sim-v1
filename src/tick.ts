@@ -120,8 +120,10 @@ function tickCutTreesJob({
     if (job.entityIds.length === 0) {
       delete world.jobs[job.id]
       updates.jobIds.add(job.id)
+
+      delete agent.jobId
+      updates.agentIds.add(agent.id)
     }
-    delete agent.jobId
 
     agent.inventory = {
       ...agent.inventory,
