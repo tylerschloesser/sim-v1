@@ -6,7 +6,15 @@ import {
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
-import { CellType, Chunk, ChunkId } from './types.js'
+import {
+  CellType,
+  Chunk,
+  ChunkId,
+  Entity,
+  EntityId,
+  EntityType,
+  TreeEntity,
+} from './types.js'
 import { Vec2 } from './vec2.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'graphics'
@@ -19,11 +27,22 @@ const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
   [CellType.WaterShallow]: 'hsl(220, 64%, 64%)',
 }
 
+class TreeContainer extends Container {
+  constructor() {
+    super()
+    const g = new PixiGraphics()
+    g.beginFill('pink')
+    g.drawCircle(0.5, 0.5, 0.5)
+    this.addChild(g)
+  }
+}
+
 export class Graphics {
   private readonly app: Application
   private readonly world: Container
 
   private readonly chunkIdToContainer: Map<ChunkId, Promise<Container>>
+  private readonly entityIdToContainer: Map<EntityId, Promise<Container>>
 
   constructor({
     canvas,
@@ -47,6 +66,7 @@ export class Graphics {
     this.world.addChild(g)
 
     this.chunkIdToContainer = new Map()
+    this.entityIdToContainer = new Map()
   }
 
   destroy() {
@@ -60,7 +80,7 @@ export class Graphics {
   renderChunk({ chunk }: { chunk: Chunk }) {
     let promise = this.chunkIdToContainer.get(chunk.id)
     if (!promise) {
-      promise = generateChunk({ chunk, app: this.app })
+      promise = newChunkContainer({ chunk, app: this.app })
       promise.then((container) => {
         this.world.addChild(container)
       })
@@ -70,9 +90,70 @@ export class Graphics {
       container.visible = true
     })
   }
+
+  hideChunk({ chunk }: { chunk: Chunk }) {
+    let promise = this.chunkIdToContainer.get(chunk.id)
+    if (!promise) {
+      return
+    }
+    promise.then((container) => {
+      container.visible = false
+    })
+  }
+
+  renderEntity({ entity }: { entity: Entity }) {
+    let promise = this.entityIdToContainer.get(entity.id)
+    if (!promise) {
+      promise = newEntityContainer({ entity, app: this.app })
+      promise.then((container) => {
+        this.world.addChild(container)
+      })
+      this.entityIdToContainer.set(entity.id, promise)
+    }
+    promise.then((container) => {
+      container.visible = true
+    })
+  }
+
+  hideEntity({ entity }: { entity: Entity }) {
+    const promise = this.entityIdToContainer.get(entity.id)
+    if (!promise) {
+      return
+    }
+    promise.then((container) => {
+      container.visible = false
+    })
+  }
 }
 
-async function generateChunk({
+async function newEntityContainer({
+  entity,
+  app,
+}: {
+  entity: Entity
+  app: Application
+}): Promise<Container> {
+  let container: Container
+  switch (entity.type) {
+    case EntityType.Tree:
+      container = new TreeContainer()
+      break
+    case EntityType.Farm:
+    case EntityType.House:
+      // TODO
+      container = new Container()
+      break
+  }
+  container.setTransform(
+    entity.position.x,
+    entity.position.y,
+    entity.size.x,
+    entity.size.y,
+  )
+  return container
+}
+
+async function newChunkContainer({
   chunk,
   app,
 }: {

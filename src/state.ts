@@ -9,6 +9,7 @@ import {
   map,
   pairwise,
   startWith,
+  withLatestFrom,
 } from 'rxjs'
 import invariant from 'tiny-invariant'
 import { generateChunk, generateInitialChunks } from './chunk-gen.js'
@@ -446,12 +447,60 @@ combineLatest([graphics$, camera$, viewport$]).subscribe(
   },
 )
 
-combineLatest([graphics$, chunks$, visibleChunkIds$]).subscribe(
-  ([graphics, chunks, visibleChunkIds]) => {
-    for (const visibleChunkId of visibleChunkIds) {
-      const chunk = chunks[visibleChunkId]
+const updatedChunkIds$ = visibleChunkIds$.pipe(
+  distinctUntilChanged(isEqual),
+  startWith(null),
+  pairwise(),
+  map(([prev, next]) => {
+    invariant(next)
+    if (prev === null) {
+      return {
+        hide: new Set<ChunkId>(),
+        show: next,
+      }
+    }
+
+    let show = new Set<ChunkId>()
+    let hide = new Set<ChunkId>()
+
+    for (const chunkId of prev) {
+      if (!next.has(chunkId)) {
+        hide.add(chunkId)
+      }
+    }
+    for (const chunkId of next) {
+      if (prev.has(chunkId)) {
+        show.add(chunkId)
+      }
+    }
+
+    return { show, hide }
+  }),
+)
+
+combineLatest([graphics$, updatedChunkIds$])
+  .pipe(withLatestFrom(chunks$))
+  .subscribe(([[graphics, updatedChunkIds], chunks]) => {
+    for (const chunkId of updatedChunkIds.show) {
+      const chunk = chunks[chunkId]
       invariant(chunk)
       graphics.renderChunk({ chunk })
     }
-  },
-)
+    for (const chunkId of updatedChunkIds.hide) {
+      const chunk = chunks[chunkId]
+      invariant(chunk)
+      graphics.hideChunk({ chunk })
+    }
+  })
+
+combineLatest([graphics$, updatedChunkIds$])
+  .pipe(withLatestFrom(entities$))
+  .subscribe(([[graphics, updatedChunkIds], entities]) => {
+    for (const entity of Object.values(entities)) {
+      if (updatedChunkIds.show.has(entity.chunkId)) {
+        graphics.renderEntity({ entity })
+      } else if (updatedChunkIds.hide.has(entity.chunkId)) {
+        graphics.hideEntity({ entity })
+      }
+    }
+  })
