@@ -11,7 +11,7 @@ import {
   EntityType,
   TreeEntity,
 } from './types.js'
-import { chunkIdToPosition } from './util.js'
+import { chunkIdToPosition, getChunkId } from './util.js'
 import { Vec2 } from './vec2.js'
 
 const INITIAL_CHUNK_RADIUS = 3
@@ -114,6 +114,7 @@ export function generateChunk(chunkId: ChunkId): {
           if (noise * noise3d(x * 1, y * 1, 50) > 0.2) {
             const tree: TreeEntity = {
               id: `${x}.${y}`,
+              chunkId: getChunkId(cellPosition),
               position: cellPosition,
               size: TREE_SIZE,
               type: EntityType.Tree,

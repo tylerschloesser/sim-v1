@@ -3,7 +3,7 @@ import * as PIXI from 'pixi.js'
 import React, { useEffect, useState } from 'react'
 import invariant from 'tiny-invariant'
 import { FarmContainer } from './farm-container.js'
-import { useEntities } from './state.js'
+import { useEntities, useVisibleChunkIds } from './state.js'
 import { Entity, EntityStateType, EntityType } from './types.js'
 
 interface Textures {
@@ -43,6 +43,7 @@ export function EntityContainer() {
 
   const app = useApp()
 
+  const visibleChunkIds = useVisibleChunkIds()
   const [textures, setTextures] = useState<Textures | null>(null)
 
   useEffect(() => {
@@ -67,14 +68,16 @@ export function EntityContainer() {
 
   if (!textures) return null
 
-  return Object.values(entities).map((entity) => {
-    switch (entity.type) {
-      case EntityType.Farm:
-        return <FarmContainer key={entity.id} entity={entity} />
-      default:
-        return (
-          <SingleEntity key={entity.id} entity={entity} textures={textures} />
-        )
-    }
-  })
+  return Object.values(entities)
+    .filter((entity) => visibleChunkIds.has(entity.chunkId))
+    .map((entity) => {
+      switch (entity.type) {
+        case EntityType.Farm:
+          return <FarmContainer key={entity.id} entity={entity} />
+        default:
+          return (
+            <SingleEntity key={entity.id} entity={entity} textures={textures} />
+          )
+      }
+    })
 }

@@ -45,6 +45,7 @@ import {
   getCell,
   getCellBoundingBox,
   getCellSize,
+  getChunkId,
   getNextJobId,
   isEqual,
   screenToWorld,
@@ -320,6 +321,7 @@ confirmBuild$.subscribe((build) => {
     case EntityType.House:
       entity = {
         id: `entity.${build.position.x}.${build.position.y}`,
+        chunkId: getChunkId(build.position),
         type: EntityType.House,
         position: build.position,
         size: build.size,
@@ -344,6 +346,7 @@ confirmBuild$.subscribe((build) => {
 
       entity = {
         id: `entity.${build.position.x}.${build.position.y}`,
+        chunkId: getChunkId(build.position),
         type: EntityType.Farm,
         position: build.position,
         size: build.size,
