@@ -320,6 +320,7 @@ confirmBuild$.subscribe((build) => {
       }
       break
     case EntityType.Tree:
+    case EntityType.Farm:
       invariant(false, `cannot build ${build.entityType}`)
   }
 

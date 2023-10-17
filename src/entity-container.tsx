@@ -7,6 +7,7 @@ import { Entity, EntityStateType, EntityType } from './types.js'
 interface Textures {
   tree: PIXI.Texture
   house: PIXI.Texture
+  farm: PIXI.Texture
 }
 
 const SingleEntity = React.memo(
@@ -18,6 +19,9 @@ const SingleEntity = React.memo(
         break
       case EntityType.House:
         texture = textures.house
+        break
+      case EntityType.Farm:
+        texture = textures.farm
         break
     }
 
@@ -55,9 +59,14 @@ export function EntityContainer() {
     house.beginFill('hsl(36, 87%, 20%)')
     house.drawRect(0, 0, 200, 200)
 
+    const farm = new PIXI.Graphics()
+    farm.beginFill('hsl(27, 54%, 35%)')
+    farm.drawRect(0, 0, 400, 800)
+
     setTextures({
       tree: app.renderer.generateTexture(tree),
       house: app.renderer.generateTexture(house),
+      farm: app.renderer.generateTexture(farm),
     })
   }, [app])
 

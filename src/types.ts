@@ -33,6 +33,7 @@ export interface Config {
 export enum EntityType {
   House = 'house',
   Tree = 'tree',
+  Farm = 'farm',
 }
 
 export interface BuildState {
@@ -80,7 +81,11 @@ export interface TreeEntity extends BaseEntity {
   type: EntityType.Tree
 }
 
-export type Entity = HouseEntity | TreeEntity
+export interface FarmEntity extends BaseEntity {
+  type: EntityType.Farm
+}
+
+export type Entity = HouseEntity | TreeEntity | FarmEntity
 
 export type AgentId = string
 
