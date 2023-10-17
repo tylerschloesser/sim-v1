@@ -1,24 +1,15 @@
 import {
   Application,
   Container,
-  IRenderer,
   Graphics as PixiGraphics,
   Sprite,
-  Texture,
 } from 'pixi.js'
-import { CellType, ChunkId, Chunk } from './types.js'
-import { Vec2 } from './vec2.js'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
+import { CellType, Chunk, ChunkId } from './types.js'
+import { Vec2 } from './vec2.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'graphics'
-
-function buildTexture(renderer: IRenderer, color: string): Texture {
-  const g = new PixiGraphics()
-  g.beginFill(color)
-  g.drawRect(0, 0, 1, 1)
-  return renderer.generateTexture(g)
-}
 
 const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
   [CellType.Grass1]: 'hsl(121, 67%, 26%)',
@@ -31,8 +22,6 @@ const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
 export class Graphics {
   private readonly app: Application
   private readonly world: Container
-
-  private readonly cellTypeToTexture: Record<CellType, Texture>
 
   private readonly chunkIdToContainer: Map<ChunkId, Promise<Container>>
 
@@ -56,16 +45,6 @@ export class Graphics {
     g.beginFill('red')
     g.drawRect(0, 0, 1, 1)
     this.world.addChild(g)
-
-    const { renderer } = this.app
-
-    this.cellTypeToTexture = {
-      [CellType.Grass1]: buildTexture(renderer, 'hsl(121, 67%, 26%)'),
-      [CellType.Grass2]: buildTexture(renderer, 'hsl(121, 67%, 20%)'),
-      [CellType.Grass3]: buildTexture(renderer, 'hsl(121, 67%, 14%)'),
-      [CellType.WaterDeep]: buildTexture(renderer, 'hsl(220, 90%, 32%)'),
-      [CellType.WaterShallow]: buildTexture(renderer, 'hsl(220, 64%, 64%)'),
-    }
 
     this.chunkIdToContainer = new Map()
   }
