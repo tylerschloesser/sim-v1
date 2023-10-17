@@ -19,7 +19,7 @@ export default (env: WebpackEnv) => {
     stats: 'minimal',
     mode: prod ? 'production' : 'development',
     entry: './src/index.tsx',
-    devtool: prod ? 'source-map' : 'eval-cheap-module-source-map',
+    devtool: prod ? 'source-map' : 'eval-source-map',
     output: {
       path: path.join(__dirname, 'dist'),
       filename: '[name].[contenthash].js',
