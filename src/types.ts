@@ -1,4 +1,3 @@
-import { BehaviorSubject } from 'rxjs'
 import { Vec2 } from './vec2.js'
 
 export interface Camera {
@@ -82,8 +81,13 @@ export interface TreeEntity extends BaseEntity {
   type: EntityType.Tree
 }
 
+export interface FarmCell {
+  age: number
+}
+
 export interface FarmEntity extends BaseEntity {
   type: EntityType.Farm
+  cells: FarmCell[]
 }
 
 export type Entity = HouseEntity | TreeEntity | FarmEntity

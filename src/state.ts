@@ -31,6 +31,7 @@ import {
   EntityId,
   EntityStateType,
   EntityType,
+  FarmCell,
   ItemType,
   Job,
   JobId,
@@ -331,6 +332,15 @@ confirmBuild$.subscribe((build) => {
       }
       break
     case EntityType.Farm: {
+      const cells: FarmCell[] = []
+      for (let y = 0; y < build.size.y; y++) {
+        for (let x = 0; x < build.size.x; x++) {
+          cells.push({
+            age: 0,
+          })
+        }
+      }
+
       entity = {
         id: `entity.${build.position.x}.${build.position.y}`,
         type: EntityType.Farm,
@@ -342,6 +352,7 @@ confirmBuild$.subscribe((build) => {
             [ItemType.Wood]: 8,
           },
         },
+        cells,
       }
       break
     }
