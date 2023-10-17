@@ -251,16 +251,16 @@ export function tickWorld() {
   tickEntities(world, updates)
   tickAgents(world, updates)
 
-  if (updates.agentIds.size > 0) {
-    agents$.next({ ...world.agents })
-  }
-  if (updates.chunkIds.size > 0) {
-    chunks$.next({ ...world.chunks })
-  }
-  if (updates.entityIds.size > 0) {
-    entities$.next({ ...world.entities })
-  }
-  if (updates.jobIds.size > 0) {
-    jobs$.next({ ...world.jobs })
-  }
+  // if (updates.agentIds.size > 0) {
+  //   agents$.next({ ...world.agents })
+  // }
+  // if (updates.chunkIds.size > 0) {
+  //   chunks$.next({ ...world.chunks })
+  // }
+  // if (updates.entityIds.size > 0) {
+  //   entities$.next({ ...world.entities })
+  // }
+  // if (updates.jobIds.size > 0) {
+  //   jobs$.next({ ...world.jobs })
+  // }
 }

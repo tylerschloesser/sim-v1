@@ -17,7 +17,7 @@ import {
 } from './types.js'
 import { Vec2 } from './vec2.js'
 
-const CHUNK_MODE: 'sprite' | 'graphics' = 'graphics'
+const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
 const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
   [CellType.Grass1]: 'hsl(121, 67%, 26%)',
@@ -46,16 +46,11 @@ function generateTreeTexture(app: Application): Texture {
   const g = new PixiGraphics()
 
   // hack so that tree is centered
-  g.beginFill('hsla(0, 0%, 0%, .01)')
-  g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+  // g.beginFill('hsla(0, 0%, 0%, .01)')
+  // g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
 
   g.beginFill('hsl(121, 67%, 8%)')
-  g.drawRect(
-    MAX_CELL_SIZE * 0.1,
-    MAX_CELL_SIZE * 0.1,
-    MAX_CELL_SIZE * 0.8,
-    MAX_CELL_SIZE * 0.8,
-  )
+  g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
 
   return app.renderer.generateTexture(g)
 }
@@ -79,7 +74,7 @@ export class Graphics {
     this.app = new Application({
       view: canvas,
       resizeTo: container,
-      antialias: true,
+      // antialias: true,
     })
 
     this.world = new Container()
