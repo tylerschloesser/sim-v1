@@ -2,9 +2,11 @@ import * as PIXI from 'pixi.js'
 import { EntityStateType, FarmEntity } from './types.js'
 import { useEffect, useState } from 'react'
 import { Sprite, useApp } from '@pixi/react'
+import { Vec2 } from './vec2.js'
 
 interface Textures {
   base: PIXI.Texture
+  cell1: PIXI.Texture
 }
 
 export function FarmContainer({ entity }: { entity: FarmEntity }) {
@@ -16,7 +18,16 @@ export function FarmContainer({ entity }: { entity: FarmEntity }) {
     base.beginFill('hsl(27, 54%, 35%)')
     base.drawRect(0, 0, 400, 400)
 
-    setTextures({ base: app.renderer.generateTexture(base) })
+    const cell1 = new PIXI.Graphics()
+    cell1.beginFill('hsla(0, 0%, 0%, .01)')
+    cell1.drawRect(0, 0, 100, 100)
+    cell1.beginFill('green')
+    cell1.drawCircle(50, 50, 10)
+
+    setTextures({
+      base: app.renderer.generateTexture(base),
+      cell1: app.renderer.generateTexture(cell1),
+    })
   }, [])
 
   if (!textures) return null
@@ -29,6 +40,17 @@ export function FarmContainer({ entity }: { entity: FarmEntity }) {
       position={entity.position}
       scale={1 / 100}
       alpha={alpha}
-    />
+    >
+      {entity.cells.map(({ age }, i) => {
+        return (
+          <Sprite
+            position={new Vec2(i % entity.size.x, i / entity.size.y)
+              .floor()
+              .mul(100)}
+            texture={textures.cell1}
+          />
+        )
+      })}
+    </Sprite>
   )
 }
