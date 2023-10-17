@@ -34,7 +34,7 @@ export class Graphics {
 
   private readonly cellTypeToTexture: Record<CellType, Texture>
 
-  private readonly chunkIdToContainer: Map<ChunkId, Container>
+  private readonly chunkIdToContainer: Map<ChunkId, Promise<Container>>
 
   constructor({
     canvas,
@@ -79,50 +79,65 @@ export class Graphics {
   }
 
   showChunk({ chunk }: { chunk: Chunk }) {
-    let container = this.chunkIdToContainer.get(chunk.id)
-    if (!container) {
-      const g = new PixiGraphics()
-      invariant(chunk.cells.length === CHUNK_SIZE ** 2)
-
-      // using graphics is slightly better than sprites,
-      // but neither are as crisp as graphics via react/pixi...
-      //
-      if (CHUNK_MODE === 'sprite') {
-        for (let i = 0; i < chunk.cells.length; i++) {
-          const cell = chunk.cells[i]
-          invariant(cell)
-          g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
-          const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
-            .floor()
-            .mul(MAX_CELL_SIZE)
-          g.drawRect(x, y, MAX_CELL_SIZE, MAX_CELL_SIZE)
-        }
-        const texture = this.app.renderer.generateTexture(g)
-
-        container = new Sprite(texture)
-        container.setTransform(
-          chunk.position.x,
-          chunk.position.y,
-          1 / MAX_CELL_SIZE,
-          1 / MAX_CELL_SIZE,
-        )
-      } else {
-        invariant(CHUNK_MODE === 'graphics')
-
-        for (let i = 0; i < chunk.cells.length; i++) {
-          const cell = chunk.cells[i]
-          invariant(cell)
-          g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
-          const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor()
-          g.drawRect(x, y, 1, 1)
-        }
-        container = g
-        container.setTransform(chunk.position.x, chunk.position.y)
-      }
-
-      this.chunkIdToContainer.set(chunk.id, container)
-      this.world.addChild(container)
+    let promise = this.chunkIdToContainer.get(chunk.id)
+    if (!promise) {
+      promise = generateChunk({ chunk, app: this.app })
+      promise.then((container) => {
+        this.world.addChild(container)
+      })
+      this.chunkIdToContainer.set(chunk.id, promise)
     }
-    container.visible = true
+    promise.then((container) => {
+      container.visible = true
+    })
+  }
+}
+
+async function generateChunk({
+  chunk,
+  app,
+}: {
+  chunk: Chunk
+  app: Application
+}): Promise<Container> {
+  const g = new PixiGraphics()
+  invariant(chunk.cells.length === CHUNK_SIZE ** 2)
+
+  // using graphics is slightly better than sprites,
+  // but neither are as crisp as graphics via react/pixi...
+  //
+  if (CHUNK_MODE === 'sprite') {
+    for (let i = 0; i < chunk.cells.length; i++) {
+      const cell = chunk.cells[i]
+      invariant(cell)
+      g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
+      const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
+        .floor()
+        .mul(MAX_CELL_SIZE)
+      g.drawRect(x, y, MAX_CELL_SIZE, MAX_CELL_SIZE)
+    }
+    const texture = app.renderer.generateTexture(g)
+
+    const sprite = new Sprite(texture)
+    sprite.setTransform(
+      chunk.position.x,
+      chunk.position.y,
+      1 / MAX_CELL_SIZE,
+      1 / MAX_CELL_SIZE,
+    )
+
+    return sprite
+  } else {
+    invariant(CHUNK_MODE === 'graphics')
+
+    for (let i = 0; i < chunk.cells.length; i++) {
+      const cell = chunk.cells[i]
+      invariant(cell)
+      g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
+      const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor()
+      g.drawRect(x, y, 1, 1)
+    }
+    g.setTransform(chunk.position.x, chunk.position.y)
+    return g
   }
 }

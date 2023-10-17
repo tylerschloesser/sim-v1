@@ -110,7 +110,7 @@ export function World() {
   return (
     <div className={styles.world} ref={setContainer}>
       <canvas ref={setCanvas} className={styles['canvas-v2']}></canvas>
-      {container && (
+      {container && v1 && (
         <Stage
           width={rect?.width}
           height={rect?.height}
@@ -123,7 +123,7 @@ export function World() {
         >
           <Subscribe>
             <WorldContainer>
-              {v1 && <ChunkContainer />}
+              <ChunkContainer />
               <EntityContainer />
               <SelectedEntityContainer />
               <AgentContainer />
