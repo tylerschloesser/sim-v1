@@ -451,7 +451,7 @@ combineLatest([graphics$, chunks$, visibleChunkIds$]).subscribe(
     for (const visibleChunkId of visibleChunkIds) {
       const chunk = chunks[visibleChunkId]
       invariant(chunk)
-      graphics.showChunk({ chunk })
+      graphics.renderChunk({ chunk })
     }
   },
 )

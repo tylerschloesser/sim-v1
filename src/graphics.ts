@@ -78,7 +78,7 @@ export class Graphics {
     this.world.setTransform(translate.x, translate.y, scale, scale)
   }
 
-  showChunk({ chunk }: { chunk: Chunk }) {
+  renderChunk({ chunk }: { chunk: Chunk }) {
     let promise = this.chunkIdToContainer.get(chunk.id)
     if (!promise) {
       promise = generateChunk({ chunk, app: this.app })
