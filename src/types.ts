@@ -82,7 +82,7 @@ export interface TreeEntity extends BaseEntity {
 }
 
 export interface FarmCell {
-  age: number
+  ticks: number
 }
 
 export interface FarmEntity extends BaseEntity {

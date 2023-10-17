@@ -336,7 +336,7 @@ confirmBuild$.subscribe((build) => {
       for (let y = 0; y < build.size.y; y++) {
         for (let x = 0; x < build.size.x; x++) {
           cells.push({
-            age: 0,
+            ticks: 0,
           })
         }
       }

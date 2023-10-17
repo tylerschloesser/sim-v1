@@ -10,6 +10,8 @@ import {
   CutTreesJob,
   EntityId,
   EntityStateType,
+  EntityType,
+  FarmEntity,
   ItemType,
   JobId,
   JobType,
@@ -146,21 +148,37 @@ function tickCutTreesJob({
   }
 }
 
-export function tickWorld() {
-  const world: World = {
-    entities: entities$.value,
-    agents: agents$.value,
-    jobs: jobs$.value,
-    chunks: chunks$.value,
+function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
+  for (const cell of farm.cells) {
+    cell.ticks += 1
   }
 
-  const updates: WorldUpdates = {
-    entityIds: new Set(),
-    agentIds: new Set(),
-    jobIds: new Set(),
-    chunkIds: new Set(),
-  }
+  world.entities[farm.id] = { ...farm }
+  updates.entityIds.add(farm.id)
 
+  for (let y = 0; y < farm.size.y; y++) {
+    for (let x = 0; x < farm.size.x; x++) {
+      const cellPosition = farm.position.add(new Vec2(x, y))
+      const chunkId = getChunkId(cellPosition)
+      updates.chunkIds.add(chunkId)
+    }
+  }
+}
+
+function tickEntities(world: World, updates: WorldUpdates): void {
+  for (const entity of Object.values(world.entities)) {
+    if (entity.state.type !== EntityStateType.Active) {
+      continue
+    }
+    switch (entity.type) {
+      case EntityType.Farm:
+        tickFarm(world, updates, entity)
+        break
+    }
+  }
+}
+
+function tickAgents(world: World, updates: WorldUpdates): void {
   for (const agent of Object.values(world.agents)) {
     if (!agent.jobId) {
       for (const job of Object.values(world.jobs)) {
@@ -195,7 +213,7 @@ export function tickWorld() {
     }
 
     if (!agent.jobId) {
-      return
+      continue
     }
 
     const job = world.jobs[agent.jobId]
@@ -209,18 +227,37 @@ export function tickWorld() {
         tickBuildJob({ world, updates, job, agent })
         break
     }
+  }
+}
 
-    if (updates.agentIds.size > 0) {
-      agents$.next({ ...world.agents })
-    }
-    if (updates.chunkIds.size > 0) {
-      chunks$.next({ ...world.chunks })
-    }
-    if (updates.entityIds.size > 0) {
-      entities$.next({ ...world.entities })
-    }
-    if (updates.jobIds.size > 0) {
-      jobs$.next({ ...world.jobs })
-    }
+export function tickWorld() {
+  const world: World = {
+    entities: entities$.value,
+    agents: agents$.value,
+    jobs: jobs$.value,
+    chunks: chunks$.value,
+  }
+
+  const updates: WorldUpdates = {
+    entityIds: new Set(),
+    agentIds: new Set(),
+    jobIds: new Set(),
+    chunkIds: new Set(),
+  }
+
+  tickEntities(world, updates)
+  tickAgents(world, updates)
+
+  if (updates.agentIds.size > 0) {
+    agents$.next({ ...world.agents })
+  }
+  if (updates.chunkIds.size > 0) {
+    chunks$.next({ ...world.chunks })
+  }
+  if (updates.entityIds.size > 0) {
+    entities$.next({ ...world.entities })
+  }
+  if (updates.jobIds.size > 0) {
+    jobs$.next({ ...world.jobs })
   }
 }
