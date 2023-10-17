@@ -1,23 +1,23 @@
 import { Container, Stage } from '@pixi/react'
 import { Subscribe } from '@react-rxjs/core'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { AgentContainer } from './agent-container.js'
+import { BuildContainer } from './build-container.js'
 import { ChunkContainer } from './chunk-container.js'
+import { EntityContainer } from './entity-container.js'
+import { Graphics } from './graphics.js'
 import { GridContainer } from './grid-container.js'
 import { HoverContainer } from './hover-container.js'
+import { SelectContainer } from './select-container.js'
+import { SelectedEntityContainer } from './selected-entity-container.js'
 import { confirmBuild, navigate$, useCamera, useViewport } from './state.js'
+import { tickWorld } from './tick.js'
+import { EntityType } from './types.js'
 import { getCellSize } from './util.js'
+import { Vec2 } from './vec2.js'
 import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
-import { BuildContainer } from './build-container.js'
-import { EntityContainer } from './entity-container.js'
-import { AgentContainer } from './agent-container.js'
-import { SelectContainer } from './select-container.js'
-import { tickWorld } from './tick.js'
-import { SelectedEntityContainer } from './selected-entity-container.js'
-import { EntityType } from './types.js'
-import { Vec2 } from './vec2.js'
-import { initGraphics } from './graphics.js'
 
 function WorldContainer({ children }: React.PropsWithChildren<{}>) {
   const camera = useCamera()
@@ -67,9 +67,20 @@ export function World() {
     })
   }, [])
 
+  const graphics = useRef<Graphics>()
   useEffect(() => {
-    if (!canvas || !container) return
-    initGraphics({ canvas, container })
+    if (graphics.current) {
+      graphics.current.destroy()
+      graphics.current = undefined
+    }
+    if (!canvas || !container) {
+      return
+    }
+    graphics.current = new Graphics({ canvas, container })
+    return () => {
+      graphics.current?.destroy()
+      graphics.current = undefined
+    }
   }, [canvas, container])
 
   return (

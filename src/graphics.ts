@@ -1,32 +1,32 @@
-import { Application, Container } from 'pixi.js'
+import { Application, Container, Graphics as PixiGraphics } from 'pixi.js'
 
-interface Graphics {
-  app: Application
-  world: Container
-}
+export class Graphics {
+  private readonly app: Application
+  private readonly world: Container
 
-export function initGraphics({
-  canvas,
-  container,
-}: {
-  canvas: HTMLCanvasElement
-  container: HTMLDivElement
-}): Graphics {
-  const app = new Application({
-    view: canvas,
-    resizeTo: container,
-    antialias: true,
-  })
+  constructor({
+    canvas,
+    container,
+  }: {
+    canvas: HTMLCanvasElement
+    container: HTMLDivElement
+  }) {
+    this.app = new Application({
+      view: canvas,
+      resizeTo: container,
+      antialias: true,
+    })
 
-  const world = new Container()
-  app.stage.addChild(world)
+    this.world = new Container()
+    this.app.stage.addChild(this.world)
 
-  return {
-    app,
-    world,
+    const g = new PixiGraphics()
+    g.beginFill('red')
+    g.drawRect(200, 200, 100, 100)
+    this.world.addChild(g)
   }
-}
 
-export function destroyGraphics(graphics: Graphics): void {
-  graphics.app.destroy(false, { children: true })
+  destroy() {
+    this.app.destroy(false, { children: true })
+  }
 }
