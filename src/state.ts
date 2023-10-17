@@ -494,13 +494,29 @@ combineLatest([graphics$, updatedChunkIds$])
   })
 
 combineLatest([graphics$, updatedChunkIds$])
-  .pipe(withLatestFrom(entities$))
-  .subscribe(([[graphics, updatedChunkIds], entities]) => {
-    for (const entity of Object.values(entities)) {
-      if (updatedChunkIds.show.has(entity.chunkId)) {
-        graphics.renderEntity({ entity })
-      } else if (updatedChunkIds.hide.has(entity.chunkId)) {
-        graphics.hideEntity({ entity })
-      }
+  .pipe(withLatestFrom(chunks$, entities$))
+  .subscribe(([[graphics, updatedChunkIds], chunks, entities]) => {
+    for (const chunkId of updatedChunkIds.show) {
+      const chunk = chunks[chunkId]
+      invariant(chunk)
+      graphics.renderLowResEntities({ chunk, entities })
+    }
+
+    for (const chunkId of updatedChunkIds.hide) {
+      const chunk = chunks[chunkId]
+      invariant(chunk)
+      graphics.hideLowResEntities({ chunk })
     }
   })
+
+// combineLatest([graphics$, updatedChunkIds$])
+//   .pipe(withLatestFrom(entities$))
+//   .subscribe(([[graphics, updatedChunkIds], entities]) => {
+//     for (const entity of Object.values(entities)) {
+//       if (updatedChunkIds.show.has(entity.chunkId)) {
+//         graphics.renderEntity({ entity })
+//       } else if (updatedChunkIds.hide.has(entity.chunkId)) {
+//         graphics.hideEntity({ entity })
+//       }
+//     }
+//   })
