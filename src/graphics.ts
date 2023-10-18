@@ -82,6 +82,8 @@ export class Graphics {
     this.app = new Application({
       view: canvas,
       resizeTo: container,
+      // TODO verify this improves performance
+      eventMode: 'none',
       // antialias: true,
     })
 
