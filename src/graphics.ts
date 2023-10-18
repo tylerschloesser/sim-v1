@@ -21,6 +21,7 @@ import {
 import { Vec2 } from './vec2.js'
 import { EntityContainer } from './entity-container-v2.js'
 import { TreeContainer } from './tree-container.js'
+import { HouseContainer } from './house-container.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -36,10 +37,6 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Tree]: 'hsl(121, 67%, 8%)',
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
-}
-
-class HouseContainer extends EntityContainer {
-  update(entity: Entity): void {}
 }
 
 function generateTreeTexture(app: Application): Texture {
