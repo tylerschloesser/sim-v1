@@ -66,13 +66,9 @@ export class Graphics {
   private readonly app: Application
   private readonly world: Container
 
-  private readonly chunkIdToContainer: Map<ChunkId, Promise<Container>>
-  private readonly entityIdToContainer: Map<EntityId, Promise<Container>>
-
-  private readonly chunkIdToLowResEntitiesContainer: Map<
-    ChunkId,
-    Promise<Container>
-  >
+  private readonly chunkIdToContainer: Map<ChunkId, Container>
+  private readonly entityIdToContainer: Map<EntityId, Container>
+  private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container>
 
   private readonly textures: Textures
 
@@ -115,27 +111,21 @@ export class Graphics {
   }
 
   renderChunk({ chunk }: { chunk: Chunk }) {
-    let promise = this.chunkIdToContainer.get(chunk.id)
-    if (!promise) {
-      promise = newChunkContainer({ chunk, app: this.app })
-      promise.then((container) => {
-        this.world.addChild(container)
-      })
-      this.chunkIdToContainer.set(chunk.id, promise)
+    let container = this.chunkIdToContainer.get(chunk.id)
+    if (!container) {
+      container = newChunkContainer({ chunk, app: this.app })
+      this.world.addChild(container)
+      this.chunkIdToContainer.set(chunk.id, container)
     }
-    promise.then((container) => {
-      container.visible = true
-    })
+    container.visible = true
   }
 
   hideChunk({ chunk }: { chunk: Chunk }) {
-    let promise = this.chunkIdToContainer.get(chunk.id)
-    if (!promise) {
+    let container = this.chunkIdToContainer.get(chunk.id)
+    if (!container) {
       return
     }
-    promise.then((container) => {
-      container.visible = false
-    })
+    container.visible = false
   }
 
   renderLowResEntities({
@@ -145,63 +135,53 @@ export class Graphics {
     chunk: Chunk
     entities: Record<EntityId, Entity>
   }) {
-    let promise = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
-    if (!promise) {
-      promise = newLowResEntitiesContainer({
+    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
+    if (!container) {
+      container = newLowResEntitiesContainer({
         app: this.app,
         chunk,
         entities,
       })
-      promise.then((container) => {
-        this.world.addChild(container)
-      })
-      this.chunkIdToLowResEntitiesContainer.set(chunk.id, promise)
+      this.world.addChild(container)
+      this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
     }
-    promise.then((container) => {
-      container.visible = true
-    })
+    container.visible = true
   }
 
   hideLowResEntities({ chunk }: { chunk: Chunk }) {
-    let promise = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
-    if (!promise) {
+    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
+    if (!container) {
       return
     }
-    promise.then((container) => {
-      container.visible = false
-    })
+    container.visible = false
   }
 
   renderEntity({ entity }: { entity: Entity }) {
-    let promise = this.entityIdToContainer.get(entity.id)
-    if (!promise) {
-      promise = newEntityContainer({
+    let container = this.entityIdToContainer.get(entity.id)
+    if (!container) {
+      container = newEntityContainer({
         entity,
         app: this.app,
         textures: this.textures,
       })
-      promise.then((container) => {
-        this.world.addChild(container)
-      })
-      this.entityIdToContainer.set(entity.id, promise)
+      this.world.addChild(container)
+      this.entityIdToContainer.set(entity.id, container)
     }
-    promise.then((container) => {
-      container.visible = true
-    })
+    container.visible = true
   }
 
   hideEntity({ entity }: { entity: Entity }) {
-    const promise = this.entityIdToContainer.get(entity.id)
-    if (!promise) {
+    const container = this.entityIdToContainer.get(entity.id)
+    if (!container) {
       return
     }
-    promise.then((container) => {
-      container.visible = false
-    })
+    container.visible = false
   }
+
+  hideAllEntities() {}
 }
 
-async function newEntityContainer({
+function newEntityContainer({
   entity,
   app,
   textures,
@@ -209,7 +189,7 @@ async function newEntityContainer({
   entity: Entity
   app: Application
   textures: Textures
-}): Promise<Container> {
+}): Container {
   let container: Container
   switch (entity.type) {
     case EntityType.Tree:
@@ -230,7 +210,7 @@ async function newEntityContainer({
   return container
 }
 
-async function newLowResEntitiesContainer({
+function newLowResEntitiesContainer({
   chunk,
   entities,
   app,
@@ -238,7 +218,7 @@ async function newLowResEntitiesContainer({
   chunk: Chunk
   entities: Record<EntityId, Entity>
   app: Application
-}): Promise<Container> {
+}): Container {
   const entityIds = new Set<EntityId>()
   for (const entityId of chunk.cells
     .map((cell) => cell.entityId)
@@ -280,13 +260,13 @@ async function newLowResEntitiesContainer({
   return sprite
 }
 
-async function newChunkContainer({
+function newChunkContainer({
   chunk,
   app,
 }: {
   chunk: Chunk
   app: Application
-}): Promise<Container> {
+}): Container {
   const g = new PixiGraphics()
   invariant(chunk.cells.length === CHUNK_SIZE ** 2)
 

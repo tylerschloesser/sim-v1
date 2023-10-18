@@ -532,14 +532,14 @@ combineLatest([graphics$, zoomLevel$])
     }
   })
 
-// combineLatest([graphics$, updatedChunkIds$])
-//   .pipe(withLatestFrom(entities$))
-//   .subscribe(([[graphics, updatedChunkIds], entities]) => {
-//     for (const entity of Object.values(entities)) {
-//       if (updatedChunkIds.show.has(entity.chunkId)) {
-//         graphics.renderEntity({ entity })
-//       } else if (updatedChunkIds.hide.has(entity.chunkId)) {
-//         graphics.hideEntity({ entity })
-//       }
-//     }
-//   })
+combineLatest([graphics$, updatedChunkIds$])
+  .pipe(withLatestFrom(entities$))
+  .subscribe(([[graphics, updatedChunkIds], entities]) => {
+    for (const entity of Object.values(entities)) {
+      if (updatedChunkIds.show.has(entity.chunkId)) {
+        graphics.renderEntity({ entity })
+      } else if (updatedChunkIds.hide.has(entity.chunkId)) {
+        graphics.hideEntity({ entity })
+      }
+    }
+  })
