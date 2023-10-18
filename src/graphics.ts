@@ -178,7 +178,11 @@ export class Graphics {
     container.visible = false
   }
 
-  hideAllEntities() {}
+  hideAllEntities() {
+    for (const container of this.entityIdToContainer.values()) {
+      container.visible = false
+    }
+  }
 }
 
 function newEntityContainer({

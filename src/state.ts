@@ -533,13 +533,38 @@ combineLatest([graphics$, zoomLevel$])
   })
 
 combineLatest([graphics$, updatedChunkIds$])
-  .pipe(withLatestFrom(entities$))
-  .subscribe(([[graphics, updatedChunkIds], entities]) => {
+  .pipe(withLatestFrom(entities$, zoomLevel$))
+  .subscribe(([[graphics, updatedChunkIds], entities, zoomLevel]) => {
+    if (zoomLevel === ZoomLevel.Low) {
+      return
+    }
+
     for (const entity of Object.values(entities)) {
       if (updatedChunkIds.show.has(entity.chunkId)) {
         graphics.renderEntity({ entity })
       } else if (updatedChunkIds.hide.has(entity.chunkId)) {
         graphics.hideEntity({ entity })
+      }
+    }
+  })
+
+combineLatest([graphics$, zoomLevel$])
+  .pipe(withLatestFrom(visibleChunkIds$, chunks$, entities$))
+  .subscribe(([[graphics, zoomLevel], visibleChunkIds, chunks, entities]) => {
+    if (zoomLevel === ZoomLevel.Low) {
+      graphics.hideAllEntities()
+      return
+    }
+
+    for (const chunkId of visibleChunkIds) {
+      const chunk = chunks[chunkId]
+      invariant(chunk)
+      for (const entityId of chunk.cells
+        .map((cell) => cell.entityId)
+        .filter((entityId): entityId is EntityId => !!entityId)) {
+        const entity = entities[entityId]
+        invariant(entity)
+        graphics.renderEntity({ entity })
       }
     }
   })
