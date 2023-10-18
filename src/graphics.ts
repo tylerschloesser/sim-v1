@@ -8,6 +8,7 @@ import {
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
+import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
 import {
   CellType,
   Chunk,
@@ -15,6 +16,7 @@ import {
   Entity,
   EntityId,
   EntityType,
+  Textures,
 } from './types.js'
 import { Vec2 } from './vec2.js'
 
@@ -33,12 +35,6 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
 }
-
-enum TextureType {
-  Tree = 'tree',
-}
-
-type Textures = Record<TextureType, Texture>
 
 class TreeContainer extends Container {
   constructor(textures: Textures) {
@@ -103,6 +99,7 @@ export class Graphics {
 
     this.textures = {
       tree: generateTreeTexture(this.app),
+      ...generateFarmTextures(this.app),
     }
   }
 
@@ -204,17 +201,14 @@ function newEntityContainer({
       container = new TreeContainer(textures)
       break
     case EntityType.Farm:
+      container = new FarmContainer(textures)
+      break
     case EntityType.House:
       // TODO
       container = new Container()
       break
   }
-  container.setTransform(
-    entity.position.x,
-    entity.position.y,
-    entity.size.x,
-    entity.size.y,
-  )
+  container.setTransform(entity.position.x, entity.position.y)
   return container
 }
 

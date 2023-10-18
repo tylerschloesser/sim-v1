@@ -1,3 +1,4 @@
+import { Texture } from 'pixi.js'
 import { Vec2 } from './vec2.js'
 
 export interface Camera {
@@ -153,3 +154,16 @@ export enum ZoomLevel {
   Low = 'low',
   High = 'high',
 }
+
+export enum TextureType {
+  Tree = 'tree',
+
+  FarmBase = 'farm-base',
+  FarmCell1 = 'farm-cell-1',
+  FarmCell2 = 'farm-cell-2',
+  FarmCell3 = 'farm-cell-3',
+  FarmCell4 = 'farm-cell-4',
+  FarmCell5 = 'farm-cell-5',
+}
+
+export type Textures = Record<TextureType, Texture>
