@@ -8,7 +8,10 @@ import {
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
+import { EntityContainer } from './entity-container-v2.js'
 import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
+import { HouseContainer, generateHouseTextures } from './house-container.js'
+import { TreeContainer } from './tree-container.js'
 import {
   CellType,
   Chunk,
@@ -19,9 +22,6 @@ import {
   Textures,
 } from './types.js'
 import { Vec2 } from './vec2.js'
-import { EntityContainer } from './entity-container-v2.js'
-import { TreeContainer } from './tree-container.js'
-import { HouseContainer } from './house-container.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -96,6 +96,7 @@ export class Graphics {
     this.textures = {
       tree: generateTreeTexture(this.app),
       ...generateFarmTextures(this.app),
+      ...generateHouseTextures(this.app),
     }
   }
 

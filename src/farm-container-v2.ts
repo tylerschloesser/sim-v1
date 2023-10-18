@@ -9,13 +9,7 @@ import {
 import invariant from 'tiny-invariant'
 import { MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container-v2.js'
-import {
-  Entity,
-  EntityType,
-  FarmEntity,
-  TextureType,
-  Textures,
-} from './types.js'
+import { Entity, EntityType, TextureType, Textures } from './types.js'
 import { Vec2 } from './vec2.js'
 
 const SIZE = new Vec2(4)

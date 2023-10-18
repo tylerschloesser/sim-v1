@@ -157,6 +157,7 @@ export enum ZoomLevel {
 
 export enum TextureType {
   Tree = 'tree',
+  House = 'house',
 
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',
