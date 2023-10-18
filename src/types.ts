@@ -148,3 +148,8 @@ export interface World {
   agents: Record<AgentId, Agent>
   jobs: Record<JobId, Job>
 }
+
+export enum ZoomLevel {
+  Low = 'low',
+  High = 'high',
+}

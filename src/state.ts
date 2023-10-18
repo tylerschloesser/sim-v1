@@ -8,6 +8,7 @@ import {
   distinctUntilChanged,
   map,
   pairwise,
+  skip,
   startWith,
   withLatestFrom,
 } from 'rxjs'
@@ -39,6 +40,7 @@ import {
   JobType,
   PointerMode,
   Select,
+  ZoomLevel,
 } from './types.js'
 import {
   canBuild,
@@ -148,18 +150,6 @@ const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   distinctUntilChanged(isEqual),
 )
 export const [useVisibleChunkIds] = bind(visibleChunkIds$)
-
-export const visibleChunks$ = combineLatest([chunks$, visibleChunkIds$]).pipe(
-  map(([chunks, visibleChunkIds]) => {
-    const visibleChunks: Record<ChunkId, Chunk> = {}
-    for (const chunkId of visibleChunkIds) {
-      const chunk = chunks[chunkId]
-      if (chunk) {
-        visibleChunks[chunkId] = chunk
-      }
-    }
-  }),
-)
 
 visibleChunkIds$.subscribe((visibleChunkIds) => {
   const chunks = chunks$.value
@@ -493,9 +483,23 @@ combineLatest([graphics$, updatedChunkIds$])
     }
   })
 
+const zoomLevel$ = camera$.pipe(
+  map((camera) => {
+    if (camera.zoom < 0.1) {
+      return ZoomLevel.Low
+    }
+    return ZoomLevel.High
+  }),
+  distinctUntilChanged(),
+)
+
 combineLatest([graphics$, updatedChunkIds$])
-  .pipe(withLatestFrom(chunks$, entities$))
-  .subscribe(([[graphics, updatedChunkIds], chunks, entities]) => {
+  .pipe(withLatestFrom(chunks$, entities$, zoomLevel$))
+  .subscribe(([[graphics, updatedChunkIds], chunks, entities, zoomLevel]) => {
+    if (zoomLevel === ZoomLevel.High) {
+      return
+    }
+
     for (const chunkId of updatedChunkIds.show) {
       const chunk = chunks[chunkId]
       invariant(chunk)
@@ -506,6 +510,25 @@ combineLatest([graphics$, updatedChunkIds$])
       const chunk = chunks[chunkId]
       invariant(chunk)
       graphics.hideLowResEntities({ chunk })
+    }
+  })
+
+combineLatest([graphics$, zoomLevel$])
+  .pipe(
+    withLatestFrom(visibleChunkIds$, chunks$, entities$),
+    // zoomLevel is handled during normal render path,
+    // so only need to do this when it changes
+    skip(1),
+  )
+  .subscribe(([[graphics, zoomLevel], visibleChunkIds, chunks, entities]) => {
+    for (const chunkId of visibleChunkIds) {
+      const chunk = chunks[chunkId]
+      invariant(chunk)
+      if (zoomLevel === ZoomLevel.Low) {
+        graphics.renderLowResEntities({ chunk, entities })
+      } else {
+        graphics.hideLowResEntities({ chunk })
+      }
     }
   })
 
