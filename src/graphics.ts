@@ -51,15 +51,19 @@ class TreeContainer extends Container {
 
 function generateTreeTexture(app: Application): Texture {
   const g = new PixiGraphics()
-
-  // hack so that tree is centered
-  // g.beginFill('hsla(0, 0%, 0%, .01)')
-  // g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+  const padding = 0.1
 
   g.beginFill('hsl(121, 67%, 8%)')
-  g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+  g.drawRect(
+    padding * MAX_CELL_SIZE,
+    padding * MAX_CELL_SIZE,
+    MAX_CELL_SIZE * (1 - padding * 2),
+    MAX_CELL_SIZE * (1 - padding * 2),
+  )
 
-  return app.renderer.generateTexture(g)
+  return app.renderer.generateTexture(g, {
+    region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+  })
 }
 
 export class Graphics {
