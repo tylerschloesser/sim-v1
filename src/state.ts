@@ -40,6 +40,7 @@ import {
   JobType,
   PointerMode,
   Select,
+  WorldUpdates,
   ZoomLevel,
 } from './types.js'
 import {
@@ -564,6 +565,24 @@ combineLatest([graphics$, zoomLevel$])
         .filter((entityId): entityId is EntityId => !!entityId)) {
         const entity = entities[entityId]
         invariant(entity)
+        graphics.renderEntity({ entity })
+      }
+    }
+  })
+
+export const updates$ = new Subject<WorldUpdates>()
+
+combineLatest([graphics$, updates$])
+  .pipe(withLatestFrom(entities$, visibleChunkIds$, zoomLevel$))
+  .subscribe(([[graphics, updates], entities, visibleChunkIds, zoomLevel]) => {
+    if (zoomLevel === ZoomLevel.Low) {
+      return
+    }
+
+    for (const entityId of updates.entityIds) {
+      const entity = entities[entityId]
+      invariant(entity)
+      if (visibleChunkIds.has(entity.chunkId)) {
         graphics.renderEntity({ entity })
       }
     }

@@ -15,6 +15,7 @@ import {
   confirmBuild,
   navigate$,
   setGraphics,
+  updates$,
   useCamera,
   useViewport,
 } from './state.js'
@@ -43,6 +44,7 @@ export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
   const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null)
   const rect = container?.getBoundingClientRect()
+  const graphics = useRef<Graphics>()
   useEventListeners(container)
   useResizeObserver(container)
 
@@ -56,7 +58,8 @@ export function World() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
-      tickWorld()
+      const updates = tickWorld()
+      updates$.next(updates)
     }, 100)
     return () => {
       window.clearInterval(interval)
@@ -73,7 +76,6 @@ export function World() {
     })
   }, [])
 
-  const graphics = useRef<Graphics>()
   useEffect(() => {
     if (graphics.current) {
       graphics.current.destroy()

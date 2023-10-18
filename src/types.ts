@@ -167,3 +167,10 @@ export enum TextureType {
 }
 
 export type Textures = Record<TextureType, Texture>
+
+export interface WorldUpdates {
+  entityIds: Set<EntityId>
+  agentIds: Set<AgentId>
+  jobIds: Set<JobId>
+  chunkIds: Set<ChunkId>
+}

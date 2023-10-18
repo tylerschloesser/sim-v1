@@ -1,29 +1,19 @@
 import invariant from 'tiny-invariant'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
-import { Vec2 } from './vec2.js'
-import { getCell, getChunkId } from './util.js'
 import {
   Agent,
-  AgentId,
   BuildJob,
-  ChunkId,
   CutTreesJob,
-  EntityId,
   EntityStateType,
   EntityType,
   FarmEntity,
   ItemType,
-  JobId,
   JobType,
   World,
+  WorldUpdates,
 } from './types.js'
-
-interface WorldUpdates {
-  entityIds: Set<EntityId>
-  agentIds: Set<AgentId>
-  jobIds: Set<JobId>
-  chunkIds: Set<ChunkId>
-}
+import { getCell, getChunkId } from './util.js'
+import { Vec2 } from './vec2.js'
 
 function tickBuildJob({
   world,
@@ -150,7 +140,7 @@ function tickCutTreesJob({
 
 function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
   for (const cell of farm.cells) {
-    cell.maturity += (1 / (60 * 10)) * (cell.water ? 1 : 0.25)
+    cell.maturity += (1 / (5 * 10)) * (cell.water ? 1 : 0.25)
     if (cell.water > 0) {
       cell.water = Math.max(cell.water - 1 / (60 * 10), 0)
     }
@@ -250,6 +240,8 @@ export function tickWorld() {
 
   tickEntities(world, updates)
   tickAgents(world, updates)
+
+  return updates
 
   // if (updates.agentIds.size > 0) {
   //   agents$.next({ ...world.agents })

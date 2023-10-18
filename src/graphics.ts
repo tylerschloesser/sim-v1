@@ -19,6 +19,7 @@ import {
   Textures,
 } from './types.js'
 import { Vec2 } from './vec2.js'
+import { EntityContainer } from './entity-container-v2.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -36,13 +37,18 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.House]: 'pink',
 }
 
-class TreeContainer extends Container {
+class TreeContainer extends EntityContainer {
   constructor(textures: Textures) {
     super()
     const sprite = new Sprite(textures.tree)
     sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
     this.addChild(sprite)
   }
+  update(entity: Entity): void {}
+}
+
+class HouseContainer extends EntityContainer {
+  update(entity: Entity): void {}
 }
 
 function generateTreeTexture(app: Application): Texture {
@@ -67,7 +73,7 @@ export class Graphics {
   private readonly world: Container
 
   private readonly chunkIdToContainer: Map<ChunkId, Container>
-  private readonly entityIdToContainer: Map<EntityId, Container>
+  private readonly entityIdToContainer: Map<EntityId, EntityContainer>
   private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container>
 
   private readonly textures: Textures
@@ -170,6 +176,7 @@ export class Graphics {
       this.world.addChild(container)
       this.entityIdToContainer.set(entity.id, container)
     }
+    container.update(entity)
     container.visible = true
   }
 
@@ -196,8 +203,8 @@ function newEntityContainer({
   entity: Entity
   app: Application
   textures: Textures
-}): Container {
-  let container: Container
+}): EntityContainer {
+  let container: EntityContainer
   switch (entity.type) {
     case EntityType.Tree:
       container = new TreeContainer(textures)
@@ -206,8 +213,7 @@ function newEntityContainer({
       container = new FarmContainer(textures)
       break
     case EntityType.House:
-      // TODO
-      container = new Container()
+      container = new HouseContainer()
       break
   }
   container.setTransform(entity.position.x, entity.position.y)
