@@ -50,4 +50,8 @@ export class FarmContainer extends Container {
     base.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
     this.addChild(base)
   }
+
+  // update(entity: FarmEntity) {
+
+  // }
 }
