@@ -13,6 +13,7 @@ import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
 import { HouseContainer, generateHouseTextures } from './house-container.js'
 import { TreeContainer } from './tree-container.js'
 import {
+  BuildState,
   CellType,
   Chunk,
   ChunkId,
@@ -59,6 +60,8 @@ function generateTreeTexture(app: Application): Texture {
 export class Graphics {
   private readonly app: Application
   private readonly world: Container
+
+  private buildContainer?: Container
 
   private readonly chunkIdToContainer: Map<ChunkId, Container>
   private readonly entityIdToContainer: Map<EntityId, EntityContainer>
@@ -181,6 +184,29 @@ export class Graphics {
     for (const container of this.entityIdToContainer.values()) {
       container.visible = false
     }
+  }
+
+  renderBuild(build: BuildState) {
+    if (this.buildContainer) {
+      this.world.removeChild(this.buildContainer)
+      this.buildContainer.destroy({ children: true })
+    }
+    this.buildContainer = new Container()
+    this.world.addChild(this.buildContainer)
+
+    const g = new PixiGraphics()
+    g.beginFill(build.valid ? 'brown' : 'red')
+    g.drawRect(build.position.x, build.position.y, build.size.x, build.size.y)
+
+    this.buildContainer.addChild(g)
+  }
+
+  hideBuild() {
+    if (!this.buildContainer) {
+      return
+    }
+    this.world.removeChild(this.buildContainer)
+    this.buildContainer.destroy({ children: true })
   }
 }
 

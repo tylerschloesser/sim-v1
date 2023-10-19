@@ -80,6 +80,8 @@ export const navigate$ = new BehaviorSubject<NavigateFunction | null>(null)
 export const build$ = new BehaviorSubject<BuildState | null>(null)
 export const [useBuild] = bind(build$)
 
+export const [graphics$, setGraphics] = createSignal<Graphics>()
+
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
 })
@@ -308,7 +310,7 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
   },
 )
 
-confirmBuild$.subscribe((build) => {
+combineLatest([confirmBuild$, graphics$]).subscribe(([build, graphics]) => {
   let entity: Entity
   switch (build.entityType) {
     case EntityType.House:
@@ -425,8 +427,6 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
 
 export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
-
-export const [graphics$, setGraphics] = createSignal<Graphics>()
 
 combineLatest([graphics$, camera$, viewport$]).subscribe(
   ([graphics, camera, viewport]) => {
@@ -587,3 +587,11 @@ combineLatest([graphics$, updates$])
       }
     }
   })
+
+combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
+  if (build) {
+    graphics.renderBuild(build)
+  } else {
+    graphics.hideBuild()
+  }
+})
