@@ -159,6 +159,33 @@ export class Graphics {
     container.visible = true
   }
 
+  updateLowResEntities({
+    chunk,
+    entities,
+  }: {
+    chunk: Chunk
+    entities: Record<EntityId, Entity>
+  }) {
+    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
+    if (container) {
+      this.lowResContainer.removeChild(container)
+      container.destroy(true)
+    }
+
+    container = newLowResEntitiesContainer({
+      app: this.app,
+      chunk,
+      entities,
+    })
+    this.lowResContainer.addChild(container)
+    this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
+
+    // TODO this won't necessarily be visible
+    // in fact, it's probably not visible, because we're
+    // probably not showing low-res during build
+    container.visible = true
+  }
+
   hideLowResEntities({ chunk }: { chunk: Chunk }) {
     let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
     if (!container) {
@@ -230,7 +257,7 @@ function newEntityContainer({
       container = new FarmContainer(textures)
       break
     case EntityType.House:
-      container = new HouseContainer()
+      container = new HouseContainer(textures)
       break
   }
   container.setTransform(entity.position.x, entity.position.y)

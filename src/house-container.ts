@@ -1,7 +1,8 @@
-import { Application, Graphics } from 'pixi.js'
-import { EntityContainer } from './entity-container-v2.js'
-import { Entity, TextureType, Textures } from './types.js'
+import { Application, Graphics, Sprite } from 'pixi.js'
+import invariant from 'tiny-invariant'
 import { MAX_CELL_SIZE } from './const.js'
+import { EntityContainer } from './entity-container-v2.js'
+import { Entity, EntityType, TextureType, Textures } from './types.js'
 import { Vec2 } from './vec2.js'
 
 const SIZE = new Vec2(2)
@@ -20,9 +21,19 @@ export function generateHouseTextures(
 }
 
 export class HouseContainer extends EntityContainer {
-  constructor() {
+  constructor(textures: Textures) {
     super()
+    const sprite = new Sprite(textures.house)
+    sprite.setTransform(
+      0,
+      0,
+      (1 / MAX_CELL_SIZE) * SIZE.x,
+      (1 / MAX_CELL_SIZE) * SIZE.y,
+    )
+    this.addChild(sprite)
   }
 
-  update(entity: Entity): void {}
+  update(entity: Entity): void {
+    invariant(entity.type === EntityType.House)
+  }
 }

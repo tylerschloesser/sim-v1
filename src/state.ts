@@ -128,6 +128,19 @@ export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
 )
 export const [useChunks] = bind(chunks$)
 
+export const chunkUpdates$ = new Subject<Set<ChunkId>>()
+
+chunkUpdates$
+  .pipe(withLatestFrom(graphics$))
+  .subscribe(([chunkUpdates, graphics]) => {
+    const entities = entities$.value
+    for (const chunkId of chunkUpdates) {
+      const chunk = chunks$.value[chunkId]
+      invariant(chunk)
+      graphics.updateLowResEntities({ chunk, entities })
+    }
+  })
+
 const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   map(([camera, viewport]) => {
     const visibleChunkIds = new Set<ChunkId>()
@@ -310,13 +323,17 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
   },
 )
 
-combineLatest([confirmBuild$, graphics$]).subscribe(([build, graphics]) => {
+confirmBuild$.subscribe((build) => {
   let entity: Entity
+
+  const id: EntityId = `entity.${build.position.x}.${build.position.y}`
+  const chunkId = getChunkId(build.position)
+
   switch (build.entityType) {
     case EntityType.House:
       entity = {
-        id: `entity.${build.position.x}.${build.position.y}`,
-        chunkId: getChunkId(build.position),
+        id,
+        chunkId,
         type: EntityType.House,
         position: build.position,
         size: build.size,
@@ -340,8 +357,8 @@ combineLatest([confirmBuild$, graphics$]).subscribe(([build, graphics]) => {
       }
 
       entity = {
-        id: `entity.${build.position.x}.${build.position.y}`,
-        chunkId: getChunkId(build.position),
+        id,
+        chunkId,
         type: EntityType.Farm,
         position: build.position,
         size: build.size,
@@ -390,6 +407,8 @@ combineLatest([confirmBuild$, graphics$]).subscribe(([build, graphics]) => {
       },
     })
   }
+
+  chunkUpdates$.next(new Set([chunkId]))
 })
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
