@@ -7,6 +7,7 @@ import {
   Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
+import { generateAgentTextures } from './agent-container-v2.js'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container-v2.js'
 import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
@@ -111,6 +112,7 @@ export class Graphics {
       tree: generateTreeTexture(this.app),
       ...generateFarmTextures(this.app),
       ...generateHouseTextures(this.app),
+      ...generateAgentTextures(this.app),
     }
   }
 
