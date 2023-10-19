@@ -162,9 +162,11 @@ export class Graphics {
   updateLowResEntities({
     chunk,
     entities,
+    visible,
   }: {
     chunk: Chunk
     entities: Record<EntityId, Entity>
+    visible: boolean
   }) {
     let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
     if (container) {
@@ -180,10 +182,7 @@ export class Graphics {
     this.lowResContainer.addChild(container)
     this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
 
-    // TODO this won't necessarily be visible
-    // in fact, it's probably not visible, because we're
-    // probably not showing low-res during build
-    container.visible = true
+    container.visible = visible
   }
 
   hideLowResEntities({ chunk }: { chunk: Chunk }) {

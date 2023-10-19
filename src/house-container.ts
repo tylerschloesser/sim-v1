@@ -24,12 +24,7 @@ export class HouseContainer extends EntityContainer {
   constructor(textures: Textures) {
     super()
     const sprite = new Sprite(textures.house)
-    sprite.setTransform(
-      0,
-      0,
-      (1 / MAX_CELL_SIZE) * SIZE.x,
-      (1 / MAX_CELL_SIZE) * SIZE.y,
-    )
+    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
     this.addChild(sprite)
   }
 

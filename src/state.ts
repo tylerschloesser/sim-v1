@@ -130,17 +130,6 @@ export const [useChunks] = bind(chunks$)
 
 export const chunkUpdates$ = new Subject<Set<ChunkId>>()
 
-chunkUpdates$
-  .pipe(withLatestFrom(graphics$))
-  .subscribe(([chunkUpdates, graphics]) => {
-    const entities = entities$.value
-    for (const chunkId of chunkUpdates) {
-      const chunk = chunks$.value[chunkId]
-      invariant(chunk)
-      graphics.updateLowResEntities({ chunk, entities })
-    }
-  })
-
 const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   map(([camera, viewport]) => {
     const visibleChunkIds = new Set<ChunkId>()
@@ -166,6 +155,32 @@ const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   distinctUntilChanged(isEqual),
 )
 export const [useVisibleChunkIds] = bind(visibleChunkIds$)
+
+const zoomLevel$ = camera$.pipe(
+  map((camera) => {
+    if (camera.zoom < 0.1) {
+      return ZoomLevel.Low
+    }
+    return ZoomLevel.High
+  }),
+  distinctUntilChanged(),
+)
+
+chunkUpdates$
+  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$))
+  .subscribe(([chunkUpdates, graphics, visibleChunkIds, zoomLevel]) => {
+    const entities = entities$.value
+    for (const chunkId of chunkUpdates) {
+      const visible = visibleChunkIds.has(chunkId)
+      const chunk = chunks$.value[chunkId]
+      invariant(chunk)
+      graphics.updateLowResEntities({
+        chunk,
+        entities,
+        visible: visible && zoomLevel === ZoomLevel.Low,
+      })
+    }
+  })
 
 visibleChunkIds$.subscribe((visibleChunkIds) => {
   const chunks = chunks$.value
@@ -502,16 +517,6 @@ combineLatest([graphics$, updatedChunkIds$])
       graphics.hideChunk({ chunk })
     }
   })
-
-const zoomLevel$ = camera$.pipe(
-  map((camera) => {
-    if (camera.zoom < 0.1) {
-      return ZoomLevel.Low
-    }
-    return ZoomLevel.High
-  }),
-  distinctUntilChanged(),
-)
 
 combineLatest([graphics$, updatedChunkIds$])
   .pipe(withLatestFrom(chunks$, entities$, zoomLevel$))
