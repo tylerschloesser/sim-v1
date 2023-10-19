@@ -21,6 +21,7 @@ import {
   EntityId,
   EntityType,
   Textures,
+  ZoomLevel,
 } from './types.js'
 import { Vec2 } from './vec2.js'
 
@@ -121,6 +122,18 @@ export class Graphics {
     this.world.setTransform(translate.x, translate.y, scale, scale)
   }
 
+  updateZoomLevel(zoomLevel: ZoomLevel): void {
+    if (zoomLevel === ZoomLevel.High) {
+      this.lowResContainer.visible = false
+      this.entityContainer.visible = true
+    } else {
+      invariant(zoomLevel === ZoomLevel.Low)
+
+      this.lowResContainer.visible = true
+      this.entityContainer.visible = false
+    }
+  }
+
   renderChunk({ chunk }: { chunk: Chunk }) {
     let container = this.chunkIdToContainer.get(chunk.id)
     if (!container) {
@@ -218,13 +231,6 @@ export class Graphics {
       return
     }
     container.visible = false
-  }
-
-  hideAllEntities() {
-    // TODO change to entityContainer.visible = false
-    for (const container of this.entityIdToContainer.values()) {
-      container.visible = false
-    }
   }
 
   renderBuild(build: BuildState) {

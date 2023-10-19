@@ -591,11 +591,16 @@ combineLatest([graphics$, updatedChunkIds$])
     }
   })
 
+zoomLevel$
+  .pipe(withLatestFrom(graphics$))
+  .subscribe(([zoomLevel, graphics]) => {
+    graphics.updateZoomLevel(zoomLevel)
+  })
+
 combineLatest([graphics$, zoomLevel$])
   .pipe(withLatestFrom(visibleChunkIds$, chunks$, entities$))
   .subscribe(([[graphics, zoomLevel], visibleChunkIds, chunks, entities]) => {
     if (zoomLevel === ZoomLevel.Low) {
-      graphics.hideAllEntities()
       return
     }
 
