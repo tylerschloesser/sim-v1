@@ -61,7 +61,10 @@ export class Graphics {
   private readonly app: Application
   private readonly world: Container
 
-  private buildContainer?: Container
+  private readonly chunkContainer: Container
+  private readonly lowResContainer: Container
+  private readonly entityContainer: Container
+  private readonly buildContainer: Container
 
   private readonly chunkIdToContainer: Map<ChunkId, Container>
   private readonly entityIdToContainer: Map<EntityId, EntityContainer>
@@ -87,10 +90,17 @@ export class Graphics {
     this.world = new Container()
     this.app.stage.addChild(this.world)
 
-    const g = new PixiGraphics()
-    g.beginFill('red')
-    g.drawRect(0, 0, 1, 1)
-    this.world.addChild(g)
+    this.chunkContainer = new Container()
+    this.world.addChild(this.chunkContainer)
+
+    this.lowResContainer = new Container()
+    this.world.addChild(this.lowResContainer)
+
+    this.entityContainer = new Container()
+    this.world.addChild(this.entityContainer)
+
+    this.buildContainer = new Container()
+    this.world.addChild(this.buildContainer)
 
     this.chunkIdToContainer = new Map()
     this.entityIdToContainer = new Map()
@@ -115,7 +125,7 @@ export class Graphics {
     let container = this.chunkIdToContainer.get(chunk.id)
     if (!container) {
       container = newChunkContainer({ chunk, app: this.app })
-      this.world.addChild(container)
+      this.chunkContainer.addChild(container)
       this.chunkIdToContainer.set(chunk.id, container)
     }
     container.visible = true
@@ -143,7 +153,7 @@ export class Graphics {
         chunk,
         entities,
       })
-      this.world.addChild(container)
+      this.lowResContainer.addChild(container)
       this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
     }
     container.visible = true
@@ -165,7 +175,7 @@ export class Graphics {
         app: this.app,
         textures: this.textures,
       })
-      this.world.addChild(container)
+      this.entityContainer.addChild(container)
       this.entityIdToContainer.set(entity.id, container)
     }
     container.update(entity)
@@ -187,12 +197,8 @@ export class Graphics {
   }
 
   renderBuild(build: BuildState) {
-    if (this.buildContainer) {
-      this.world.removeChild(this.buildContainer)
-      this.buildContainer.destroy({ children: true })
-    }
-    this.buildContainer = new Container()
-    this.world.addChild(this.buildContainer)
+    this.buildContainer.visible = true
+    this.buildContainer.removeChildren()
 
     const g = new PixiGraphics()
     g.beginFill(build.valid ? 'brown' : 'red')
@@ -202,11 +208,7 @@ export class Graphics {
   }
 
   hideBuild() {
-    if (!this.buildContainer) {
-      return
-    }
-    this.world.removeChild(this.buildContainer)
-    this.buildContainer.destroy({ children: true })
+    this.buildContainer.visible = false
   }
 }
 
