@@ -614,21 +614,12 @@ combineLatest([graphics$, zoomLevel$])
 
 export const updates$ = new Subject<WorldUpdates>()
 
-combineLatest([graphics$, updates$])
-  .pipe(withLatestFrom(entities$, visibleChunkIds$, zoomLevel$))
-  .subscribe(([[graphics, updates], entities, visibleChunkIds, zoomLevel]) => {
-    if (zoomLevel === ZoomLevel.Low) {
-      return
-    }
+updates$.subscribe((updates) => {
+  chunkUpdates$.next(updates.chunkIds)
+  entityUpdates$.next(updates.entityIds)
 
-    for (const entityId of updates.entityIds) {
-      const entity = entities[entityId]
-      invariant(entity)
-      if (visibleChunkIds.has(entity.chunkId)) {
-        graphics.renderEntity(entity)
-      }
-    }
-  })
+  // TODO handle agent (and job?) updates
+})
 
 combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
   if (build) {

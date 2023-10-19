@@ -48,15 +48,6 @@ function tickBuildJob({
 
     updates.jobIds.add(job.id)
     updates.agentIds.add(agent.id)
-
-    for (let y = 0; y < entity.size.y; y++) {
-      for (let x = 0; x < entity.size.x; x++) {
-        const cellPosition = entity.position.add(new Vec2(x, y))
-        const chunkId = getChunkId(cellPosition)
-        updates.chunkIds.add(chunkId)
-      }
-    }
-
     updates.entityIds.add(entity.id)
   } else {
     const delta = entity.position.sub(agent.position)
@@ -148,14 +139,6 @@ function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
 
   world.entities[farm.id] = { ...farm }
   updates.entityIds.add(farm.id)
-
-  for (let y = 0; y < farm.size.y; y++) {
-    for (let x = 0; x < farm.size.x; x++) {
-      const cellPosition = farm.position.add(new Vec2(x, y))
-      const chunkId = getChunkId(cellPosition)
-      updates.chunkIds.add(chunkId)
-    }
-  }
 }
 
 function tickEntities(world: World, updates: WorldUpdates): void {
