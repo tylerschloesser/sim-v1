@@ -129,6 +129,7 @@ export const chunks$ = new BehaviorSubject<Record<ChunkId, Chunk>>(
 export const [useChunks] = bind(chunks$)
 
 export const chunkUpdates$ = new Subject<Set<ChunkId>>()
+export const entityUpdates$ = new Subject<Set<EntityId>>()
 
 const visibleChunkIds$ = combineLatest([camera$, viewport$]).pipe(
   map(([camera, viewport]) => {
@@ -179,6 +180,22 @@ chunkUpdates$
         entities,
         visible: visible && zoomLevel === ZoomLevel.Low,
       })
+    }
+  })
+
+entityUpdates$
+  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$))
+  .subscribe(([entityUpdates, graphics, visibleChunkIds, zoomLevel]) => {
+    const visible = zoomLevel === ZoomLevel.High
+
+    for (const entityId of entityUpdates) {
+      const entity = entities$.value[entityId]
+      invariant(entity)
+
+      graphics.updateEntity(
+        entity,
+        visible && visibleChunkIds.has(entity.chunkId),
+      )
     }
   })
 
@@ -341,13 +358,13 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
 confirmBuild$.subscribe((build) => {
   let entity: Entity
 
-  const id: EntityId = `entity.${build.position.x}.${build.position.y}`
+  const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
   const chunkId = getChunkId(build.position)
 
   switch (build.entityType) {
     case EntityType.House:
       entity = {
-        id,
+        id: entityId,
         chunkId,
         type: EntityType.House,
         position: build.position,
@@ -372,7 +389,7 @@ confirmBuild$.subscribe((build) => {
       }
 
       entity = {
-        id,
+        id: entityId,
         chunkId,
         type: EntityType.Farm,
         position: build.position,
@@ -424,6 +441,7 @@ confirmBuild$.subscribe((build) => {
   }
 
   chunkUpdates$.next(new Set([chunkId]))
+  entityUpdates$.next(new Set([entityId]))
 })
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
@@ -566,9 +584,9 @@ combineLatest([graphics$, updatedChunkIds$])
 
     for (const entity of Object.values(entities)) {
       if (updatedChunkIds.show.has(entity.chunkId)) {
-        graphics.renderEntity({ entity })
+        graphics.renderEntity(entity)
       } else if (updatedChunkIds.hide.has(entity.chunkId)) {
-        graphics.hideEntity({ entity })
+        graphics.hideEntity(entity)
       }
     }
   })
@@ -589,7 +607,7 @@ combineLatest([graphics$, zoomLevel$])
         .filter((entityId): entityId is EntityId => !!entityId)) {
         const entity = entities[entityId]
         invariant(entity)
-        graphics.renderEntity({ entity })
+        graphics.renderEntity(entity)
       }
     }
   })
@@ -607,7 +625,7 @@ combineLatest([graphics$, updates$])
       const entity = entities[entityId]
       invariant(entity)
       if (visibleChunkIds.has(entity.chunkId)) {
-        graphics.renderEntity({ entity })
+        graphics.renderEntity(entity)
       }
     }
   })

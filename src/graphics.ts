@@ -193,7 +193,7 @@ export class Graphics {
     container.visible = false
   }
 
-  renderEntity({ entity }: { entity: Entity }) {
+  renderEntity(entity: Entity, visible: boolean = true) {
     let container = this.entityIdToContainer.get(entity.id)
     if (!container) {
       container = newEntityContainer({
@@ -205,10 +205,14 @@ export class Graphics {
       this.entityIdToContainer.set(entity.id, container)
     }
     container.update(entity)
-    container.visible = true
+    container.visible = visible
   }
 
-  hideEntity({ entity }: { entity: Entity }) {
+  updateEntity(entity: Entity, visible: boolean): void {
+    this.renderEntity(entity, visible)
+  }
+
+  hideEntity(entity: Entity) {
     const container = this.entityIdToContainer.get(entity.id)
     if (!container) {
       return
@@ -217,6 +221,7 @@ export class Graphics {
   }
 
   hideAllEntities() {
+    // TODO change to entityContainer.visible = false
     for (const container of this.entityIdToContainer.values()) {
       container.visible = false
     }
