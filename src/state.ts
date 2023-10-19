@@ -618,12 +618,23 @@ combineLatest([graphics$, zoomLevel$])
   })
 
 export const updates$ = new Subject<WorldUpdates>()
+export const agentUpdates$ = new Subject<Set<AgentId>>()
+
+agentUpdates$
+  .pipe(withLatestFrom(graphics$))
+  .subscribe(([agentIds, graphics]) => {
+    for (const agentId of agentIds) {
+      const agent = agents$.value[agentId]
+      invariant(agent)
+      console.log('render agent')
+      graphics.renderAgent(agent)
+    }
+  })
 
 updates$.subscribe((updates) => {
   chunkUpdates$.next(updates.chunkIds)
   entityUpdates$.next(updates.entityIds)
-
-  // TODO handle agent (and job?) updates
+  agentUpdates$.next(updates.agentIds)
 })
 
 combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {

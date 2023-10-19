@@ -14,6 +14,8 @@ import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
 import { HouseContainer, generateHouseTextures } from './house-container.js'
 import { TreeContainer } from './tree-container.js'
 import {
+  Agent,
+  AgentId,
   BuildState,
   CellType,
   Chunk,
@@ -25,6 +27,7 @@ import {
   ZoomLevel,
 } from './types.js'
 import { Vec2 } from './vec2.js'
+import { AgentContainer } from './agent-container-v2.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -67,10 +70,14 @@ export class Graphics {
   private readonly lowResContainer: Container
   private readonly entityContainer: Container
   private readonly buildContainer: Container
+  private readonly agentContainer: Container
 
-  private readonly chunkIdToContainer: Map<ChunkId, Container>
-  private readonly entityIdToContainer: Map<EntityId, EntityContainer>
-  private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container>
+  private readonly chunkIdToContainer: Map<ChunkId, Container> = new Map()
+  private readonly entityIdToContainer: Map<EntityId, EntityContainer> =
+    new Map()
+  private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container> =
+    new Map()
+  private readonly agentIdToContainer: Map<AgentId, Container> = new Map()
 
   private readonly textures: Textures
 
@@ -104,9 +111,8 @@ export class Graphics {
     this.buildContainer = new Container()
     this.world.addChild(this.buildContainer)
 
-    this.chunkIdToContainer = new Map()
-    this.entityIdToContainer = new Map()
-    this.chunkIdToLowResEntitiesContainer = new Map()
+    this.agentContainer = new Container()
+    this.world.addChild(this.agentContainer)
 
     this.textures = {
       tree: generateTreeTexture(this.app),
@@ -248,6 +254,15 @@ export class Graphics {
 
   hideBuild() {
     this.buildContainer.visible = false
+  }
+
+  renderAgent(agent: Agent) {
+    let container = this.agentIdToContainer.get(agent.id)
+    if (!container) {
+      container = new AgentContainer(this.textures, agent)
+      this.agentIdToContainer.set(agent.id, container)
+      this.agentContainer.addChild(container)
+    }
   }
 }
 
