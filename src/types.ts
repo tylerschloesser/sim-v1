@@ -92,6 +92,7 @@ export interface FarmCell {
 export interface FarmEntity extends BaseEntity {
   type: EntityType.Farm
   cells: FarmCell[]
+  pickJobId: JobId | null
 }
 
 export type Entity = HouseEntity | TreeEntity | FarmEntity
@@ -123,6 +124,7 @@ export interface BoundingBox {
 export enum JobType {
   CutTrees = 'cut-trees',
   Build = 'build',
+  PickGarden = 'pick-garden',
 }
 
 export type JobId = string

@@ -192,7 +192,6 @@ entityUpdates$
       const entity = entities$.value[entityId]
 
       if (!entity) {
-        // entity was removed
         graphics.destroyEntity(entityId)
         continue
       }
@@ -406,6 +405,7 @@ confirmBuild$.subscribe((build) => {
           },
         },
         cells,
+        pickJobId: null,
       }
       break
     }
