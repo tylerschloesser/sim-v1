@@ -247,6 +247,16 @@ export class Graphics {
     container.visible = false
   }
 
+  destroyEntity(entityId: EntityId) {
+    const container = this.entityIdToContainer.get(entityId)
+    if (!container) {
+      return
+    }
+    this.entityIdToContainer.delete(entityId)
+    container.parent.removeChild(container)
+    container.destroy(true)
+  }
+
   renderBuild(build: BuildState) {
     this.buildContainer.visible = true
 

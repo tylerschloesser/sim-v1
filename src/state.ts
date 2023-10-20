@@ -190,7 +190,12 @@ entityUpdates$
 
     for (const entityId of entityUpdates) {
       const entity = entities$.value[entityId]
-      invariant(entity)
+
+      if (!entity) {
+        // entity was removed
+        graphics.destroyEntity(entityId)
+        continue
+      }
 
       graphics.updateEntity(
         entity,
