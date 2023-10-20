@@ -644,3 +644,9 @@ combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
     graphics.hideBuild()
   }
 })
+
+graphics$.subscribe((graphics) => {
+  for (const agent of Object.values(agents$.value)) {
+    graphics.renderAgent(agent)
+  }
+})

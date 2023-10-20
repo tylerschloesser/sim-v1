@@ -7,7 +7,11 @@ export function generateAgentTextures(
 ): Pick<Textures, TextureType.Agent> {
   const g = new Graphics()
   g.beginFill('magenta')
-  g.drawCircle(0.5, 0.5, (MAX_CELL_SIZE / 2) * 0.8)
+  g.drawCircle(
+    MAX_CELL_SIZE * 0.5,
+    MAX_CELL_SIZE * 0.5,
+    (MAX_CELL_SIZE / 2) * 0.8,
+  )
   return {
     [TextureType.Agent]: app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
