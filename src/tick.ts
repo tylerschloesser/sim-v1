@@ -6,7 +6,6 @@ import {
   CutTreesJob,
   EntityStateType,
   EntityType,
-  FarmEntity,
   ItemType,
   JobType,
   World,
@@ -14,6 +13,7 @@ import {
 } from './types.js'
 import { getCell, getChunkId } from './util.js'
 import { Vec2 } from './vec2.js'
+import { tickFarm } from './tick-farm.js'
 
 function tickBuildJob({
   world,
@@ -127,29 +127,6 @@ function tickCutTreesJob({
 
     updates.agentIds.add(agent.id)
   }
-}
-
-function tickFarm(world: World, updates: WorldUpdates, farm: FarmEntity): void {
-  for (const cell of farm.cells) {
-    const lastMaturity = cell.maturity
-    cell.maturity += (1 / (5 * 10)) * (cell.water ? 1 : 0.25)
-
-    if (lastMaturity < 1 && cell.maturity >= 1) {
-      // ready to pick
-      invariant(cell.maturity < 1.5)
-    } else if (lastMaturity < 1.5 && cell.maturity >= 1.5) {
-      // dead
-    }
-
-    if (cell.water > 0) {
-      cell.water = Math.max(cell.water - 1 / (60 * 10), 0)
-    }
-  }
-
-  world.entities[farm.id] = { ...farm }
-
-  // TODO only update when needed?
-  updates.entityIds.add(farm.id)
 }
 
 function tickEntities(world: World, updates: WorldUpdates): void {
