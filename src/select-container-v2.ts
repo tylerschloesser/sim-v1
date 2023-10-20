@@ -13,19 +13,15 @@ export class SelectContainer extends Container {
   update(select: Select | null): void {
     this.g.clear()
 
-    if (select === null) {
+    if (!select?.end) {
       return
     }
 
-    // TODO don't scale this with the world. To fix aliasing
-    this.g.lineStyle(0.1, 'pink')
-    this.g.drawRect(select.start.x, select.start.y, 1, 1)
-
     if (select.end) {
-      this.g.drawRect(select.end.x, select.end.y, 1, 1)
-
       const bb = getCellBoundingBox(select.start, select.end)
       const size = bb.br.sub(bb.tl).add(1)
+
+      this.g.beginFill('hsla(240, 50%, 50%, .5)')
       this.g.drawRect(bb.tl.x, bb.tl.y, size.x, size.y)
     }
   }
