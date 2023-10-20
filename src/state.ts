@@ -645,6 +645,7 @@ combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
   }
 })
 
+// TODO find a better way to perform the initial render
 graphics$.subscribe((graphics) => {
   for (const agent of Object.values(agents$.value)) {
     graphics.renderAgent(agent)
