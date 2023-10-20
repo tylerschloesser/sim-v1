@@ -80,7 +80,7 @@ export class Graphics {
     new Map()
   private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container> =
     new Map()
-  private readonly agentIdToContainer: Map<AgentId, Container> = new Map()
+  private readonly agentIdToContainer: Map<AgentId, AgentContainer> = new Map()
 
   private readonly textures: Textures
 
@@ -254,14 +254,14 @@ export class Graphics {
     }
     this.entityIdToContainer.delete(entityId)
     container.parent.removeChild(container)
-    container.destroy(true)
+    container.destroy()
   }
 
   renderBuild(build: BuildState) {
     this.buildContainer.visible = true
 
     for (const child of this.buildContainer.removeChildren()) {
-      child.destroy(true)
+      child.destroy()
     }
 
     const g = new PixiGraphics()
@@ -282,6 +282,7 @@ export class Graphics {
       this.agentIdToContainer.set(agent.id, container)
       this.agentContainer.addChild(container)
     }
+    container.update(agent)
   }
 
   renderSelect(select: Select | null): void {

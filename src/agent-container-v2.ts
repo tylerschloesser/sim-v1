@@ -27,8 +27,8 @@ export class AgentContainer extends Sprite {
 
   update(agent: Agent): void {
     this.setTransform(
-      agent.position.x * MAX_CELL_SIZE,
-      agent.position.y * MAX_CELL_SIZE,
+      agent.position.x,
+      agent.position.y,
       1 / MAX_CELL_SIZE,
       1 / MAX_CELL_SIZE,
     )

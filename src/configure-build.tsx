@@ -11,6 +11,7 @@ export function ConfigureBuild() {
     <div className={styles.container}>
       {ENTITY_TYPES.map((entityType) => (
         <button
+          key={entityType}
           className={styles.button}
           onPointerUp={() => {
             navigate(entityType)
