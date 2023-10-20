@@ -23,11 +23,13 @@ import {
   Entity,
   EntityId,
   EntityType,
+  Select,
   Textures,
   ZoomLevel,
 } from './types.js'
 import { Vec2 } from './vec2.js'
 import { AgentContainer } from './agent-container-v2.js'
+import { SelectContainer } from './select-container-v2.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -71,6 +73,7 @@ export class Graphics {
   private readonly entityContainer: Container
   private readonly buildContainer: Container
   private readonly agentContainer: Container
+  private readonly selectContainer: SelectContainer
 
   private readonly chunkIdToContainer: Map<ChunkId, Container> = new Map()
   private readonly entityIdToContainer: Map<EntityId, EntityContainer> =
@@ -113,6 +116,9 @@ export class Graphics {
 
     this.agentContainer = new Container()
     this.world.addChild(this.agentContainer)
+
+    this.selectContainer = new SelectContainer()
+    this.world.addChild(this.selectContainer)
 
     this.textures = {
       tree: generateTreeTexture(this.app),
@@ -243,7 +249,10 @@ export class Graphics {
 
   renderBuild(build: BuildState) {
     this.buildContainer.visible = true
-    this.buildContainer.removeChildren()
+
+    for (const child of this.buildContainer.removeChildren()) {
+      child.destroy(true)
+    }
 
     const g = new PixiGraphics()
     g.beginFill(build.valid ? 'brown' : 'red')
@@ -263,6 +272,10 @@ export class Graphics {
       this.agentIdToContainer.set(agent.id, container)
       this.agentContainer.addChild(container)
     }
+  }
+
+  renderSelect(select: Select | null): void {
+    this.selectContainer.update(select)
   }
 }
 

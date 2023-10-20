@@ -1,10 +1,17 @@
 import { useCallback, useEffect, useMemo } from 'react'
 import invariant from 'tiny-invariant'
 import styles from './select.module.scss'
-import { jobs$, select$, useEntities, useSelectedEntityIds } from './state.js'
+import {
+  graphics$,
+  jobs$,
+  select$,
+  useEntities,
+  useSelectedEntityIds,
+} from './state.js'
 import { CutTreesJob, Entity, EntityType, JobType } from './types.js'
 import { getNextJobId } from './util.js'
 import { useNavigate } from 'react-router-dom'
+import { combineLatest } from 'rxjs'
 
 const EMPTY_SET = new Set<string>()
 
@@ -65,3 +72,7 @@ export function Select() {
     </div>
   )
 }
+
+combineLatest([select$, graphics$]).subscribe(([select, graphics]) => {
+  graphics.renderSelect(select)
+})
