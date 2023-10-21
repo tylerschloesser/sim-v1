@@ -2,6 +2,7 @@ import invariant from 'tiny-invariant'
 import { jobs$ } from './state.js'
 import {
   Agent,
+  EntityType,
   FarmEntity,
   JobType,
   PickGardenJob,
@@ -9,6 +10,8 @@ import {
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
+import { FARM_SIZE } from './const.js'
+import { Vec2 } from './vec2.js'
 
 // how many ticks before maturity
 const GROW_RATE = 5 * 10
@@ -43,9 +46,13 @@ export function tickFarm(
           entityId: farm.id,
           id: getNextJobId(),
         }
+        farm.pickJobId = job.id
+        jobs$.value[job.id] = job
       }
 
       job.cellIndexes.push(i)
+
+      updates.jobIds.add(job.id)
     }
 
     if (cell.water > 0) {
@@ -72,4 +79,44 @@ export function tickPickGardenJob({
 }): void {
   const cellIndex = job.cellIndexes[0]
   invariant(typeof cellIndex === 'number')
+
+  const farm = world.entities[job.entityId]
+  invariant(farm?.type === EntityType.Farm)
+
+  const cell = farm.cells[cellIndex]
+  invariant(cell)
+
+  const cellPosition = farm.position.add(
+    new Vec2(cellIndex % FARM_SIZE.x, Math.floor(cellIndex / FARM_SIZE.y)),
+  )
+
+  if (!Vec2.isEqual(agent.position, cellPosition)) {
+    const delta = cellPosition.sub(agent.position)
+    const speed = 1
+
+    if (delta.dist() <= speed) {
+      agent.position = cellPosition
+    } else {
+      const velocity = delta.norm().mul(speed)
+      agent.position = agent.position.add(velocity)
+    }
+
+    updates.agentIds.add(agent.id)
+  } else {
+    cell.maturity = 0
+
+    // TODO add to inventory
+
+    invariant(job.cellIndexes.length >= 1)
+    job.cellIndexes.shift()
+
+    if (job.cellIndexes.length === 0) {
+      delete world.jobs[job.id]
+      farm.pickJobId = null
+      delete agent.jobId
+    }
+  }
+
+  updates.agentIds.add(agent.id)
+  updates.jobIds.add(job.id)
 }
