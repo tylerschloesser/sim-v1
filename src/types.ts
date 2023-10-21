@@ -105,6 +105,7 @@ export interface Agent {
   jobId?: JobId
   inventory: Partial<Record<ItemType, number>>
   energy: number
+  home: EntityId | null
 }
 
 export enum PointerMode {
