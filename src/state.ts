@@ -631,7 +631,6 @@ agentUpdates$
     for (const agentId of agentIds) {
       const agent = agents$.value[agentId]
       invariant(agent)
-      console.log('render agent')
       graphics.renderAgent(agent)
     }
   })
