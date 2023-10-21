@@ -146,7 +146,7 @@ export interface BuildJob extends BaseJob {
 export interface PickGardenJob extends BaseJob {
   type: JobType.PickGarden
   entityId: EntityId
-  cellIndexes: Set<number>
+  cellIndexes: number[]
 }
 
 export type Job = CutTreesJob | BuildJob | PickGardenJob

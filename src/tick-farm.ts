@@ -39,13 +39,13 @@ export function tickFarm(
       } else {
         job = {
           type: JobType.PickGarden,
-          cellIndexes: new Set(),
+          cellIndexes: [],
           entityId: farm.id,
           id: getNextJobId(),
         }
       }
 
-      job.cellIndexes.add(i)
+      job.cellIndexes.push(i)
     }
 
     if (cell.water > 0) {
@@ -69,4 +69,7 @@ export function tickPickGardenJob({
   updates: WorldUpdates
   job: PickGardenJob
   agent: Agent
-}): void {}
+}): void {
+  const cellIndex = job.cellIndexes[0]
+  invariant(typeof cellIndex === 'number')
+}

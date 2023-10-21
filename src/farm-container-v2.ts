@@ -7,12 +7,9 @@ import {
   Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { MAX_CELL_SIZE } from './const.js'
+import { FARM_SIZE, MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container-v2.js'
 import { Entity, EntityType, TextureType, Textures } from './types.js'
-import { Vec2 } from './vec2.js'
-
-const SIZE = new Vec2(4)
 
 export function generateFarmTextures(
   app: Application,
@@ -37,7 +34,7 @@ export function generateFarmTextures(
   const baseTexture = (() => {
     const g = new Graphics()
     g.beginFill('hsl(27, 54%, 35%)')
-    g.drawRect(0, 0, MAX_CELL_SIZE * SIZE.x, MAX_CELL_SIZE * SIZE.y)
+    g.drawRect(0, 0, MAX_CELL_SIZE * FARM_SIZE.x, MAX_CELL_SIZE * FARM_SIZE.y)
     return app.renderer.generateTexture(g)
   })()
 
@@ -97,8 +94,8 @@ export class FarmContainer extends EntityContainer {
       }
       const sprite = new Sprite(texture)
       sprite.setTransform(
-        (i % SIZE.x) * MAX_CELL_SIZE,
-        Math.floor(i / SIZE.y) * MAX_CELL_SIZE,
+        (i % FARM_SIZE.x) * MAX_CELL_SIZE,
+        Math.floor(i / FARM_SIZE.y) * MAX_CELL_SIZE,
       )
 
       this.cellContainer.addChild(sprite)
