@@ -82,6 +82,8 @@ export const [useBuild] = bind(build$)
 
 export const [graphics$, setGraphics] = createSignal<Graphics>()
 
+const newEntity$ = new Subject<EntityId>()
+
 export const config$ = new BehaviorSubject<Config>({
   showGrid: false,
 })
@@ -447,6 +449,8 @@ confirmBuild$.subscribe((build) => {
 
   chunkUpdates$.next(new Set([chunkId]))
   entityUpdates$.next(new Set([entityId]))
+
+  newEntity$.next(entityId)
 })
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
@@ -655,5 +659,22 @@ combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
 graphics$.subscribe((graphics) => {
   for (const agent of Object.values(agents$.value)) {
     graphics.renderAgent(agent)
+  }
+})
+
+newEntity$.subscribe((newEntityId) => {
+  const entity = entities$.value[newEntityId]
+  invariant(entity)
+
+  if (entity.type !== EntityType.House) {
+    return
+  }
+
+  for (const agent of Object.values(agents$.value)) {
+    if (!agent.home) {
+      agent.home = entity.id
+
+      return // TODO allow multiple agents to have the same home
+    }
   }
 })

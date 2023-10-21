@@ -15,6 +15,9 @@ import { getCell, getChunkId } from './util.js'
 import { Vec2 } from './vec2.js'
 import { tickFarm, tickPickGardenJob } from './tick-farm.js'
 
+// how many ticks until agent energy depleted?
+const ENERGY_FACTOR = 50
+
 function tickBuildJob({
   world,
   updates,
@@ -182,6 +185,12 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     if (!agent.jobId) {
+      continue
+    }
+
+    agent.energy = Math.max(agent.energy - 1 / ENERGY_FACTOR, 0)
+
+    if (agent.energy === 0) {
       continue
     }
 
