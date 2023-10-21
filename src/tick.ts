@@ -13,7 +13,7 @@ import {
 } from './types.js'
 import { getCell, getChunkId } from './util.js'
 import { Vec2 } from './vec2.js'
-import { tickFarm } from './tick-farm.js'
+import { tickFarm, tickPickGardenJob } from './tick-farm.js'
 
 function tickBuildJob({
   world,
@@ -168,6 +168,11 @@ function tickAgents(world: World, updates: WorldUpdates): void {
             }
             break
           }
+          case JobType.PickGarden: {
+            agent.jobId = job.id
+            updates.agentIds.add(agent.id)
+            break
+          }
         }
 
         if (agent.jobId) {
@@ -189,6 +194,9 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         break
       case JobType.Build:
         tickBuildJob({ world, updates, job, agent })
+        break
+      case JobType.PickGarden:
+        tickPickGardenJob({ world, updates, job, agent })
         break
     }
   }
