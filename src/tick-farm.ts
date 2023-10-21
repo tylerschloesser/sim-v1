@@ -4,6 +4,7 @@ import {
   Agent,
   EntityType,
   FarmEntity,
+  ItemType,
   JobType,
   PickGardenJob,
   World,
@@ -105,7 +106,7 @@ export function tickPickGardenJob({
   } else {
     cell.maturity = 0
 
-    // TODO add to inventory
+    agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
 
     invariant(job.cellIndexes.length >= 1)
     job.cellIndexes.shift()
