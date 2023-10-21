@@ -1,7 +1,9 @@
 import invariant from 'tiny-invariant'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
+import { tickFarm, tickPickGardenJob } from './tick-farm.js'
 import {
   Agent,
+  AgentRestJob,
   BuildJob,
   CutTreesJob,
   EntityStateType,
@@ -11,9 +13,9 @@ import {
   World,
   WorldUpdates,
 } from './types.js'
-import { getCell, getChunkId } from './util.js'
+import { getCell, getChunkId, getNextJobId } from './util.js'
 import { Vec2 } from './vec2.js'
-import { tickFarm, tickPickGardenJob } from './tick-farm.js'
+import { tickAgentRestJob } from './tick-agent-rest.js'
 
 // how many ticks until agent energy depleted?
 const ENERGY_FACTOR = 50
@@ -147,6 +149,30 @@ function tickEntities(world: World, updates: WorldUpdates): void {
 
 function tickAgents(world: World, updates: WorldUpdates): void {
   for (const agent of Object.values(world.agents)) {
+    agent.energy = Math.max(agent.energy - 1 / ENERGY_FACTOR, 0)
+
+    if (agent.energy === 0) {
+      let job: AgentRestJob | undefined
+      if (agent.jobId) {
+        const temp = world.jobs[agent.jobId]
+        invariant(temp)
+        if (temp.type === JobType.AgentRest) {
+          job === temp
+        }
+      }
+      if (!job) {
+        job = {
+          id: getNextJobId(),
+          type: JobType.AgentRest,
+        }
+        world.jobs[job.id] = job
+        agent.jobId = job.id
+      }
+      invariant(job)
+      tickAgentRestJob({ agent, job, updates, world })
+      continue
+    }
+
     if (!agent.jobId) {
       for (const job of Object.values(world.jobs)) {
         switch (job.type) {
@@ -185,12 +211,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     if (!agent.jobId) {
-      continue
-    }
-
-    agent.energy = Math.max(agent.energy - 1 / ENERGY_FACTOR, 0)
-
-    if (agent.energy === 0) {
       continue
     }
 

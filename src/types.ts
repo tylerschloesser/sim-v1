@@ -127,6 +127,7 @@ export enum JobType {
   CutTrees = 'cut-trees',
   Build = 'build',
   PickGarden = 'pick-garden',
+  AgentRest = 'agent-rest',
 }
 
 export type JobId = string
@@ -151,7 +152,11 @@ export interface PickGardenJob extends BaseJob {
   cellIndexes: number[]
 }
 
-export type Job = CutTreesJob | BuildJob | PickGardenJob
+export interface AgentRestJob extends BaseJob {
+  type: JobType.AgentRest
+}
+
+export type Job = CutTreesJob | BuildJob | PickGardenJob | AgentRestJob
 
 export interface World {
   chunks: Record<ChunkId, Chunk>
