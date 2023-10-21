@@ -143,7 +143,13 @@ export interface BuildJob extends BaseJob {
   entityId: EntityId
 }
 
-export type Job = CutTreesJob | BuildJob
+export interface PickGardenJob extends BaseJob {
+  type: JobType.PickGarden
+  entityId: EntityId
+  cellIndexes: Set<number>
+}
+
+export type Job = CutTreesJob | BuildJob | PickGardenJob
 
 export interface World {
   chunks: Record<ChunkId, Chunk>
