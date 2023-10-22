@@ -7,7 +7,12 @@ import {
   Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { FARM_SIZE, MAX_CELL_SIZE } from './const.js'
+import {
+  FARM_DEAD_THRESHOLD,
+  FARM_MATURITY_THRESHOLD,
+  FARM_SIZE,
+  MAX_CELL_SIZE,
+} from './const.js'
 import { EntityContainer } from './entity-container-v2.js'
 import { Entity, EntityType, TextureType, Textures } from './types.js'
 
@@ -81,13 +86,13 @@ export class FarmContainer extends EntityContainer {
       invariant(cell)
       const { maturity } = cell
       let texture: Texture
-      if (maturity < 0.33) {
+      if (maturity < FARM_MATURITY_THRESHOLD * (1 / 3)) {
         texture = this.textures[TextureType.FarmCell1]
-      } else if (maturity < 0.66) {
+      } else if (maturity < FARM_MATURITY_THRESHOLD * (2 / 3)) {
         texture = this.textures[TextureType.FarmCell2]
-      } else if (maturity < 1) {
+      } else if (maturity < FARM_MATURITY_THRESHOLD) {
         texture = this.textures[TextureType.FarmCell3]
-      } else if (maturity < 1.5) {
+      } else if (maturity < FARM_DEAD_THRESHOLD) {
         texture = this.textures[TextureType.FarmCell4]
       } else {
         texture = this.textures[TextureType.FarmCell5]
