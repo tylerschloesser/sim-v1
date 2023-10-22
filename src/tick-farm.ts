@@ -1,5 +1,10 @@
 import invariant from 'tiny-invariant'
-import { FARM_GROW_RATE, FARM_SIZE, FARM_WATER_FACTOR } from './const.js'
+import {
+  FARM_GROW_RATE,
+  FARM_MATURITY_THRESHOLD,
+  FARM_SIZE,
+  FARM_WATER_FACTOR,
+} from './const.js'
 import { jobs$ } from './state.js'
 import {
   Agent,
@@ -27,7 +32,10 @@ export function tickFarm(
     cell.maturity +=
       (1 / FARM_GROW_RATE) * (cell.water ? 1 : 1 / FARM_WATER_FACTOR)
 
-    if (lastMaturity < 1 && cell.maturity >= 1) {
+    if (
+      lastMaturity < FARM_MATURITY_THRESHOLD &&
+      cell.maturity >= FARM_MATURITY_THRESHOLD
+    ) {
       let job: PickGardenJob
       if (farm.pickJobId) {
         const temp = jobs$.value[farm.pickJobId]

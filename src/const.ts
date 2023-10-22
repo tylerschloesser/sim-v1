@@ -26,3 +26,11 @@ export const FARM_GROW_RATE = 50
 // how much faster do things grow with water
 export const FARM_WATER_FACTOR: number = 1
 invariant(FARM_WATER_FACTOR !== 0)
+
+// when is a cell considered mature
+export const FARM_MATURITY_THRESHOLD: number = 1
+invariant(FARM_MATURITY_THRESHOLD > 0)
+
+// when is a cell considered dead
+export const FARM_DEAD_THRESHOLD: number = 2
+invariant(FARM_DEAD_THRESHOLD > FARM_MATURITY_THRESHOLD)
