@@ -157,7 +157,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         const temp = world.jobs[agent.jobId]
         invariant(temp)
         if (temp.type === JobType.AgentRest) {
-          job === temp
+          job = temp
         }
       }
       if (!job) {
@@ -169,8 +169,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         agent.jobId = job.id
       }
       invariant(job)
-      tickAgentRestJob({ agent, job, updates, world })
-      continue
     }
 
     if (!agent.jobId) {
@@ -226,6 +224,9 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         break
       case JobType.PickGarden:
         tickPickGardenJob({ world, updates, job, agent })
+        break
+      case JobType.AgentRest:
+        tickAgentRestJob({ world, updates, job, agent })
         break
     }
   }
