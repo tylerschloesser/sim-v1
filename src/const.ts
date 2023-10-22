@@ -1,3 +1,4 @@
+import invariant from 'tiny-invariant'
 import { Vec2 } from './vec2.js'
 
 export const INITIAL_ZOOM = 0.2
@@ -18,3 +19,7 @@ export const AGENT_ENERGY_PER_TICK = 1 / 50
 
 // How many ticks before maturity
 export const FARM_GROW_RATE = 50
+
+// how much faster do things grow with water
+export const FARM_WATER_FACTOR: number = 1
+invariant(FARM_WATER_FACTOR !== 0)

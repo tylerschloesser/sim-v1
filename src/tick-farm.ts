@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { FARM_GROW_RATE, FARM_SIZE, FARM_WATER_FACTOR } from './const.js'
 import { jobs$ } from './state.js'
 import {
   Agent,
@@ -11,13 +12,7 @@ import {
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
-import { FARM_GROW_RATE, FARM_SIZE } from './const.js'
 import { Vec2 } from './vec2.js'
-
-// how much faster do things grow with water
-const WATER_FACTOR: number = 1
-
-invariant(WATER_FACTOR !== 0)
 
 export function tickFarm(
   world: World,
@@ -29,7 +24,8 @@ export function tickFarm(
     invariant(cell)
 
     const lastMaturity = cell.maturity
-    cell.maturity += (1 / FARM_GROW_RATE) * (cell.water ? 1 : 1 / WATER_FACTOR)
+    cell.maturity +=
+      (1 / FARM_GROW_RATE) * (cell.water ? 1 : 1 / FARM_WATER_FACTOR)
 
     if (lastMaturity < 1 && cell.maturity >= 1) {
       let job: PickGardenJob
