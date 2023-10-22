@@ -16,9 +16,7 @@ import {
 import { getCell, getChunkId, getNextJobId } from './util.js'
 import { Vec2 } from './vec2.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
-
-// how many ticks until agent energy depleted?
-const ENERGY_FACTOR = 50
+import { AGENT_ENERGY_PER_TICK } from './const.js'
 
 function tickBuildJob({
   world,
@@ -149,7 +147,7 @@ function tickEntities(world: World, updates: WorldUpdates): void {
 
 function tickAgents(world: World, updates: WorldUpdates): void {
   for (const agent of Object.values(world.agents)) {
-    agent.energy = Math.max(agent.energy - 1 / ENERGY_FACTOR, 0)
+    agent.energy = Math.max(agent.energy - AGENT_ENERGY_PER_TICK, 0)
 
     if (agent.energy === 0) {
       let job: AgentRestJob | undefined

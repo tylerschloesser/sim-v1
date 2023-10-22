@@ -12,3 +12,6 @@ export const CHUNK_SIZE = 32
 export const WHEEL_SCALE = 2000
 
 export const FARM_SIZE = new Vec2(4)
+
+// How much energy is consumed per tick
+export const AGENT_ENERGY_PER_TICK = 1 / 50
