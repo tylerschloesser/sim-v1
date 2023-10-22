@@ -1,122 +1,20 @@
 import invariant from 'tiny-invariant'
+import { AGENT_ENERGY_PER_TICK } from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
+import { tickAgentRestJob } from './tick-agent-rest.js'
+import { tickBuildJob } from './tick-build-job.js'
+import { tickCutTreesJob } from './tick-cut-trees-job.js'
 import { tickFarm, tickPickGardenJob } from './tick-farm.js'
 import {
-  Agent,
   AgentRestJob,
-  BuildJob,
-  CutTreesJob,
   EntityStateType,
   EntityType,
   ItemType,
   JobType,
-  TickJobFn,
   World,
   WorldUpdates,
 } from './types.js'
-import { getCell, getChunkId, getNextJobId } from './util.js'
-import { Vec2 } from './vec2.js'
-import { tickAgentRestJob } from './tick-agent-rest.js'
-import { AGENT_ENERGY_PER_TICK } from './const.js'
-
-const tickBuildJob: TickJobFn<BuildJob> = ({ world, updates, job, agent }) => {
-  const entity = world.entities[job.entityId]
-  invariant(entity)
-  invariant(entity.state.type === EntityStateType.Build)
-
-  if (Vec2.isEqual(entity.position, agent.position)) {
-    Object.entries(entity.state.materials).forEach((entry) => {
-      const [itemType, count] = entry as [ItemType, number]
-      invariant((agent.inventory[itemType] ?? 0) >= count)
-      agent.inventory[itemType]! -= count
-      if (agent.inventory[itemType] === 0) {
-        delete agent.inventory[itemType]
-      }
-    })
-    world.entities[entity.id] = {
-      ...entity,
-      state: { type: EntityStateType.Active },
-    }
-    delete world.jobs[job.id]
-    delete agent.jobId
-
-    updates.jobIds.add(job.id)
-    updates.agentIds.add(agent.id)
-    updates.entityIds.add(entity.id)
-  } else {
-    const delta = entity.position.sub(agent.position)
-    const speed = 1
-
-    if (delta.dist() <= speed) {
-      agent.position = entity.position
-    } else {
-      const velocity = delta.norm().mul(speed)
-      agent.position = agent.position.add(velocity)
-    }
-
-    updates.agentIds.add(agent.id)
-  }
-}
-
-const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
-  world,
-  updates,
-  job,
-  agent,
-}) => {
-  const entityId = job.entityIds.at(0)
-  invariant(entityId)
-
-  const entity = world.entities[entityId]
-  invariant(entity)
-
-  if (Vec2.isEqual(entity.position, agent.position)) {
-    delete world.entities[entity.id]
-    updates.entityIds.add(entity.id)
-
-    invariant(entity.size.x === 1)
-    invariant(entity.size.y === 1)
-
-    for (let y = 0; y < entity.size.y; y++) {
-      for (let x = 0; x < entity.size.x; x++) {
-        const cellPosition = entity.position.add(new Vec2(x, y))
-        const cell = getCell(world.chunks, cellPosition)
-        delete cell.entityId
-
-        const chunkId = getChunkId(cellPosition)
-        updates.chunkIds.add(chunkId)
-      }
-    }
-
-    job.entityIds.shift()
-    if (job.entityIds.length === 0) {
-      delete world.jobs[job.id]
-      updates.jobIds.add(job.id)
-
-      delete agent.jobId
-      updates.agentIds.add(agent.id)
-    }
-
-    agent.inventory = {
-      ...agent.inventory,
-      [ItemType.Wood]: (agent.inventory.wood ?? 0) + 1,
-    }
-
-    updates.agentIds.add(agent.id)
-  } else {
-    const delta = entity.position.sub(agent.position)
-    const speed = 1
-
-    if (delta.dist() <= speed) {
-      agent.position = entity.position
-    } else {
-      const velocity = delta.norm().mul(speed)
-      agent.position = agent.position.add(velocity)
-    }
-
-    updates.agentIds.add(agent.id)
-  }
-}
+import { getNextJobId } from './util.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
