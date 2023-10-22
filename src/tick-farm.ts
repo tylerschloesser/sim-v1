@@ -11,11 +11,8 @@ import {
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
-import { FARM_SIZE } from './const.js'
+import { FARM_GROW_RATE, FARM_SIZE } from './const.js'
 import { Vec2 } from './vec2.js'
-
-// how many ticks before maturity
-const GROW_RATE = 5 * 10
 
 // how much faster do things grow with water
 const WATER_FACTOR: number = 1
@@ -32,7 +29,7 @@ export function tickFarm(
     invariant(cell)
 
     const lastMaturity = cell.maturity
-    cell.maturity += (1 / GROW_RATE) * (cell.water ? 1 : 1 / WATER_FACTOR)
+    cell.maturity += (1 / FARM_GROW_RATE) * (cell.water ? 1 : 1 / WATER_FACTOR)
 
     if (lastMaturity < 1 && cell.maturity >= 1) {
       let job: PickGardenJob
