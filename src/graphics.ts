@@ -7,11 +7,16 @@ import {
   Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { generateAgentTextures } from './agent-container-v2.js'
+import { AgentContainer, generateAgentTextures } from './agent-container-v2.js'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container-v2.js'
 import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
 import { HouseContainer, generateHouseTextures } from './house-container.js'
+import { SelectContainer } from './select-container-v2.js'
+import {
+  StorageContainer,
+  generateStorageTextures,
+} from './storage-container.js'
 import { TreeContainer } from './tree-container.js'
 import {
   Agent,
@@ -28,9 +33,6 @@ import {
   ZoomLevel,
 } from './types.js'
 import { Vec2 } from './vec2.js'
-import { AgentContainer } from './agent-container-v2.js'
-import { SelectContainer } from './select-container-v2.js'
-import { StorageContainer } from './storage-container.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -127,6 +129,7 @@ export class Graphics {
       ...generateFarmTextures(this.app),
       ...generateHouseTextures(this.app),
       ...generateAgentTextures(this.app),
+      ...generateStorageTextures(this.app),
     }
   }
 

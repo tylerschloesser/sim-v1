@@ -16,11 +16,15 @@ import invariant from 'tiny-invariant'
 import { generateChunk, generateInitialChunks } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
+  FARM_SIZE,
+  HOUSE_SIZE,
   INITIAL_ZOOM,
   MAX_ZOOM,
   MIN_ZOOM,
+  STORAGE_SIZE,
   WHEEL_SCALE,
 } from './const.js'
+import { Graphics } from './graphics.js'
 import {
   Agent,
   AgentId,
@@ -55,7 +59,6 @@ import {
   screenToWorld,
 } from './util.js'
 import { Vec2 } from './vec2.js'
-import { Graphics } from './graphics.js'
 
 export const keyboard$ = new Subject<KeyboardEvent>()
 export const pointer$ = new Subject<PointerEvent>()
@@ -331,10 +334,13 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
     let size: Vec2
     switch (entityType) {
       case EntityType.Farm:
-        size = new Vec2(4)
+        size = FARM_SIZE
         break
       case EntityType.House:
-        size = new Vec2(2)
+        size = HOUSE_SIZE
+        break
+      case EntityType.Storage:
+        size = STORAGE_SIZE
         break
       default:
         invariant(false, `invalid entity type: ${entityType}`)

@@ -181,6 +181,7 @@ export enum TextureType {
   Tree = 'tree',
   House = 'house',
   Agent = 'agent',
+  Storage = 'storage',
 
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',

@@ -2,7 +2,11 @@ import { useNavigate } from 'react-router-dom'
 import styles from './configure-build.module.scss'
 import { EntityType } from './types.js'
 
-const ENTITY_TYPES: EntityType[] = [EntityType.House, EntityType.Farm]
+const ENTITY_TYPES: EntityType[] = [
+  EntityType.House,
+  EntityType.Farm,
+  EntityType.Storage,
+]
 
 export function ConfigureBuild() {
   const navigate = useNavigate()
