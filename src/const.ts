@@ -17,7 +17,7 @@ export const HOUSE_SIZE = new Vec2(2)
 export const STORAGE_SIZE = new Vec2(8, 4)
 
 // How much energy is consumed per tick
-export const AGENT_ENERGY_PER_TICK = 1 / 50
+export const AGENT_ENERGY_PER_TICK = 1 / 100
 
 // How much energy does the agent gain while resting per tick
 export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20

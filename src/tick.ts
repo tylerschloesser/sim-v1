@@ -7,14 +7,17 @@ import { tickCutTreesJob } from './tick-cut-trees-job.js'
 import { tickFarm, tickPickGardenJob } from './tick-farm.js'
 import {
   AgentRestJob,
+  DropOffItemsJob,
   EntityStateType,
   EntityType,
   ItemType,
   JobType,
+  StorageEntity,
   World,
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
+import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
@@ -90,6 +93,23 @@ function tickAgents(world: World, updates: WorldUpdates): void {
       }
     }
 
+    if (!agent.jobId && Object.keys(agent.inventory).length > 0) {
+      // TODO pick the closest
+      const storage = Object.values(world.entities).find(
+        (entity): entity is StorageEntity => entity.type === EntityType.Storage,
+      )
+
+      if (storage) {
+        const job: DropOffItemsJob = {
+          id: getNextJobId(),
+          type: JobType.DropOffItems,
+          entityId: storage.id,
+        }
+        agent.jobId = job.id
+        world.jobs[job.id] = job
+      }
+    }
+
     if (!agent.jobId) {
       continue
     }
@@ -109,6 +129,9 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         break
       case JobType.AgentRest:
         tickAgentRestJob({ world, updates, job, agent })
+        break
+      case JobType.DropOffItems:
+        tickDropOffItemsJob({ world, updates, job, agent })
         break
     }
   }
