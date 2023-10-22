@@ -17,6 +17,9 @@ export const FARM_SIZE = new Vec2(4)
 // How much energy is consumed per tick
 export const AGENT_ENERGY_PER_TICK = 1 / 50
 
+// How much energy does the agent gain while resting per tick
+export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20
+
 // How many ticks before maturity
 export const FARM_GROW_RATE = 50
 

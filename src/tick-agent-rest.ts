@@ -7,9 +7,7 @@ import {
   WorldUpdates,
 } from './types.js'
 import { Vec2 } from './vec2.js'
-
-// how many ticks before full energy?
-const REST_FACTOR = 20
+import { AGENT_ENERGY_REPLENISH_PER_TICK } from './const.js'
 
 export function tickAgentRestJob({
   world,
@@ -30,7 +28,10 @@ export function tickAgentRestJob({
   invariant(home?.type === EntityType.House)
 
   if (Vec2.isEqual(agent.position, home.position)) {
-    agent.energy = Math.min(1, agent.energy + 1 / REST_FACTOR)
+    agent.energy = Math.min(
+      1,
+      agent.energy + 1 / AGENT_ENERGY_REPLENISH_PER_TICK,
+    )
     if (agent.energy === 1) {
       delete world.jobs[job.id]
       delete agent.jobId
