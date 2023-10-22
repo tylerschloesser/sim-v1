@@ -28,10 +28,7 @@ export function tickAgentRestJob({
   invariant(home?.type === EntityType.House)
 
   if (Vec2.isEqual(agent.position, home.position)) {
-    agent.energy = Math.min(
-      1,
-      agent.energy + 1 / AGENT_ENERGY_REPLENISH_PER_TICK,
-    )
+    agent.energy = Math.min(1, agent.energy + AGENT_ENERGY_REPLENISH_PER_TICK)
     if (agent.energy === 1) {
       delete world.jobs[job.id]
       delete agent.jobId
