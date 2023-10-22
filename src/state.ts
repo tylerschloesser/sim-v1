@@ -413,6 +413,23 @@ confirmBuild$.subscribe((build) => {
     }
     case EntityType.Tree:
       invariant(false, `cannot build ${build.entityType}`)
+    case EntityType.Storage: {
+      entity = {
+        id: entityId,
+        chunkId,
+        type: EntityType.Storage,
+        position: build.position,
+        size: build.size,
+        state: {
+          type: EntityStateType.Build,
+          materials: {
+            [ItemType.Wood]: 20,
+          },
+        },
+        inventory: {},
+      }
+      break
+    }
   }
 
   if (build.force) {

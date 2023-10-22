@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import {
+  FARM_DEAD_THRESHOLD,
   FARM_GROW_RATE,
   FARM_MATURITY_THRESHOLD,
   FARM_SIZE,
@@ -105,9 +106,15 @@ export function tickPickGardenJob({
 
     updates.agentIds.add(agent.id)
   } else {
-    cell.maturity = 0
+    invariant(cell.maturity >= FARM_MATURITY_THRESHOLD)
+    if (cell.maturity < FARM_DEAD_THRESHOLD) {
+      agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
+    } else {
+      agent.inventory[ItemType.Trash] =
+        (agent.inventory[ItemType.Trash] ?? 0) + 1
+    }
 
-    agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
+    cell.maturity = 0
 
     invariant(job.cellIndexes.length >= 1)
     job.cellIndexes.shift()

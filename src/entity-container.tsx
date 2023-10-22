@@ -22,6 +22,7 @@ const SingleEntity = React.memo(
         texture = textures.house
         break
       case EntityType.Farm:
+      case EntityType.Storage:
         invariant(false, `invalid entity type: ${entity.type}`)
     }
 

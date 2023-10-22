@@ -34,6 +34,7 @@ export enum EntityType {
   House = 'house',
   Tree = 'tree',
   Farm = 'farm',
+  Storage = 'storage',
 }
 
 export interface BuildState {
@@ -54,6 +55,7 @@ export enum EntityStateType {
 export enum ItemType {
   Wood = 'wood',
   Food = 'food',
+  Trash = 'trash',
 }
 
 export interface BuildEntityState {
@@ -95,7 +97,12 @@ export interface FarmEntity extends BaseEntity {
   pickJobId: JobId | null
 }
 
-export type Entity = HouseEntity | TreeEntity | FarmEntity
+export interface StorageEntity extends BaseEntity {
+  type: EntityType.Storage
+  inventory: Partial<Record<ItemType, number>>
+}
+
+export type Entity = HouseEntity | TreeEntity | FarmEntity | StorageEntity
 
 export type AgentId = string
 

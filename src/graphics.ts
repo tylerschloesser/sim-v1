@@ -30,6 +30,7 @@ import {
 import { Vec2 } from './vec2.js'
 import { AgentContainer } from './agent-container-v2.js'
 import { SelectContainer } from './select-container-v2.js'
+import { StorageContainer } from './storage-container.js'
 
 const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
 
@@ -45,6 +46,7 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Tree]: 'hsl(121, 67%, 8%)',
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
+  [EntityType.Storage]: 'pink',
 }
 
 function generateTreeTexture(app: Application): Texture {
@@ -309,6 +311,9 @@ function newEntityContainer({
       break
     case EntityType.House:
       container = new HouseContainer(textures)
+      break
+    case EntityType.Storage:
+      container = new StorageContainer(textures)
       break
   }
   container.setTransform(entity.position.x, entity.position.y)
