@@ -23,8 +23,8 @@ export class StorageContainer extends EntityContainer {
   constructor(textures: Textures) {
     super()
     const sprite = new Sprite(textures.storage)
+    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
     this.addChild(sprite)
-    this.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
   }
 
   update(entity: Entity): void {}
