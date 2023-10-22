@@ -1,25 +1,14 @@
 import invariant from 'tiny-invariant'
-import {
-  Agent,
-  AgentRestJob,
-  EntityType,
-  World,
-  WorldUpdates,
-} from './types.js'
-import { Vec2 } from './vec2.js'
 import { AGENT_ENERGY_REPLENISH_PER_TICK } from './const.js'
+import { AgentRestJob, EntityType, TickJobFn } from './types.js'
+import { Vec2 } from './vec2.js'
 
-export function tickAgentRestJob({
+export const tickAgentRestJob: TickJobFn<AgentRestJob> = ({
   world,
   updates,
   job,
   agent,
-}: {
-  world: World
-  updates: WorldUpdates
-  job: AgentRestJob
-  agent: Agent
-}): void {
+}) => {
   if (!agent.home) {
     return
   }

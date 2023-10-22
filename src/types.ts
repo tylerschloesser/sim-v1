@@ -135,6 +135,7 @@ export enum JobType {
   Build = 'build',
   PickGarden = 'pick-garden',
   AgentRest = 'agent-rest',
+  DropOffItems = 'drop-off-items',
 }
 
 export type JobId = string
@@ -163,7 +164,17 @@ export interface AgentRestJob extends BaseJob {
   type: JobType.AgentRest
 }
 
-export type Job = CutTreesJob | BuildJob | PickGardenJob | AgentRestJob
+export interface DropOffItemsJob extends BaseJob {
+  type: JobType.DropOffItems
+  entityId: EntityId
+}
+
+export type Job =
+  | CutTreesJob
+  | BuildJob
+  | PickGardenJob
+  | AgentRestJob
+  | DropOffItemsJob
 
 export interface World {
   chunks: Record<ChunkId, Chunk>
@@ -199,3 +210,10 @@ export interface WorldUpdates {
   jobIds: Set<JobId>
   chunkIds: Set<ChunkId>
 }
+
+export type TickJobFn<T extends Job> = (args: {
+  world: World
+  updates: WorldUpdates
+  job: T
+  agent: Agent
+}) => void

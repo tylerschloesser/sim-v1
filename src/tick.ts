@@ -10,6 +10,7 @@ import {
   EntityType,
   ItemType,
   JobType,
+  TickJobFn,
   World,
   WorldUpdates,
 } from './types.js'
@@ -18,17 +19,7 @@ import { Vec2 } from './vec2.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { AGENT_ENERGY_PER_TICK } from './const.js'
 
-function tickBuildJob({
-  world,
-  updates,
-  job,
-  agent,
-}: {
-  world: World
-  updates: WorldUpdates
-  job: BuildJob
-  agent: Agent
-}) {
+const tickBuildJob: TickJobFn<BuildJob> = ({ world, updates, job, agent }) => {
   const entity = world.entities[job.entityId]
   invariant(entity)
   invariant(entity.state.type === EntityStateType.Build)
@@ -67,17 +58,12 @@ function tickBuildJob({
   }
 }
 
-function tickCutTreesJob({
+const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
   world,
   updates,
   job,
   agent,
-}: {
-  world: World
-  updates: WorldUpdates
-  job: CutTreesJob
-  agent: Agent
-}) {
+}) => {
   const entityId = job.entityIds.at(0)
   invariant(entityId)
 

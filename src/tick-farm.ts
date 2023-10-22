@@ -14,6 +14,7 @@ import {
   ItemType,
   JobType,
   PickGardenJob,
+  TickJobFn,
   World,
   WorldUpdates,
 } from './types.js'
@@ -69,17 +70,12 @@ export function tickFarm(
   updates.entityIds.add(farm.id)
 }
 
-export function tickPickGardenJob({
+export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
   world,
   updates,
   job,
   agent,
-}: {
-  world: World
-  updates: WorldUpdates
-  job: PickGardenJob
-  agent: Agent
-}): void {
+}) => {
   const cellIndex = job.cellIndexes[0]
   invariant(typeof cellIndex === 'number')
 
