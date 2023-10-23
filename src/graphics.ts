@@ -7,12 +7,12 @@ import {
   Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { AgentContainer, generateAgentTextures } from './agent-container-v2.js'
+import { AgentContainer, generateAgentTextures } from './agent-container.js'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
-import { EntityContainer } from './entity-container-v2.js'
-import { FarmContainer, generateFarmTextures } from './farm-container-v2.js'
+import { EntityContainer } from './entity-container.js'
+import { FarmContainer, generateFarmTextures } from './farm-container.js'
 import { HouseContainer, generateHouseTextures } from './house-container.js'
-import { SelectContainer } from './select-container-v2.js'
+import { SelectContainer } from './select-container.js'
 import {
   StorageContainer,
   generateStorageTextures,

@@ -1,6 +1,6 @@
 import { Application, Graphics, Sprite } from 'pixi.js'
 import { MAX_CELL_SIZE, STORAGE_SIZE } from './const.js'
-import { EntityContainer } from './entity-container-v2.js'
+import { EntityContainer } from './entity-container.js'
 import { Entity, TextureType, Textures } from './types.js'
 
 export function generateStorageTextures(

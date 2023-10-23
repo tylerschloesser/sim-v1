@@ -1,6 +1,6 @@
 import { Sprite } from 'pixi.js'
 import { MAX_CELL_SIZE } from './const.js'
-import { EntityContainer } from './entity-container-v2.js'
+import { EntityContainer } from './entity-container.js'
 import { Entity, Textures } from './types.js'
 
 export class TreeContainer extends EntityContainer {
