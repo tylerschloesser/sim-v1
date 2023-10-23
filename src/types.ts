@@ -71,7 +71,7 @@ export type EntityState = BuildEntityState | ActiveEntityState
 
 export interface BaseEntity {
   id: EntityId
-  chunkIds: ChunkId[]
+  chunkIds: Set<ChunkId>
   type: EntityType
   position: Vec2
   size: Vec2

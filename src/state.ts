@@ -204,7 +204,9 @@ entityUpdates$
       graphics.updateEntity(
         entity,
         visible &&
-          entity.chunkIds.some((chunkId) => visibleChunkIds.has(chunkId)),
+          Array.from(entity.chunkIds).some((chunkId) =>
+            visibleChunkIds.has(chunkId),
+          ),
       )
     }
   })

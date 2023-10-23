@@ -312,7 +312,7 @@ function newLowResEntitiesContainer({
     .filter((entityId): entityId is EntityId => !!entityId)) {
     const entity = entities[entityId]
     invariant(entity)
-    if (entity.chunkIds[0] === chunk.id) {
+    if (entity.chunkIds.has(chunk.id)) {
       entityIds.add(entityId)
     }
   }
