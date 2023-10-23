@@ -1,4 +1,5 @@
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import CopyWebpackPlugin from 'copy-webpack-plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { Configuration as BaseConfiguration } from 'webpack'
@@ -10,11 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const prod = process.env.PROD || !process.env.WEBPACK_SERVE
 
-interface WebpackEnv {
-  target?: 'github-pages'
-}
-
-export default (env: WebpackEnv) => {
+export default () => {
   const config: Configuration = {
     stats: 'minimal',
     mode: prod ? 'production' : 'development',
@@ -25,7 +22,7 @@ export default (env: WebpackEnv) => {
       filename: '[name].[contenthash].js',
       chunkFilename: '[name].[contenthash].chunk.js',
       clean: true,
-      publicPath: '/upgraded-giggle/',
+      publicPath: '/',
     },
     module: {
       rules: [
@@ -68,19 +65,21 @@ export default (env: WebpackEnv) => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        filename:
-          prod && env.target !== 'github-pages'
-            ? 'index.[contenthash].html'
-            : 'index.html',
+        filename: prod ? 'index.[contenthash].html' : 'index.html',
         template: './src/index.html',
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: 'manifest.json',
+          },
+        ],
       }),
     ],
     devServer: {
       hot: false,
       watchFiles: ['./src/index.html'],
-      historyApiFallback: {
-        index: '/upgraded-giggle/index.html',
-      },
+      historyApiFallback: true,
       allowedHosts: ['.amazonaws.com'],
     },
   }
