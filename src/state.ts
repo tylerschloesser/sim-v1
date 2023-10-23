@@ -53,7 +53,7 @@ import {
   getCell,
   getCellBoundingBox,
   getCellSize,
-  getChunkId,
+  getChunkIds,
   getNextJobId,
   isEqual,
   screenToWorld,
@@ -203,7 +203,8 @@ entityUpdates$
 
       graphics.updateEntity(
         entity,
-        visible && visibleChunkIds.has(entity.chunkId),
+        visible &&
+          entity.chunkIds.some((chunkId) => visibleChunkIds.has(chunkId)),
       )
     }
   })
@@ -371,13 +372,13 @@ confirmBuild$.subscribe((build) => {
   let entity: Entity
 
   const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
-  const chunkId = getChunkId(build.position)
+  const chunkIds = getChunkIds(build.position, build.size)
 
   switch (build.entityType) {
     case EntityType.House:
       entity = {
         id: entityId,
-        chunkId,
+        chunkIds,
         type: EntityType.House,
         position: build.position,
         size: build.size,
@@ -402,7 +403,7 @@ confirmBuild$.subscribe((build) => {
 
       entity = {
         id: entityId,
-        chunkId,
+        chunkIds,
         type: EntityType.Farm,
         position: build.position,
         size: build.size,
@@ -422,7 +423,7 @@ confirmBuild$.subscribe((build) => {
     case EntityType.Storage: {
       entity = {
         id: entityId,
-        chunkId,
+        chunkIds,
         type: EntityType.Storage,
         position: build.position,
         size: build.size,
@@ -470,7 +471,7 @@ confirmBuild$.subscribe((build) => {
     })
   }
 
-  chunkUpdates$.next(new Set([chunkId]))
+  chunkUpdates$.next(new Set(chunkIds))
   entityUpdates$.next(new Set([entityId]))
 
   newEntity$.next(entityId)
@@ -617,10 +618,12 @@ combineLatest([graphics$, updatedChunkIds$])
     }
 
     for (const entity of Object.values(entities)) {
-      if (updatedChunkIds.show.has(entity.chunkId)) {
-        graphics.renderEntity(entity)
-      } else if (updatedChunkIds.hide.has(entity.chunkId)) {
-        graphics.hideEntity(entity)
+      for (const chunkId of getChunkIds(entity.position, entity.size)) {
+        if (updatedChunkIds.show.has(chunkId)) {
+          graphics.renderEntity(entity)
+        } else if (updatedChunkIds.hide.has(chunkId)) {
+          graphics.hideEntity(entity)
+        }
       }
     }
   })

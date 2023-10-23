@@ -114,7 +114,7 @@ export function generateChunk(chunkId: ChunkId): {
           if (noise * noise3d(x * 1, y * 1, 50) > 0.2) {
             const tree: TreeEntity = {
               id: `${x}.${y}`,
-              chunkId: getChunkId(cellPosition),
+              chunkIds: [getChunkId(cellPosition)],
               position: cellPosition,
               size: TREE_SIZE,
               type: EntityType.Tree,

@@ -63,6 +63,25 @@ export function getChunkId(position: Vec2): ChunkId {
   return chunkId
 }
 
+export function getChunkIds(position: Vec2, size: Vec2): ChunkId[] {
+  const chunkIds: ChunkId[] = []
+  const seen = new Set<ChunkId>()
+  for (let y = 0; y < size.y; y++) {
+    for (let x = 0; x < size.x; x++) {
+      const chunkId = getChunkId(position.add(new Vec2(x, y)))
+      if (!seen.has(chunkId)) {
+        seen.add(chunkId)
+        chunkIds.push(chunkId)
+      }
+    }
+  }
+  invariant(chunkIds.length > 0)
+  if (size.x === 1 && size.y === 1) {
+    invariant(chunkIds.length === 1)
+  }
+  return chunkIds
+}
+
 export function getCell(chunks: Record<ChunkId, Chunk>, position: Vec2): Cell {
   const chunkId = getChunkId(position)
   const chunk = chunks[chunkId]
