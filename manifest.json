@@ -2,5 +2,7 @@
   "short_name": "TBD",
   "icons": [],
   "start_url": "/",
-  "display": "standalone"
+  "display": "standalone",
+  "background_color": "black",
+  "theme_color": "black"
 }
