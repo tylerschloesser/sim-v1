@@ -271,48 +271,98 @@ export const [useCamera] = bind(camera$)
 export const [useViewport] = bind(viewport$)
 export const [useHover] = bind(hover$)
 
-combineLatest([pointer$.pipe(pairwise()), pointerMode$]).subscribe(
-  ([[prev, next], mode]) => {
-    switch (next.type) {
-      case 'pointermove': {
-        if (next.pressure === 0) return
+type PointerId = number
 
-        if (mode === PointerMode.Move) {
-          const { zoom, position } = camera$.value
-          const cellSize = getCellSize(zoom)
+const pointerEventCache = new Map<PointerId, PointerEvent>()
 
-          const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
+pointer$.pipe(withLatestFrom(pointerMode$)).subscribe(([ev, mode]) => {
+  const cache = pointerEventCache.get(ev.pointerId)
+  pointerEventCache.set(ev.pointerId, ev)
 
-          camera$.next({
-            position: position.add(delta),
-            zoom,
-          })
-        } else {
-          invariant(mode === PointerMode.Select)
-
-          const cellPosition = screenToWorld({
-            screen: new Vec2(next),
-            camera: camera$.value,
-            viewport: viewport$.value,
-          }).floor()
-
-          if (select$.value === null) {
-            select$.next({
-              start: cellPosition,
-            })
-          } else {
-            select$.next({
-              start: select$.value.start,
-              end: cellPosition,
-            })
-          }
-        }
-
+  switch (ev.type) {
+    case 'pointermove': {
+      if (!cache) {
+        // TODO not sure why this happens...
         break
       }
+      if (pointerEventCache.size === 1) {
+        handlePointerMoveOne({ next: ev, prev: cache }, mode)
+      } else if (pointerEventCache.size === 2) {
+        let other: PointerEvent | undefined
+        for (const entry of pointerEventCache.entries()) {
+          if (entry[0] !== ev.pointerId) {
+            other = entry[1]
+          }
+        }
+        invariant(other)
+        handlePointerMoveTwo(
+          {
+            next: ev,
+            prev: cache,
+            other,
+          },
+          mode,
+        )
+      } else {
+        // >2 fingers not supported
+      }
+      break
     }
+    case 'pointerout':
+    case 'pointerleave':
+    case 'pointerup': {
+      pointerEventCache.delete(ev.pointerId)
+      break
+    }
+  }
+})
+
+function handlePointerMoveOne(
+  { next, prev }: { next: PointerEvent; prev: PointerEvent },
+  mode: PointerMode,
+): void {
+  if (next.pressure === 0) return
+
+  if (mode === PointerMode.Move) {
+    const { zoom, position } = camera$.value
+    const cellSize = getCellSize(zoom)
+
+    const delta = new Vec2(next).sub(new Vec2(prev)).mul(-1).div(cellSize)
+
+    camera$.next({
+      position: position.add(delta),
+      zoom,
+    })
+  } else {
+    invariant(mode === PointerMode.Select)
+
+    const cellPosition = screenToWorld({
+      screen: new Vec2(next),
+      camera: camera$.value,
+      viewport: viewport$.value,
+    }).floor()
+
+    if (select$.value === null) {
+      select$.next({
+        start: cellPosition,
+      })
+    } else {
+      select$.next({
+        start: select$.value.start,
+        end: cellPosition,
+      })
+    }
+  }
+}
+
+function handlePointerMoveTwo(
+  ev: {
+    next: PointerEvent
+    prev: PointerEvent
+    other: PointerEvent
   },
-)
+  mode: PointerMode,
+): void {}
 
 wheel$.subscribe((e) => {
   const zoom = {
