@@ -84,6 +84,15 @@ export function useEventListeners(container: HTMLDivElement | null) {
       { signal },
     )
 
+    // prevents swipe back/forward in iOS safari
+    window.addEventListener(
+      'touchstart',
+      (ev) => {
+        ev.preventDefault()
+      },
+      { passive: false, signal },
+    )
+
     return () => {
       ac.abort()
     }
