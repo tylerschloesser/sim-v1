@@ -19,7 +19,9 @@ import {
   FARM_SIZE,
   HOUSE_SIZE,
   INITIAL_ZOOM,
+  MAX_CELL_SIZE,
   MAX_ZOOM,
+  MIN_CELL_SIZE,
   MIN_ZOOM,
   STORAGE_SIZE,
   WHEEL_SCALE,
@@ -49,6 +51,7 @@ import {
 } from './types.js'
 import {
   canBuild,
+  cellSizeToZoom,
   clamp,
   getCell,
   getCellBoundingBox,
@@ -355,6 +358,42 @@ function handlePointerMoveOne(
   }
 }
 
+const pinch$ = new Subject<{
+  center: Vec2
+  drag: Vec2
+  factor: number
+}>()
+
+pinch$
+  .pipe(withLatestFrom(camera$, viewport$))
+  .subscribe(([pinch, camera, viewport]) => {
+    const scale = {
+      prev: getCellSize(camera.zoom),
+      next: clamp(
+        getCellSize(camera.zoom) * pinch.factor,
+        MIN_CELL_SIZE,
+        MAX_CELL_SIZE,
+      ),
+    }
+
+    const zoom = {
+      prev: camera.zoom,
+      next: cellSizeToZoom(scale.next),
+    }
+
+    const anchor = pinch.center.sub(viewport.div(2))
+
+    const adjust = anchor
+      .div(scale.prev)
+      .sub(anchor.div(scale.next))
+      .add(pinch.drag.div(scale.next))
+
+    camera$.next({
+      position: camera.position.add(adjust),
+      zoom: zoom.next,
+    })
+  })
+
 function handlePointerMoveTwo(
   ev: {
     next: PointerEvent
@@ -362,7 +401,29 @@ function handlePointerMoveTwo(
     other: PointerEvent
   },
   mode: PointerMode,
-): void {}
+): void {
+  invariant(pointerEventCache.size === 2)
+
+  const prev = new Vec2(ev.prev)
+  const next = new Vec2(ev.next)
+  const other = new Vec2(ev.other)
+
+  const center = {
+    prev: other.add(prev.sub(other).div(2)),
+    next: other.add(next.sub(other).div(2)),
+  }
+
+  const dist = {
+    prev: other.sub(prev).dist(),
+    next: other.sub(next).dist(),
+  }
+
+  pinch$.next({
+    center: center.next,
+    drag: center.next.sub(center.prev).mul(-1),
+    factor: dist.next / dist.prev,
+  })
+}
 
 wheel$.subscribe((e) => {
   const zoom = {

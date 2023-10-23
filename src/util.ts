@@ -22,6 +22,12 @@ export function getCellSize(zoom: number): number {
   return MIN_CELL_SIZE + (MAX_CELL_SIZE - MIN_CELL_SIZE) * zoom
 }
 
+export function cellSizeToZoom(cellSize: number): number {
+  invariant(cellSize >= MIN_CELL_SIZE)
+  invariant(cellSize <= MAX_CELL_SIZE)
+  return (cellSize - MIN_CELL_SIZE) / (MAX_CELL_SIZE - MIN_CELL_SIZE)
+}
+
 export function screenToWorld({
   screen,
   viewport,
