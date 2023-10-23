@@ -4,19 +4,16 @@ import {
   Graphics as PixiGraphics,
   Rectangle,
   Sprite,
-  Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { AgentContainer, generateAgentTextures } from './agent-container.js'
+import { AgentContainer } from './agent-container.js'
 import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container.js'
-import { FarmContainer, generateFarmTextures } from './farm-container.js'
-import { HouseContainer, generateHouseTextures } from './house-container.js'
+import { FarmContainer } from './farm-container.js'
+import { generateTextures } from './generate-textures.js'
+import { HouseContainer } from './house-container.js'
 import { SelectContainer } from './select-container.js'
-import {
-  StorageContainer,
-  generateStorageTextures,
-} from './storage-container.js'
+import { StorageContainer } from './storage-container.js'
 import { TreeContainer } from './tree-container.js'
 import {
   Agent,
@@ -49,23 +46,6 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
   [EntityType.Storage]: 'pink',
-}
-
-function generateTreeTexture(app: Application): Texture {
-  const g = new PixiGraphics()
-  const padding = 0.1
-
-  g.beginFill('hsl(121, 67%, 8%)')
-  g.drawRect(
-    padding * MAX_CELL_SIZE,
-    padding * MAX_CELL_SIZE,
-    MAX_CELL_SIZE * (1 - padding * 2),
-    MAX_CELL_SIZE * (1 - padding * 2),
-  )
-
-  return app.renderer.generateTexture(g, {
-    region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
-  })
 }
 
 export class Graphics {
@@ -124,13 +104,7 @@ export class Graphics {
     this.selectContainer = new SelectContainer()
     this.world.addChild(this.selectContainer)
 
-    this.textures = {
-      tree: generateTreeTexture(this.app),
-      ...generateFarmTextures(this.app),
-      ...generateHouseTextures(this.app),
-      ...generateAgentTextures(this.app),
-      ...generateStorageTextures(this.app),
-    }
+    this.textures = generateTextures(this.app)
   }
 
   destroy() {
