@@ -24,6 +24,8 @@ import {
   MIN_CELL_SIZE,
   MIN_ZOOM,
   STORAGE_SIZE,
+  TREE_SIZE,
+  WELL_SIZE,
   WHEEL_SCALE,
 } from './const.js'
 import { Graphics } from './graphics.js'
@@ -472,8 +474,12 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
       case EntityType.Storage:
         size = STORAGE_SIZE
         break
-      default:
-        invariant(false, `invalid entity type: ${entityType}`)
+      case EntityType.Tree:
+        size = TREE_SIZE
+        break
+      case EntityType.Well:
+        size = WELL_SIZE
+        break
     }
 
     const buildPosition = camera.position.sub(size.div(2)).round()
@@ -565,6 +571,22 @@ confirmBuild$
             },
           },
           inventory: {},
+        }
+        break
+      }
+      case EntityType.Well: {
+        entity = {
+          id: entityId,
+          chunkIds,
+          type: EntityType.Well,
+          position: build.position,
+          size: build.size,
+          state: {
+            type: EntityStateType.Build,
+            materials: {
+              [ItemType.Wood]: 20,
+            },
+          },
         }
         break
       }

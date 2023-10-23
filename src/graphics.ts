@@ -4,6 +4,7 @@ import {
   Graphics as PixiGraphics,
   Rectangle,
   Sprite,
+  Texture,
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { AgentContainer } from './agent-container.js'
@@ -46,6 +47,7 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
   [EntityType.Storage]: 'pink',
+  [EntityType.Well]: 'pink',
 }
 
 export class Graphics {
@@ -269,6 +271,16 @@ export class Graphics {
   }
 }
 
+class SimpleEntityContainer extends EntityContainer {
+  constructor(texture: Texture) {
+    super()
+    const sprite = new Sprite(texture)
+    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    this.addChild(sprite)
+  }
+  update(entity: Entity): void {}
+}
+
 function newEntityContainer({
   entity,
   app,
@@ -291,6 +303,9 @@ function newEntityContainer({
       break
     case EntityType.Storage:
       container = new StorageContainer(textures)
+      break
+    case EntityType.Well:
+      container = new SimpleEntityContainer(textures.well)
       break
   }
   container.setTransform(entity.position.x, entity.position.y)

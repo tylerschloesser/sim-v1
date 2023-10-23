@@ -35,6 +35,7 @@ export enum EntityType {
   Tree = 'tree',
   Farm = 'farm',
   Storage = 'storage',
+  Well = 'well',
 }
 
 export interface BuildState {
@@ -102,7 +103,16 @@ export interface StorageEntity extends BaseEntity {
   inventory: Partial<Record<ItemType, number>>
 }
 
-export type Entity = HouseEntity | TreeEntity | FarmEntity | StorageEntity
+export interface WellEntity extends BaseEntity {
+  type: EntityType.Well
+}
+
+export type Entity =
+  | HouseEntity
+  | TreeEntity
+  | FarmEntity
+  | StorageEntity
+  | WellEntity
 
 export type AgentId = string
 
@@ -193,6 +203,7 @@ export enum TextureType {
   House = 'house',
   Agent = 'agent',
   Storage = 'storage',
+  Well = 'well',
 
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',

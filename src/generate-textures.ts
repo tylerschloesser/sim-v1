@@ -1,5 +1,11 @@
 import { Application, Graphics, Rectangle } from 'pixi.js'
-import { FARM_SIZE, HOUSE_SIZE, MAX_CELL_SIZE, STORAGE_SIZE } from './const.js'
+import {
+  FARM_SIZE,
+  HOUSE_SIZE,
+  MAX_CELL_SIZE,
+  STORAGE_SIZE,
+  WELL_SIZE,
+} from './const.js'
 import { TextureType, Textures } from './types.js'
 
 export function generateTextures(app: Application): Textures {
@@ -9,6 +15,20 @@ export function generateTextures(app: Application): Textures {
     ...generateHouseTextures(app),
     ...generateAgentTextures(app),
     ...generateStorageTextures(app),
+    ...generateWellTextures(app),
+  }
+}
+
+type GenerateTexturesFn<T extends keyof Textures> = (
+  app: Application,
+) => Pick<Textures, T>
+
+const generateWellTextures: GenerateTexturesFn<TextureType.Well> = (app) => {
+  const g = new Graphics()
+  g.beginFill('grey')
+  g.drawRect(0, 0, MAX_CELL_SIZE * WELL_SIZE.x, MAX_CELL_SIZE * WELL_SIZE.y)
+  return {
+    [TextureType.Well]: app.renderer.generateTexture(g),
   }
 }
 
