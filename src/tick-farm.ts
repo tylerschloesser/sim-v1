@@ -63,7 +63,7 @@ export function tickFarm(
       } else {
         job = {
           type: JobType.PickGarden,
-          cellIndexes: [],
+          cellIndexes: new Set(),
           entityId: farm.id,
           id: getNextJobId(),
         }
@@ -71,7 +71,8 @@ export function tickFarm(
         world.jobs[job.id] = job
       }
 
-      job.cellIndexes.push(i)
+      invariant(!job.cellIndexes.has(i))
+      job.cellIndexes.add(i)
 
       updates.jobIds.add(job.id)
     }
@@ -93,7 +94,8 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
   job,
   agent,
 }) => {
-  const cellIndex = job.cellIndexes[0]
+  // get the first
+  const [cellIndex] = job.cellIndexes
   invariant(typeof cellIndex === 'number')
 
   const farm = world.entities[job.entityId]
@@ -122,10 +124,10 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
 
   cell.maturity = 0
 
-  invariant(job.cellIndexes.length >= 1)
-  job.cellIndexes.shift()
+  invariant(job.cellIndexes.size >= 1)
+  job.cellIndexes.delete(cellIndex)
 
-  if (job.cellIndexes.length === 0) {
+  if (job.cellIndexes.size === 0) {
     delete world.jobs[job.id]
     farm.pickJobId = null
     delete agent.jobId

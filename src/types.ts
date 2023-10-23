@@ -169,7 +169,7 @@ export interface BuildJob extends BaseJob {
 export interface PickGardenJob extends BaseJob {
   type: JobType.PickGarden
   entityId: EntityId
-  cellIndexes: number[]
+  cellIndexes: Set<number>
 }
 
 export interface AgentRestJob extends BaseJob {
