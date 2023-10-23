@@ -1,10 +1,14 @@
-import { Sprite } from 'pixi.js'
+import { Container, Sprite } from 'pixi.js'
 import { MAX_CELL_SIZE } from './const.js'
 import { Agent, Textures } from './types.js'
 
-export class AgentContainer extends Sprite {
+export class AgentContainer extends Container {
+  private sprite: Sprite
+
   constructor(textures: Textures, agent: Agent) {
-    super(textures.agent)
+    super()
+    this.sprite = new Sprite(textures.agent)
+    this.addChild(this.sprite)
     this.update(agent)
   }
 
