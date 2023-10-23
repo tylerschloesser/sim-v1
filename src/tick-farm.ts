@@ -43,7 +43,7 @@ export function tickFarm(
       } else {
         job = {
           type: JobType.WaterGarden,
-          cellIndexes: [],
+          cellIndexes: new Set(),
           entityId: farm.id,
           id: getNextJobId(),
         }

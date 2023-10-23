@@ -184,7 +184,7 @@ export interface DropOffItemsJob extends BaseJob {
 export interface WaterGardenJob extends BaseJob {
   type: JobType.WaterGarden
   entityId: EntityId
-  cellIndexes: number[]
+  cellIndexes: Set<number>
 }
 
 export type Job =
