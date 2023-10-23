@@ -48,7 +48,13 @@ function generateFarmTextures(
   function buildCellTexture(radius: number, fill: string) {
     const g = new Graphics()
     g.beginFill(fill)
-    g.drawCircle(MAX_CELL_SIZE / 2, MAX_CELL_SIZE / 2, radius * MAX_CELL_SIZE)
+    g.drawRect(
+      MAX_CELL_SIZE * (1 / 2 - radius),
+      MAX_CELL_SIZE * (1 / 2 - radius),
+      MAX_CELL_SIZE * radius * 2,
+      MAX_CELL_SIZE * radius * 2,
+    )
+    // g.drawCircle(MAX_CELL_SIZE / 2, MAX_CELL_SIZE / 2, radius * MAX_CELL_SIZE)
     return app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
     })
@@ -64,10 +70,10 @@ function generateFarmTextures(
   return {
     [TextureType.FarmBase]: baseTexture,
     [TextureType.FarmCell1]: buildCellTexture(0.1, 'green'),
-    [TextureType.FarmCell2]: buildCellTexture(0.2, 'green'),
-    [TextureType.FarmCell3]: buildCellTexture(0.3, 'green'),
-    [TextureType.FarmCell4]: buildCellTexture(0.4, 'green'),
-    [TextureType.FarmCell5]: buildCellTexture(0.4, 'black'),
+    [TextureType.FarmCell2]: buildCellTexture(0.166, 'green'),
+    [TextureType.FarmCell3]: buildCellTexture(0.233, 'green'),
+    [TextureType.FarmCell4]: buildCellTexture(0.3, 'red'),
+    [TextureType.FarmCell5]: buildCellTexture(0.3, 'black'),
   }
 }
 
