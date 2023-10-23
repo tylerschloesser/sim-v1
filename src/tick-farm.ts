@@ -7,8 +7,8 @@ import {
   FARM_WATER_FACTOR,
 } from './const.js'
 import { jobs$ } from './state.js'
+import { move } from './tick-util.js'
 import {
-  Agent,
   EntityType,
   FarmEntity,
   ItemType,
@@ -20,7 +20,6 @@ import {
 } from './types.js'
 import { getNextJobId } from './util.js'
 import { Vec2 } from './vec2.js'
-import { move } from './tick-util.js'
 
 export function tickFarm(
   world: World,
