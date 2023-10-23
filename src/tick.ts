@@ -94,6 +94,11 @@ function tickAgents(world: World, updates: WorldUpdates): void {
             updates.agentIds.add(agent.id)
             break
           }
+          case JobType.WaterGarden: {
+            agent.jobId = job.id
+            updates.agentIds.add(agent.id)
+            break
+          }
         }
 
         if (agent.jobId) {
