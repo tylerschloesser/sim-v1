@@ -85,6 +85,8 @@ export const [useBuild] = bind(build$)
 
 export const [graphics$, setGraphics] = createSignal<Graphics>()
 
+export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
+
 const newEntity$ = new Subject<EntityId>()
 
 export const config$ = new BehaviorSubject<Config>({
@@ -385,8 +387,8 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
 )
 
 confirmBuild$
-  .pipe(withLatestFrom(chunks$, entities$))
-  .subscribe(([build, chunks, entities]) => {
+  .pipe(withLatestFrom(chunks$, entities$, jobs$))
+  .subscribe(([build, chunks, entities, jobs]) => {
     let entity: Entity
 
     const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
@@ -470,14 +472,14 @@ confirmBuild$
 
     if (!build.force) {
       const jobId = getNextJobId()
-      jobs$.next({
-        ...jobs$.value,
-        [jobId]: {
-          id: jobId,
-          type: JobType.Build,
-          entityId: entity.id,
-        },
-      })
+      invariant(jobs[jobId] === undefined)
+      jobs[jobId] = {
+        id: jobId,
+        type: JobType.Build,
+        entityId: entity.id,
+      }
+      jobs$.next(jobs)
+      jobUpdates$.next(new Set([jobId]))
     }
 
     invariant(entities[entity.id] === undefined)
@@ -526,8 +528,6 @@ const selectedEntityIds$ = combineLatest([select$, chunks$]).pipe(
 )
 
 export const [useSelectedEntityIds] = bind(selectedEntityIds$)
-
-export const jobs$ = new BehaviorSubject<Record<JobId, Job>>({})
 
 combineLatest([graphics$, camera$, viewport$]).subscribe(
   ([graphics, camera, viewport]) => {
@@ -670,6 +670,7 @@ combineLatest([graphics$, zoomLevel$])
 
 export const updates$ = new Subject<WorldUpdates>()
 export const agentUpdates$ = new Subject<Set<AgentId>>()
+export const jobUpdates$ = new Subject<Set<JobId>>()
 
 agentUpdates$
   .pipe(withLatestFrom(graphics$))
@@ -682,9 +683,18 @@ agentUpdates$
   })
 
 updates$.subscribe((updates) => {
-  chunkUpdates$.next(updates.chunkIds)
-  entityUpdates$.next(updates.entityIds)
-  agentUpdates$.next(updates.agentIds)
+  if (updates.chunkIds.size > 0) {
+    chunkUpdates$.next(updates.chunkIds)
+  }
+  if (updates.entityIds.size > 0) {
+    entityUpdates$.next(updates.entityIds)
+  }
+  if (updates.agentIds.size > 0) {
+    agentUpdates$.next(updates.agentIds)
+  }
+  if (updates.jobIds.size > 0) {
+    jobUpdates$.next(updates.jobIds)
+  }
 })
 
 combineLatest([build$, graphics$]).subscribe(([build, graphics]) => {
