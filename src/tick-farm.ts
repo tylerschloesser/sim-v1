@@ -37,8 +37,20 @@ export function tickFarm(
     if (cell.maturity < FARM_MATURITY_THRESHOLD && cell.water === 0) {
       let job: WaterGardenJob
       if (farm.waterJobId) {
-        // const temp = jobs
+        const temp = world.jobs[farm.waterJobId]
+        invariant(temp?.type === JobType.WaterGarden)
+        job = temp
+      } else {
+        job = {
+          type: JobType.WaterGarden,
+          cellIndexes: [],
+          entityId: farm.id,
+          id: getNextJobId(),
+        }
+        farm.waterJobId = job.id
+        world.jobs[job.id] = job
       }
+      // TODO
     } else if (
       lastMaturity < FARM_MATURITY_THRESHOLD &&
       cell.maturity >= FARM_MATURITY_THRESHOLD
