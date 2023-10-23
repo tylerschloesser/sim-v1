@@ -12,7 +12,8 @@ export function move(
   }
 
   const delta = target.sub(agent.position)
-  const speed = 1
+
+  const speed = agent.energy > 0 ? 1 : 0.25
 
   if (delta.dist() <= speed) {
     agent.position = target

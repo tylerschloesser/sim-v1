@@ -37,6 +37,8 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     agent.energy = Math.max(agent.energy - AGENT_ENERGY_PER_TICK, 0)
 
     if (agent.energy === 0) {
+      updates.agentIds.add(agent.id)
+
       let job: AgentRestJob | undefined
       if (agent.jobId) {
         const temp = world.jobs[agent.jobId]
@@ -45,15 +47,22 @@ function tickAgents(world: World, updates: WorldUpdates): void {
           job = temp
         }
       }
-      if (!job) {
+
+      if (!job && agent.home) {
         job = {
           id: getNextJobId(),
           type: JobType.AgentRest,
         }
         world.jobs[job.id] = job
+
+        if (agent.jobId) {
+          // agent no longer assigned to this job
+          updates.jobIds.add(agent.jobId)
+        }
+
         agent.jobId = job.id
+        updates.jobIds.add(job.id)
       }
-      invariant(job)
     }
 
     if (!agent.jobId) {
