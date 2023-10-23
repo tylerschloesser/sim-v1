@@ -173,12 +173,12 @@ const zoomLevel$ = camera$.pipe(
 )
 
 chunkUpdates$
-  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$))
-  .subscribe(([chunkUpdates, graphics, visibleChunkIds, zoomLevel]) => {
+  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$, chunks$))
+  .subscribe(([chunkUpdates, graphics, visibleChunkIds, zoomLevel, chunks]) => {
     const entities = entities$.value
     for (const chunkId of chunkUpdates) {
       const visible = visibleChunkIds.has(chunkId)
-      const chunk = chunks$.value[chunkId]
+      const chunk = chunks[chunkId]
       invariant(chunk)
       graphics.updateLowResEntities({
         chunk,
@@ -189,52 +189,66 @@ chunkUpdates$
   })
 
 entityUpdates$
-  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$))
-  .subscribe(([entityUpdates, graphics, visibleChunkIds, zoomLevel]) => {
-    const visible = zoomLevel === ZoomLevel.High
+  .pipe(withLatestFrom(graphics$, visibleChunkIds$, zoomLevel$, entities$))
+  .subscribe(
+    ([entityUpdates, graphics, visibleChunkIds, zoomLevel, entities]) => {
+      const visible = zoomLevel === ZoomLevel.High
 
-    for (const entityId of entityUpdates) {
-      const entity = entities$.value[entityId]
+      for (const entityId of entityUpdates) {
+        const entity = entities[entityId]
 
-      if (!entity) {
-        graphics.destroyEntity(entityId)
-        continue
+        if (!entity) {
+          graphics.destroyEntity(entityId)
+          continue
+        }
+
+        graphics.updateEntity(
+          entity,
+          visible &&
+            Array.from(entity.chunkIds).some((chunkId) =>
+              visibleChunkIds.has(chunkId),
+            ),
+        )
       }
+    },
+  )
 
-      graphics.updateEntity(
-        entity,
-        visible &&
-          Array.from(entity.chunkIds).some((chunkId) =>
-            visibleChunkIds.has(chunkId),
-          ),
-      )
+visibleChunkIds$
+  .pipe(withLatestFrom(chunks$, entities$))
+  .subscribe(([visibleChunkIds, chunks, entities]) => {
+    const newChunkIds = new Set<ChunkId>()
+    const newEntityIds = new Set<EntityId>()
+
+    for (const chunkId of visibleChunkIds) {
+      if (!chunks[chunkId]) {
+        const result = generateChunk(chunkId)
+
+        invariant(chunks[result.chunk.id] === undefined)
+        invariant(newChunkIds.has(result.chunk.id) === false)
+        newChunkIds.add(result.chunk.id)
+        chunks[result.chunk.id] = result.chunk
+
+        for (const entry of Object.entries(result.entities)) {
+          const [entityId, entity] = entry as [EntityId, Entity]
+          invariant(entities[entityId] === undefined)
+          invariant(newEntityIds.has(entityId) === false)
+          newEntityIds.add(entityId)
+          entities[entityId] = entity
+        }
+      }
     }
+
+    if (newChunkIds.size === 0) {
+      invariant(newEntityIds.size === 0)
+      return
+    }
+
+    entityUpdates$.next(newEntityIds)
+    chunkUpdates$.next(newChunkIds)
+
+    chunks$.next(chunks)
+    entities$.next(entities)
   })
-
-visibleChunkIds$.subscribe((visibleChunkIds) => {
-  const chunks = chunks$.value
-  const newChunks: Record<ChunkId, Chunk> = {}
-  let newEntities: Record<EntityId, Entity> = {}
-
-  for (const chunkId of visibleChunkIds) {
-    if (!chunks[chunkId]) {
-      const result = generateChunk(chunkId)
-      newChunks[chunkId] = result.chunk
-      newEntities = { ...newEntities, ...result.entities }
-    }
-  }
-
-  if (Object.keys(newChunks).length > 0) {
-    chunks$.next({ ...chunks, ...newChunks })
-  }
-
-  if (Object.keys(newEntities).length > 0) {
-    entities$.next({
-      ...entities$.value,
-      ...newEntities,
-    })
-  }
-})
 
 export const hover$ = combineLatest([pointer$, viewport$, camera$]).pipe(
   map(([pointer, viewport, camera]) => {
@@ -370,114 +384,112 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
   },
 )
 
-confirmBuild$.subscribe((build) => {
-  let entity: Entity
+confirmBuild$
+  .pipe(withLatestFrom(chunks$, entities$))
+  .subscribe(([build, chunks, entities]) => {
+    let entity: Entity
 
-  const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
-  const chunkIds = getChunkIds(build.position, build.size)
+    const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
+    const chunkIds = getChunkIds(build.position, build.size)
 
-  switch (build.entityType) {
-    case EntityType.House:
-      entity = {
-        id: entityId,
-        chunkIds,
-        type: EntityType.House,
-        position: build.position,
-        size: build.size,
-        state: {
-          type: EntityStateType.Build,
-          materials: {
-            [ItemType.Wood]: 2,
+    switch (build.entityType) {
+      case EntityType.House:
+        entity = {
+          id: entityId,
+          chunkIds,
+          type: EntityType.House,
+          position: build.position,
+          size: build.size,
+          state: {
+            type: EntityStateType.Build,
+            materials: {
+              [ItemType.Wood]: 2,
+            },
           },
-        },
-      }
-      break
-    case EntityType.Farm: {
-      const cells: FarmCell[] = []
-      for (let y = 0; y < build.size.y; y++) {
-        for (let x = 0; x < build.size.x; x++) {
-          cells.push({
-            maturity: 0,
-            water: 0,
-          })
         }
-      }
+        break
+      case EntityType.Farm: {
+        const cells: FarmCell[] = []
+        for (let y = 0; y < build.size.y; y++) {
+          for (let x = 0; x < build.size.x; x++) {
+            cells.push({
+              maturity: 0,
+              water: 0,
+            })
+          }
+        }
 
-      entity = {
-        id: entityId,
-        chunkIds,
-        type: EntityType.Farm,
-        position: build.position,
-        size: build.size,
-        state: {
-          type: EntityStateType.Build,
-          materials: {
-            [ItemType.Wood]: 8,
+        entity = {
+          id: entityId,
+          chunkIds,
+          type: EntityType.Farm,
+          position: build.position,
+          size: build.size,
+          state: {
+            type: EntityStateType.Build,
+            materials: {
+              [ItemType.Wood]: 8,
+            },
           },
-        },
-        cells,
-        pickJobId: null,
+          cells,
+          pickJobId: null,
+        }
+        break
       }
-      break
-    }
-    case EntityType.Tree:
-      invariant(false, `cannot build ${build.entityType}`)
-    case EntityType.Storage: {
-      entity = {
-        id: entityId,
-        chunkIds,
-        type: EntityType.Storage,
-        position: build.position,
-        size: build.size,
-        state: {
-          type: EntityStateType.Build,
-          materials: {
-            [ItemType.Wood]: 20,
+      case EntityType.Tree:
+        invariant(false, `cannot build ${build.entityType}`)
+      case EntityType.Storage: {
+        entity = {
+          id: entityId,
+          chunkIds,
+          type: EntityType.Storage,
+          position: build.position,
+          size: build.size,
+          state: {
+            type: EntityStateType.Build,
+            materials: {
+              [ItemType.Wood]: 20,
+            },
           },
-        },
-        inventory: {},
+          inventory: {},
+        }
+        break
       }
-      break
     }
-  }
 
-  if (build.force) {
-    entity.state = { type: EntityStateType.Active }
-  }
+    if (build.force) {
+      entity.state = { type: EntityStateType.Active }
+    }
 
-  entities$.next({
-    ...entities$.value,
-    [entity.id]: entity,
+    for (let x = 0; x < entity.size.x; x++) {
+      for (let y = 0; y < entity.size.y; y++) {
+        const cell = getCell(chunks, entity.position.add(new Vec2(x, y)))
+        cell.entityId = entity.id
+      }
+    }
+
+    if (!build.force) {
+      const jobId = getNextJobId()
+      jobs$.next({
+        ...jobs$.value,
+        [jobId]: {
+          id: jobId,
+          type: JobType.Build,
+          entityId: entity.id,
+        },
+      })
+    }
+
+    invariant(entities[entity.id] === undefined)
+    entities[entity.id] = entity
+
+    chunks$.next(chunks)
+
+    chunkUpdates$.next(new Set(chunkIds))
+    entityUpdates$.next(new Set([entityId]))
+
+    newEntity$.next(entityId)
   })
-
-  const chunks = chunks$.value
-
-  for (let x = 0; x < entity.size.x; x++) {
-    for (let y = 0; y < entity.size.y; y++) {
-      const cell = getCell(chunks, entity.position.add(new Vec2(x, y)))
-      cell.entityId = entity.id
-    }
-  }
-
-  chunks$.next({ ...chunks })
-
-  if (!build.force) {
-    const jobId = getNextJobId()
-    jobs$.next({
-      ...jobs$.value,
-      [jobId]: {
-        id: jobId,
-        type: JobType.Build,
-        entityId: entity.id,
-      },
-    })
-  }
-
-  chunkUpdates$.next(new Set(chunkIds))
-  entityUpdates$.next(new Set([entityId]))
-
-  newEntity$.next(entityId)
-})
 
 export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
   '0': {
@@ -690,19 +702,21 @@ graphics$.subscribe((graphics) => {
   }
 })
 
-newEntity$.subscribe((newEntityId) => {
-  const entity = entities$.value[newEntityId]
-  invariant(entity)
+newEntity$
+  .pipe(withLatestFrom(entities$))
+  .subscribe(([newEntityId, entities]) => {
+    const entity = entities[newEntityId]
+    invariant(entity)
 
-  if (entity.type !== EntityType.House) {
-    return
-  }
-
-  for (const agent of Object.values(agents$.value)) {
-    if (!agent.home) {
-      agent.home = entity.id
-
-      return // TODO allow multiple agents to have the same home
+    if (entity.type !== EntityType.House) {
+      return
     }
-  }
-})
+
+    for (const agent of Object.values(agents$.value)) {
+      if (!agent.home) {
+        agent.home = entity.id
+
+        return // TODO allow multiple agents to have the same home
+      }
+    }
+  })
