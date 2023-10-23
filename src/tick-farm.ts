@@ -115,4 +115,5 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
   }
 
   updates.jobIds.add(job.id)
+  updates.entityIds.add(job.entityId)
 }
