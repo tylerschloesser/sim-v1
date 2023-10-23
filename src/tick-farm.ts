@@ -6,7 +6,6 @@ import {
   FARM_SIZE,
   FARM_WATER_FACTOR,
 } from './const.js'
-import { jobs$ } from './state.js'
 import { move } from './tick-util.js'
 import {
   EntityType,
@@ -15,6 +14,7 @@ import {
   JobType,
   PickGardenJob,
   TickJobFn,
+  WaterGardenJob,
   World,
   WorldUpdates,
 } from './types.js'
@@ -34,13 +34,18 @@ export function tickFarm(
     cell.maturity +=
       (1 / FARM_GROW_RATE) * (cell.water ? 1 : 1 / FARM_WATER_FACTOR)
 
-    if (
+    if (cell.maturity < FARM_MATURITY_THRESHOLD && cell.water === 0) {
+      let job: WaterGardenJob
+      if (farm.waterJobId) {
+        // const temp = jobs
+      }
+    } else if (
       lastMaturity < FARM_MATURITY_THRESHOLD &&
       cell.maturity >= FARM_MATURITY_THRESHOLD
     ) {
       let job: PickGardenJob
       if (farm.pickJobId) {
-        const temp = jobs$.value[farm.pickJobId]
+        const temp = world.jobs[farm.pickJobId]
         invariant(temp?.type === JobType.PickGarden)
         job = temp
       } else {
@@ -51,7 +56,7 @@ export function tickFarm(
           id: getNextJobId(),
         }
         farm.pickJobId = job.id
-        jobs$.value[job.id] = job
+        world.jobs[job.id] = job
       }
 
       job.cellIndexes.push(i)

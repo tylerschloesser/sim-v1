@@ -96,6 +96,7 @@ export interface FarmEntity extends BaseEntity {
   type: EntityType.Farm
   cells: FarmCell[]
   pickJobId: JobId | null
+  waterJobId: JobId | null
 }
 
 export interface StorageEntity extends BaseEntity {
@@ -144,6 +145,7 @@ export enum JobType {
   CutTrees = 'cut-trees',
   Build = 'build',
   PickGarden = 'pick-garden',
+  WaterGarden = 'water-garden',
   AgentRest = 'agent-rest',
   DropOffItems = 'drop-off-items',
 }
@@ -179,12 +181,19 @@ export interface DropOffItemsJob extends BaseJob {
   entityId: EntityId
 }
 
+export interface WaterGardenJob extends BaseJob {
+  type: JobType.WaterGarden
+  entityId: EntityId
+  cellIndexes: number[]
+}
+
 export type Job =
   | CutTreesJob
   | BuildJob
   | PickGardenJob
   | AgentRestJob
   | DropOffItemsJob
+  | WaterGardenJob
 
 export interface World {
   chunks: Record<ChunkId, Chunk>

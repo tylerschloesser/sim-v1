@@ -552,6 +552,7 @@ confirmBuild$
           },
           cells,
           pickJobId: null,
+          waterJobId: null,
         }
         break
       }
