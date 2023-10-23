@@ -20,6 +20,7 @@ import {
 } from './types.js'
 import { getNextJobId } from './util.js'
 import { Vec2 } from './vec2.js'
+import { move } from './tick-util.js'
 
 export function tickFarm(
   world: World,
@@ -89,39 +90,30 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
     new Vec2(cellIndex % FARM_SIZE.x, Math.floor(cellIndex / FARM_SIZE.y)),
   )
 
-  if (!Vec2.isEqual(agent.position, cellPosition)) {
-    const delta = cellPosition.sub(agent.position)
-    const speed = 1
+  const { arrived } = move(agent, cellPosition)
+  updates.agentIds.add(agent.id)
 
-    if (delta.dist() <= speed) {
-      agent.position = cellPosition
-    } else {
-      const velocity = delta.norm().mul(speed)
-      agent.position = agent.position.add(velocity)
-    }
-
-    updates.agentIds.add(agent.id)
-  } else {
-    invariant(cell.maturity >= FARM_MATURITY_THRESHOLD)
-    if (cell.maturity < FARM_DEAD_THRESHOLD) {
-      agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
-    } else {
-      agent.inventory[ItemType.Trash] =
-        (agent.inventory[ItemType.Trash] ?? 0) + 1
-    }
-
-    cell.maturity = 0
-
-    invariant(job.cellIndexes.length >= 1)
-    job.cellIndexes.shift()
-
-    if (job.cellIndexes.length === 0) {
-      delete world.jobs[job.id]
-      farm.pickJobId = null
-      delete agent.jobId
-    }
+  if (!arrived) {
+    return
   }
 
-  updates.agentIds.add(agent.id)
+  invariant(cell.maturity >= FARM_MATURITY_THRESHOLD)
+  if (cell.maturity < FARM_DEAD_THRESHOLD) {
+    agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
+  } else {
+    agent.inventory[ItemType.Trash] = (agent.inventory[ItemType.Trash] ?? 0) + 1
+  }
+
+  cell.maturity = 0
+
+  invariant(job.cellIndexes.length >= 1)
+  job.cellIndexes.shift()
+
+  if (job.cellIndexes.length === 0) {
+    delete world.jobs[job.id]
+    farm.pickJobId = null
+    delete agent.jobId
+  }
+
   updates.jobIds.add(job.id)
 }
