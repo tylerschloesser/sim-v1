@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { AGENT_ENERGY_PER_TICK, STORAGE_CAPACITY } from './const.js'
+import { AGENT_FATIGUE_PER_TICK, STORAGE_CAPACITY } from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { tickBuildJob } from './tick-build-job.js'
@@ -46,12 +46,12 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     if (!isHome) {
-      agent.energy = Math.max(agent.energy - AGENT_ENERGY_PER_TICK, 0)
+      agent.fatigue = Math.max(agent.fatigue + AGENT_FATIGUE_PER_TICK, 0)
     } else {
-      // don't use energy while home
+      // don't gain fatigue while home
     }
 
-    if (agent.energy === 0) {
+    if (agent.fatigue > 1) {
       updates.agentIds.add(agent.id)
 
       let job: AgentRestJob | undefined

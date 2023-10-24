@@ -123,7 +123,8 @@ export interface Agent {
   position: Vec2
   jobId?: JobId
   inventory: Partial<Record<ItemType, number>>
-  energy: number
+  fatigue: number
+  hunger: number
   home: EntityId | null
 }
 
@@ -215,9 +216,9 @@ export enum TextureType {
   Storage = 'storage',
   Well = 'well',
 
-  AgentEnergyHigh = 'agent-energy-high',
-  AgentEnergyMedium = 'agent-energy-medium',
-  AgentEnergyLow = 'agent-energy-low',
+  AgentFatigueHigh = 'agent-fatigue-high',
+  AgentFatigueMedium = 'agent-fatigue-medium',
+  AgentFatigueLow = 'agent-fatigue-low',
 
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',

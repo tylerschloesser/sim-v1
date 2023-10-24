@@ -125,9 +125,9 @@ const generateHouseTextures: GenerateTexturesFn<TextureType.House> = (app) => {
 
 const generateAgentTextures: GenerateTexturesFn<
   | TextureType.Agent
-  | TextureType.AgentEnergyHigh
-  | TextureType.AgentEnergyMedium
-  | TextureType.AgentEnergyLow
+  | TextureType.AgentFatigueHigh
+  | TextureType.AgentFatigueMedium
+  | TextureType.AgentFatigueLow
 > = (app) => {
   const g = new Graphics()
   g.beginFill('magenta')
@@ -138,7 +138,7 @@ const generateAgentTextures: GenerateTexturesFn<
     (MAX_CELL_SIZE / 2) * 0.8,
   )
 
-  function buildEnergyTexture(color: string) {
+  function buildFatigueTexture(color: string) {
     const padding = 0.05
     const r = 0.15
     g.clear()
@@ -158,9 +158,9 @@ const generateAgentTextures: GenerateTexturesFn<
     [TextureType.Agent]: app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
     }),
-    [TextureType.AgentEnergyHigh]: buildEnergyTexture('green'),
-    [TextureType.AgentEnergyMedium]: buildEnergyTexture('orange'),
-    [TextureType.AgentEnergyLow]: buildEnergyTexture('red'),
+    [TextureType.AgentFatigueHigh]: buildFatigueTexture('red'),
+    [TextureType.AgentFatigueMedium]: buildFatigueTexture('orange'),
+    [TextureType.AgentFatigueLow]: buildFatigueTexture('green'),
   }
 }
 

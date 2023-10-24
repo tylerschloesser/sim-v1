@@ -28,12 +28,12 @@ export class AgentContainer extends Container {
       this.energy.destroy()
     }
 
-    if (agent.energy > 0.5) {
-      this.energy = new Sprite(this.textures[TextureType.AgentEnergyHigh])
-    } else if (agent.energy > 0) {
-      this.energy = new Sprite(this.textures[TextureType.AgentEnergyMedium])
+    if (agent.fatigue > 1) {
+      this.energy = new Sprite(this.textures[TextureType.AgentFatigueHigh])
+    } else if (agent.fatigue > 0.5) {
+      this.energy = new Sprite(this.textures[TextureType.AgentFatigueMedium])
     } else {
-      this.energy = new Sprite(this.textures[TextureType.AgentEnergyLow])
+      this.energy = new Sprite(this.textures[TextureType.AgentFatigueLow])
     }
 
     this.addChild(this.energy)

@@ -632,7 +632,8 @@ export const agents$ = new BehaviorSubject<Record<AgentId, Agent>>({
     id: '0',
     position: new Vec2(0, 0),
     inventory: {},
-    energy: 1,
+    fatigue: 0,
+    hunger: 0,
     home: null,
   },
 })
