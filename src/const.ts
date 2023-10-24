@@ -18,6 +18,9 @@ export const HOUSE_SIZE = new Vec2(2)
 export const STORAGE_SIZE = new Vec2(8, 4)
 export const WELL_SIZE = new Vec2(2)
 
+// how much area around the starting point [0,0] is clear from water and trees
+export const INITIAL_CLEAR_RADIUS = CHUNK_SIZE / 2
+
 export const STORAGE_CAPACITY: number =
   (STORAGE_SIZE.x * 2 - 1) * STORAGE_SIZE.y
 invariant(STORAGE_CAPACITY % STORAGE_SIZE.y === 0)

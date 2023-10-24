@@ -1,6 +1,6 @@
 import Prando from 'prando'
 import { NoiseFunction3D, createNoise3D } from 'simplex-noise'
-import { CHUNK_SIZE } from './const.js'
+import { CHUNK_SIZE, INITIAL_CLEAR_RADIUS } from './const.js'
 import {
   CellType,
   Chunk,
@@ -11,7 +11,7 @@ import {
   EntityType,
   TreeEntity,
 } from './types.js'
-import { chunkIdToPosition, getChunkId, getChunkIds } from './util.js'
+import { chunkIdToPosition, getChunkIds } from './util.js'
 import { Vec2 } from './vec2.js'
 
 const INITIAL_CHUNK_RADIUS = 3
@@ -84,7 +84,7 @@ export function generateChunk(chunkId: ChunkId): {
       noise += noise3d(x * 0.1, y * 0.1, 35) * 0.15
 
       const dist = cellPosition.dist()
-      if (dist < CHUNK_SIZE) {
+      if (dist < INITIAL_CLEAR_RADIUS) {
         noise = 0
       }
 
@@ -104,7 +104,7 @@ export function generateChunk(chunkId: ChunkId): {
         noise += noise3d(x * 0.1, y * 0.1, 45) * 0.3
 
         const dist = cellPosition.dist()
-        if (dist < CHUNK_SIZE) {
+        if (dist < INITIAL_CLEAR_RADIUS) {
           noise = 0
         }
 
