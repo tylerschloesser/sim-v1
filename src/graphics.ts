@@ -25,6 +25,7 @@ import {
   ChunkId,
   Entity,
   EntityId,
+  EntityStateType,
   EntityType,
   Select,
   Textures,
@@ -211,6 +212,11 @@ export class Graphics {
       })
       this.entityContainer.addChild(container)
       this.entityIdToContainer.set(entity.id, container)
+    }
+    if (entity.state.type === EntityStateType.Build) {
+      container.alpha = 0.5
+    } else {
+      container.alpha = 1
     }
     container.update(entity)
     container.visible = visible

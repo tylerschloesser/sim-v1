@@ -102,7 +102,7 @@ export interface FarmEntity extends BaseEntity {
 
 export interface StorageEntity extends BaseEntity {
   type: EntityType.Storage
-  inventory: Partial<Record<ItemType, number>>
+  inventory: ItemType[]
 }
 
 export interface WellEntity extends BaseEntity {

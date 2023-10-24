@@ -571,7 +571,7 @@ confirmBuild$
               [ItemType.Wood]: 20,
             },
           },
-          inventory: {},
+          inventory: [],
         }
         break
       }
