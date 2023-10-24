@@ -1,5 +1,9 @@
 import invariant from 'tiny-invariant'
-import { AGENT_FATIGUE_PER_TICK, STORAGE_CAPACITY } from './const.js'
+import {
+  AGENT_FATIGUE_PER_TICK,
+  AGENT_HUNGER_PER_TICK,
+  STORAGE_CAPACITY,
+} from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { tickBuildJob } from './tick-build-job.js'
@@ -50,6 +54,8 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     } else {
       // don't gain fatigue while home
     }
+
+    agent.hunger += AGENT_HUNGER_PER_TICK
 
     if (agent.fatigue > 1) {
       updates.agentIds.add(agent.id)

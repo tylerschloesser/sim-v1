@@ -128,6 +128,9 @@ const generateAgentTextures: GenerateTexturesFn<
   | TextureType.AgentFatigueHigh
   | TextureType.AgentFatigueMedium
   | TextureType.AgentFatigueLow
+  | TextureType.AgentHungerHigh
+  | TextureType.AgentHungerMedium
+  | TextureType.AgentHungerLow
 > = (app) => {
   const g = new Graphics()
   g.beginFill('magenta')
@@ -154,6 +157,22 @@ const generateAgentTextures: GenerateTexturesFn<
     })
   }
 
+  function buildHungerTexture(color: string) {
+    const padding = 0.05
+    const r = 0.15
+    g.clear()
+    g.beginFill(color)
+    g.lineStyle(r * 0.1 * MAX_CELL_SIZE, 'black')
+    g.drawCircle(
+      (r + padding) * MAX_CELL_SIZE,
+      (r + padding) * MAX_CELL_SIZE,
+      r * MAX_CELL_SIZE,
+    )
+    return app.renderer.generateTexture(g, {
+      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+    })
+  }
+
   return {
     [TextureType.Agent]: app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
@@ -161,6 +180,10 @@ const generateAgentTextures: GenerateTexturesFn<
     [TextureType.AgentFatigueHigh]: buildFatigueTexture('red'),
     [TextureType.AgentFatigueMedium]: buildFatigueTexture('orange'),
     [TextureType.AgentFatigueLow]: buildFatigueTexture('green'),
+
+    [TextureType.AgentHungerHigh]: buildHungerTexture('red'),
+    [TextureType.AgentHungerMedium]: buildHungerTexture('orange'),
+    [TextureType.AgentHungerLow]: buildHungerTexture('green'),
   }
 }
 

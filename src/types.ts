@@ -220,6 +220,10 @@ export enum TextureType {
   AgentFatigueMedium = 'agent-fatigue-medium',
   AgentFatigueLow = 'agent-fatigue-low',
 
+  AgentHungerHigh = 'agent-hunger-high',
+  AgentHungerMedium = 'agent-hunger-medium',
+  AgentHungerLow = 'agent-hunger-low',
+
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',
   FarmCell2 = 'farm-cell-2',
