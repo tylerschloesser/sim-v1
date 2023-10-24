@@ -1,6 +1,7 @@
 import invariant from 'tiny-invariant'
 import { move } from './tick-util.js'
 import { DropOffItemsJob, EntityType, ItemType, TickJobFn } from './types.js'
+import { STORAGE_CAPACITY } from './const.js'
 
 export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
   agent,
@@ -10,6 +11,8 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
 }) => {
   const storage = world.entities[job.entityId]
   invariant(storage?.type === EntityType.Storage)
+
+  invariant(storage.inventory.length < STORAGE_CAPACITY)
 
   const { arrived } = move(agent, storage.position)
   updates.agentIds.add(agent.id)
@@ -33,7 +36,10 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
     }
   }
 
-  if (Object.keys(agent.inventory).length === 0) {
+  if (
+    Object.keys(agent.inventory).length === 0 ||
+    storage.inventory.length === STORAGE_CAPACITY
+  ) {
     delete agent.jobId
     delete world.jobs[job.id]
     updates.jobIds.add(job.id)

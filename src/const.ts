@@ -18,6 +18,10 @@ export const HOUSE_SIZE = new Vec2(2)
 export const STORAGE_SIZE = new Vec2(8, 4)
 export const WELL_SIZE = new Vec2(2)
 
+export const STORAGE_CAPACITY: number =
+  (STORAGE_SIZE.x * 2 - 1) * STORAGE_SIZE.y
+invariant(STORAGE_CAPACITY % STORAGE_SIZE.y === 0)
+
 // How much energy is consumed per tick
 export const AGENT_ENERGY_PER_TICK = 1 / 200
 

@@ -1,5 +1,5 @@
 import { Container, Sprite } from 'pixi.js'
-import { MAX_CELL_SIZE } from './const.js'
+import { MAX_CELL_SIZE, STORAGE_SIZE } from './const.js'
 import { EntityContainer } from './entity-container.js'
 import { Entity, EntityType, ItemType, TextureType, Textures } from './types.js'
 import invariant from 'tiny-invariant'
@@ -48,7 +48,10 @@ export class StorageContainer extends EntityContainer {
       }
 
       const sprite = new Sprite(this.textures[textureType])
-      sprite.setTransform(i * 0.5 * MAX_CELL_SIZE, 0)
+      sprite.setTransform(
+        (i % (STORAGE_SIZE.x * 2 - 1)) * 0.5 * MAX_CELL_SIZE,
+        Math.floor(i / (STORAGE_SIZE.x * 2 - 1)) * MAX_CELL_SIZE,
+      )
       this.inventory.addChild(sprite)
     }
   }
