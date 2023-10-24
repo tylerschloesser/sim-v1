@@ -19,6 +19,7 @@ import {
 import { getNextJobId } from './util.js'
 import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
 import { tickWaterGardenJob } from './tick-water-garden-job.js'
+import { Vec2 } from './vec2.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
@@ -35,7 +36,20 @@ function tickEntities(world: World, updates: WorldUpdates): void {
 
 function tickAgents(world: World, updates: WorldUpdates): void {
   for (const agent of Object.values(world.agents)) {
-    agent.energy = Math.max(agent.energy - AGENT_ENERGY_PER_TICK, 0)
+    let isHome = false
+    if (agent.home) {
+      const home = world.entities[agent.home]
+      invariant(home?.type === EntityType.House)
+      if (Vec2.isEqual(home.position, agent.position)) {
+        isHome = true
+      }
+    }
+
+    if (!isHome) {
+      agent.energy = Math.max(agent.energy - AGENT_ENERGY_PER_TICK, 0)
+    } else {
+      // don't use energy while home
+    }
 
     if (agent.energy === 0) {
       updates.agentIds.add(agent.id)
@@ -123,6 +137,15 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         agent.jobId = job.id
         world.jobs[job.id] = job
       }
+    }
+
+    if (!agent.jobId) {
+      const job: AgentRestJob = {
+        id: getNextJobId(),
+        type: JobType.AgentRest,
+      }
+      agent.jobId = job.id
+      world.jobs[job.id] = job
     }
 
     if (!agent.jobId) {
