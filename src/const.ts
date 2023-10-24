@@ -29,7 +29,7 @@ export const AGENT_FATIGUE_PER_TICK = 1 / 200
 export const AGENT_FATIGUE_REPLENISH_PER_TICK = 1 / 20
 
 // How much hunger does the agent gain (per tick)
-export const AGENT_HUNGER_PER_TICK = 1 / 100
+export const AGENT_HUNGER_PER_TICK = 1 / 1000
 
 // How many ticks before maturity
 export const FARM_GROW_RATE = 200
