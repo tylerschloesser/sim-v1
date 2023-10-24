@@ -29,7 +29,7 @@ export const AGENT_ENERGY_PER_TICK = 1 / 200
 export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20
 
 // How many ticks before maturity
-export const FARM_GROW_RATE = 50
+export const FARM_GROW_RATE = 200
 
 // How many ticks does water last?
 export const FARM_WATER_CONSUMPTION_RATE = 600
