@@ -1,5 +1,5 @@
 import invariant from 'tiny-invariant'
-import { AGENT_ENERGY_PER_TICK } from './const.js'
+import { AGENT_ENERGY_PER_TICK, STORAGE_CAPACITY } from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { tickBuildJob } from './tick-build-job.js'
@@ -124,9 +124,12 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     if (!agent.jobId && Object.keys(agent.inventory).length > 0) {
       // TODO pick the closest
-      const storage = Object.values(world.entities).find(
-        (entity): entity is StorageEntity => entity.type === EntityType.Storage,
-      )
+      const storage = Object.values(world.entities)
+        .filter(
+          (entity): entity is StorageEntity =>
+            entity.type === EntityType.Storage,
+        )
+        .find((storage) => storage.inventory.length < STORAGE_CAPACITY)
 
       if (storage) {
         const job: DropOffItemsJob = {
