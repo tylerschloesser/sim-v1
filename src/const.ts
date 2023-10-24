@@ -19,16 +19,16 @@ export const STORAGE_SIZE = new Vec2(8, 4)
 export const WELL_SIZE = new Vec2(2)
 
 // How much energy is consumed per tick
-export const AGENT_ENERGY_PER_TICK = 1 / 100
+export const AGENT_ENERGY_PER_TICK = 1 / 200
 
 // How much energy does the agent gain while resting per tick
 export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20
 
 // How many ticks before maturity
-export const FARM_GROW_RATE = 50
+export const FARM_GROW_RATE = 200
 
 // How many ticks does water last?
-export const FARM_WATER_CONSUMPTION_RATE = 100
+export const FARM_WATER_CONSUMPTION_RATE = 600
 
 // how much faster do things grow with water
 export const FARM_WATER_FACTOR: number = 4
