@@ -28,7 +28,7 @@ export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20
 export const FARM_GROW_RATE = 50
 
 // how much faster do things grow with water
-export const FARM_WATER_FACTOR: number = 1
+export const FARM_WATER_FACTOR: number = 4
 invariant(FARM_WATER_FACTOR !== 0)
 
 // when is a cell considered mature

@@ -57,6 +57,7 @@ export enum ItemType {
   Wood = 'wood',
   Food = 'food',
   Trash = 'trash',
+  WaterBucket = 'water-bucket',
 }
 
 export interface BuildEntityState {

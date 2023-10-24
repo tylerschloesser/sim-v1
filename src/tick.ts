@@ -18,6 +18,7 @@ import {
 } from './types.js'
 import { getNextJobId } from './util.js'
 import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
+import { tickWaterGardenJob } from './tick-water-garden-job.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
@@ -146,6 +147,9 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         break
       case JobType.DropOffItems:
         tickDropOffItemsJob({ world, updates, job, agent })
+        break
+      case JobType.WaterGarden:
+        tickWaterGardenJob({ world, updates, job, agent })
         break
     }
   }
