@@ -226,6 +226,10 @@ export enum TextureType {
   FarmCell4 = 'farm-cell-4',
   FarmCell5 = 'farm-cell-5',
   FarmCellWater = 'farm-cell-water',
+
+  ItemWood = 'item-tree',
+  ItemFood = 'item-food',
+  ItemTrash = 'item-trash',
 }
 
 export type Textures = Record<TextureType, Texture>

@@ -16,6 +16,7 @@ export function generateTextures(app: Application): Textures {
     ...generateAgentTextures(app),
     ...generateStorageTextures(app),
     ...generateWellTextures(app),
+    ...generateItemTextures(app),
   }
 }
 
@@ -176,5 +177,28 @@ const generateStorageTextures: GenerateTexturesFn<TextureType.Storage> = (
   )
   return {
     [TextureType.Storage]: app.renderer.generateTexture(g),
+  }
+}
+
+const generateItemTextures: GenerateTexturesFn<
+  TextureType.ItemFood | TextureType.ItemWood | TextureType.ItemTrash
+> = (app) => {
+  function buildTexture(color: string) {
+    const g = new Graphics()
+    g.beginFill(color)
+    const x = 0.1 * MAX_CELL_SIZE
+    const y = x
+    const w = 0.8 * MAX_CELL_SIZE
+    const h = w
+    g.drawRect(x, y, w, h)
+    return app.renderer.generateTexture(g, {
+      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+    })
+  }
+
+  return {
+    [TextureType.ItemFood]: buildTexture('red'),
+    [TextureType.ItemWood]: buildTexture('brown'),
+    [TextureType.ItemTrash]: buildTexture('grey'),
   }
 }
