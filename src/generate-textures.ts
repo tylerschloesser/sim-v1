@@ -122,18 +122,44 @@ const generateHouseTextures: GenerateTexturesFn<TextureType.House> = (app) => {
   }
 }
 
-const generateAgentTextures: GenerateTexturesFn<TextureType.Agent> = (app) => {
+const generateAgentTextures: GenerateTexturesFn<
+  | TextureType.Agent
+  | TextureType.AgentEnergyHigh
+  | TextureType.AgentEnergyMedium
+  | TextureType.AgentEnergyLow
+> = (app) => {
   const g = new Graphics()
   g.beginFill('magenta')
+  g.lineStyle(MAX_CELL_SIZE * 0.02, 'black')
   g.drawCircle(
     MAX_CELL_SIZE * 0.5,
     MAX_CELL_SIZE * 0.5,
     (MAX_CELL_SIZE / 2) * 0.8,
   )
+
+  function buildEnergyTexture(color: string) {
+    const padding = 0.05
+    const r = 0.15
+    g.clear()
+    g.beginFill(color)
+    g.lineStyle(r * 0.1 * MAX_CELL_SIZE, 'black')
+    g.drawCircle(
+      (1 - r - padding) * MAX_CELL_SIZE,
+      (r + padding) * MAX_CELL_SIZE,
+      r * MAX_CELL_SIZE,
+    )
+    return app.renderer.generateTexture(g, {
+      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+    })
+  }
+
   return {
     [TextureType.Agent]: app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
     }),
+    [TextureType.AgentEnergyHigh]: buildEnergyTexture('green'),
+    [TextureType.AgentEnergyMedium]: buildEnergyTexture('orange'),
+    [TextureType.AgentEnergyLow]: buildEnergyTexture('red'),
   }
 }
 

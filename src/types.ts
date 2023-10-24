@@ -215,6 +215,10 @@ export enum TextureType {
   Storage = 'storage',
   Well = 'well',
 
+  AgentEnergyHigh = 'agent-energy-high',
+  AgentEnergyMedium = 'agent-energy-medium',
+  AgentEnergyLow = 'agent-energy-low',
+
   FarmBase = 'farm-base',
   FarmCell1 = 'farm-cell-1',
   FarmCell2 = 'farm-cell-2',
