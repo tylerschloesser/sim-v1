@@ -85,8 +85,19 @@ const generateFarmTextures: GenerateTexturesFn<
 
   const cellWaterTexture = (() => {
     const g = new Graphics()
-    g.beginFill('hsla(240, 50%, 100%, .5)')
-    g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+    const n = 4
+    for (let y = 0; y < n; y++) {
+      for (let x = 0; x < n; x++) {
+        if (x % 2 === y % 2) continue
+        g.beginFill('hsla(240, 50%, 50%, .5)')
+        g.drawRect(
+          x * (MAX_CELL_SIZE / n),
+          y * (MAX_CELL_SIZE / n),
+          MAX_CELL_SIZE / n,
+          MAX_CELL_SIZE / n,
+        )
+      }
+    }
     return app.renderer.generateTexture(g)
   })()
 
