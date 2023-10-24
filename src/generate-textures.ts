@@ -186,6 +186,7 @@ const generateItemTextures: GenerateTexturesFn<
   function buildTexture(color: string) {
     const g = new Graphics()
     g.beginFill(color)
+    g.lineStyle(0.05 * MAX_CELL_SIZE, 'black')
     const x = 0.1 * MAX_CELL_SIZE
     const y = x
     const w = 0.8 * MAX_CELL_SIZE

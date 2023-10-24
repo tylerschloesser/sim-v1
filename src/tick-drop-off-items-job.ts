@@ -23,7 +23,9 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
   for (const entry of Object.entries(agent.inventory)) {
     const [itemType, count] = entry as [ItemType, number]
     invariant(count > 0)
-    storage.inventory.push(itemType)
+    for (let i = 0; i < count; i++) {
+      storage.inventory.push(itemType)
+    }
   }
 
   agent.inventory = {}
