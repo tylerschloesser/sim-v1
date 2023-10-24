@@ -32,9 +32,7 @@ const generateWellTextures: GenerateTexturesFn<TextureType.Well> = (app) => {
   }
 }
 
-function generateTreeTextures(
-  app: Application,
-): Pick<Textures, TextureType.Tree> {
+const generateTreeTextures: GenerateTexturesFn<TextureType.Tree> = (app) => {
   const g = new Graphics()
   const padding = 0.1
 
@@ -54,10 +52,7 @@ function generateTreeTextures(
   }
 }
 
-function generateFarmTextures(
-  app: Application,
-): Pick<
-  Textures,
+const generateFarmTextures: GenerateTexturesFn<
   | TextureType.FarmBase
   | TextureType.FarmCell1
   | TextureType.FarmCell2
@@ -65,7 +60,7 @@ function generateFarmTextures(
   | TextureType.FarmCell4
   | TextureType.FarmCell5
   | TextureType.FarmCellWater
-> {
+> = (app) => {
   function buildCellTexture(radius: number, fill: string) {
     const g = new Graphics()
     g.beginFill(fill)
@@ -106,9 +101,7 @@ function generateFarmTextures(
   }
 }
 
-function generateHouseTextures(
-  app: Application,
-): Pick<Textures, TextureType.House> {
+const generateHouseTextures: GenerateTexturesFn<TextureType.House> = (app) => {
   const g = new Graphics()
   g.beginFill('hsl(36, 87%, 20%)')
   g.drawRect(0, 0, MAX_CELL_SIZE * HOUSE_SIZE.x, MAX_CELL_SIZE * HOUSE_SIZE.y)
@@ -119,9 +112,7 @@ function generateHouseTextures(
   }
 }
 
-function generateAgentTextures(
-  app: Application,
-): Pick<Textures, TextureType.Agent> {
+const generateAgentTextures: GenerateTexturesFn<TextureType.Agent> = (app) => {
   const g = new Graphics()
   g.beginFill('magenta')
   g.drawCircle(
@@ -136,9 +127,9 @@ function generateAgentTextures(
   }
 }
 
-function generateStorageTextures(
-  app: Application,
-): Pick<Textures, TextureType.Storage> {
+const generateStorageTextures: GenerateTexturesFn<TextureType.Storage> = (
+  app,
+) => {
   const g = new Graphics()
   g.beginFill('cyan')
   g.drawRect(
