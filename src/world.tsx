@@ -9,7 +9,7 @@ import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
 import { logTickDuration } from './debug.js'
 import { DebugOverlay } from './debug-overlay.js'
-import { FARM_SIZE, WELL_SIZE } from './const.js'
+import { FARM_SIZE, HOUSE_SIZE, STORAGE_SIZE, WELL_SIZE } from './const.js'
 
 export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
@@ -47,15 +47,29 @@ export function World() {
   useEffect(() => {
     confirmBuild({
       entityType: EntityType.Farm,
-      position: new Vec2(2, 0),
+      position: new Vec2(-2, -2),
       size: FARM_SIZE,
       valid: true,
       force: true,
     })
     confirmBuild({
       entityType: EntityType.Well,
-      position: new Vec2(0, -4),
+      position: new Vec2(-1, -6),
       size: WELL_SIZE,
+      valid: true,
+      force: true,
+    })
+    confirmBuild({
+      entityType: EntityType.House,
+      position: new Vec2(-5, -1),
+      size: HOUSE_SIZE,
+      valid: true,
+      force: true,
+    })
+    confirmBuild({
+      entityType: EntityType.Storage,
+      position: new Vec2(-4, 4),
+      size: STORAGE_SIZE,
       valid: true,
       force: true,
     })

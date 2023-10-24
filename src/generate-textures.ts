@@ -64,13 +64,12 @@ const generateFarmTextures: GenerateTexturesFn<
   function buildCellTexture(radius: number, fill: string) {
     const g = new Graphics()
     g.beginFill(fill)
-    g.drawRect(
-      MAX_CELL_SIZE * (1 / 2 - radius),
-      MAX_CELL_SIZE * (1 / 2 - radius),
-      MAX_CELL_SIZE * radius * 2,
-      MAX_CELL_SIZE * radius * 2,
-    )
-    // g.drawCircle(MAX_CELL_SIZE / 2, MAX_CELL_SIZE / 2, radius * MAX_CELL_SIZE)
+    g.lineStyle(MAX_CELL_SIZE * 0.02, 'black')
+    const x = MAX_CELL_SIZE * (1 / 2 - radius)
+    const y = x
+    const w = MAX_CELL_SIZE * radius * 2
+    const h = w
+    g.drawRect(x, y, w, h)
     return app.renderer.generateTexture(g, {
       region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
     })
@@ -89,7 +88,7 @@ const generateFarmTextures: GenerateTexturesFn<
     for (let y = 0; y < n; y++) {
       for (let x = 0; x < n; x++) {
         if (x % 2 === y % 2) continue
-        g.beginFill('hsla(240, 50%, 50%, .5)')
+        g.beginFill('hsl(240, 20%, 50%)')
         g.drawRect(
           x * (MAX_CELL_SIZE / n),
           y * (MAX_CELL_SIZE / n),
@@ -142,7 +141,7 @@ const generateStorageTextures: GenerateTexturesFn<TextureType.Storage> = (
   app,
 ) => {
   const g = new Graphics()
-  g.beginFill('cyan')
+  g.beginFill('hsl(0, 0%, 40%)')
   g.drawRect(
     0,
     0,
