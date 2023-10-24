@@ -27,6 +27,9 @@ export const AGENT_ENERGY_REPLENISH_PER_TICK = 1 / 20
 // How many ticks before maturity
 export const FARM_GROW_RATE = 50
 
+// How many ticks does water last?
+export const FARM_WATER_CONSUMPTION_RATE = 100
+
 // how much faster do things grow with water
 export const FARM_WATER_FACTOR: number = 4
 invariant(FARM_WATER_FACTOR !== 0)
