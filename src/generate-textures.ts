@@ -64,6 +64,7 @@ function generateFarmTextures(
   | TextureType.FarmCell3
   | TextureType.FarmCell4
   | TextureType.FarmCell5
+  | TextureType.FarmCellWater
 > {
   function buildCellTexture(radius: number, fill: string) {
     const g = new Graphics()
@@ -87,6 +88,13 @@ function generateFarmTextures(
     return app.renderer.generateTexture(g)
   })()
 
+  const cellWaterTexture = (() => {
+    const g = new Graphics()
+    g.beginFill('hsla(240, 50%, 100%, .5)')
+    g.drawRect(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE)
+    return app.renderer.generateTexture(g)
+  })()
+
   return {
     [TextureType.FarmBase]: baseTexture,
     [TextureType.FarmCell1]: buildCellTexture(0.1, 'green'),
@@ -94,6 +102,7 @@ function generateFarmTextures(
     [TextureType.FarmCell3]: buildCellTexture(0.233, 'green'),
     [TextureType.FarmCell4]: buildCellTexture(0.3, 'red'),
     [TextureType.FarmCell5]: buildCellTexture(0.3, 'black'),
+    [TextureType.FarmCellWater]: cellWaterTexture,
   }
 }
 

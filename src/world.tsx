@@ -7,6 +7,8 @@ import { EntityType } from './types.js'
 import { Vec2 } from './vec2.js'
 import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
+import { logTickDuration } from './debug.js'
+import { DebugOverlay } from './debug-overlay.js'
 
 export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
@@ -25,7 +27,15 @@ export function World() {
 
   useEffect(() => {
     const interval = window.setInterval(() => {
+      window.performance.mark('tick-start')
       const updates = tickWorld()
+      window.performance.mark('tick-end')
+
+      logTickDuration(
+        window.performance.measure('tick-duration', 'tick-start', 'tick-end')
+          .duration,
+      )
+
       updates$.next(updates)
     }, 100)
     return () => {
@@ -63,6 +73,7 @@ export function World() {
     <div className={styles.world} ref={setContainer}>
       <canvas ref={setCanvas} className={styles['canvas-v2']}></canvas>
       <Outlet />
+      <DebugOverlay />
     </div>
   )
 }

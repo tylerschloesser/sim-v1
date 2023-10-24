@@ -13,7 +13,7 @@ export class FarmContainer extends EntityContainer {
   private readonly base: Sprite
   private readonly textures: Textures
 
-  private cellContainer?: Container
+  private cells?: Container
 
   constructor(textures: Textures) {
     super()
@@ -30,12 +30,12 @@ export class FarmContainer extends EntityContainer {
   update(entity: Entity) {
     invariant(entity.type === EntityType.Farm)
 
-    if (this.cellContainer) {
-      this.base.removeChild(this.cellContainer)
-      this.cellContainer.destroy({ children: true })
+    if (this.cells) {
+      this.base.removeChild(this.cells)
+      this.cells.destroy({ children: true })
     }
-    this.cellContainer = new Container()
-    this.base.addChild(this.cellContainer)
+    this.cells = new Container()
+    this.base.addChild(this.cells)
 
     for (let i = 0; i < entity.cells.length; i++) {
       const cell = entity.cells[i]
@@ -53,13 +53,20 @@ export class FarmContainer extends EntityContainer {
       } else {
         texture = this.textures[TextureType.FarmCell5]
       }
-      const sprite = new Sprite(texture)
-      sprite.setTransform(
+
+      const container = new Container()
+      container.setTransform(
         (i % FARM_SIZE.x) * MAX_CELL_SIZE,
         Math.floor(i / FARM_SIZE.y) * MAX_CELL_SIZE,
       )
 
-      this.cellContainer.addChild(sprite)
+      if (cell.water > 0) {
+        container.addChild(new Sprite(this.textures[TextureType.FarmCellWater]))
+      }
+
+      container.addChild(new Sprite(texture))
+
+      this.cells.addChild(container)
     }
   }
 }

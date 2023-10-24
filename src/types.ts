@@ -221,6 +221,7 @@ export enum TextureType {
   FarmCell3 = 'farm-cell-3',
   FarmCell4 = 'farm-cell-4',
   FarmCell5 = 'farm-cell-5',
+  FarmCellWater = 'farm-cell-water',
 }
 
 export type Textures = Record<TextureType, Texture>
