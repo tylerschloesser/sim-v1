@@ -200,6 +200,6 @@ const generateItemTextures: GenerateTexturesFn<
   return {
     [TextureType.ItemFood]: buildTexture('red'),
     [TextureType.ItemWood]: buildTexture('brown'),
-    [TextureType.ItemTrash]: buildTexture('grey'),
+    [TextureType.ItemTrash]: buildTexture('black'),
   }
 }
