@@ -1,5 +1,6 @@
 import invariant from 'tiny-invariant'
 import { Vec2 } from './vec2.js'
+import { EntityType, ItemType } from './types.js'
 
 export const INITIAL_ZOOM = 0.2
 export const MIN_ZOOM = 0
@@ -51,3 +52,22 @@ invariant(FARM_MATURITY_THRESHOLD > 0)
 // when is a cell considered dead
 export const FARM_DEAD_THRESHOLD: number = 2
 invariant(FARM_DEAD_THRESHOLD > FARM_MATURITY_THRESHOLD)
+
+export const ENTITY_MATERIALS: Record<
+  EntityType,
+  Partial<Record<ItemType, number>>
+> = {
+  [EntityType.Farm]: {
+    [ItemType.Wood]: 8,
+  },
+  [EntityType.House]: {
+    [ItemType.Wood]: 2,
+  },
+  [EntityType.Storage]: {
+    [ItemType.Wood]: 20,
+  },
+  [EntityType.Well]: {
+    [ItemType.Wood]: 4,
+  },
+  [EntityType.Tree]: {},
+}

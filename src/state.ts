@@ -16,6 +16,7 @@ import invariant from 'tiny-invariant'
 import { generateChunk, generateInitialChunks } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
+  ENTITY_MATERIALS,
   FARM_SIZE,
   HOUSE_SIZE,
   INITIAL_ZOOM,
@@ -521,9 +522,7 @@ confirmBuild$
           size: build.size,
           state: {
             type: EntityStateType.Build,
-            materials: {
-              [ItemType.Wood]: 2,
-            },
+            materials: ENTITY_MATERIALS[EntityType.House],
           },
         }
         break
@@ -546,9 +545,7 @@ confirmBuild$
           size: build.size,
           state: {
             type: EntityStateType.Build,
-            materials: {
-              [ItemType.Wood]: 8,
-            },
+            materials: ENTITY_MATERIALS[EntityType.Farm],
           },
           cells,
           pickJobId: null,
@@ -567,9 +564,7 @@ confirmBuild$
           size: build.size,
           state: {
             type: EntityStateType.Build,
-            materials: {
-              [ItemType.Wood]: 20,
-            },
+            materials: ENTITY_MATERIALS[EntityType.Storage],
           },
           inventory: [],
         }
@@ -584,9 +579,7 @@ confirmBuild$
           size: build.size,
           state: {
             type: EntityStateType.Build,
-            materials: {
-              [ItemType.Wood]: 20,
-            },
+            materials: ENTITY_MATERIALS[EntityType.Well],
           },
         }
         break

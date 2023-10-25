@@ -58,11 +58,23 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     let availableStorageCapacity = 0
+    let itemRequests: TickJobArgs<unknown>['info']['itemRequests'] = {
+      [ItemType.Food]: 0,
+      [ItemType.Trash]: 0,
+      [ItemType.WaterBucket]: 0,
+      [ItemType.Wood]: 0,
+    }
     for (let entity of Object.values(world.entities)) {
-      if (entity.type !== EntityType.Storage) {
+      if (entity.state.type === EntityStateType.Build) {
         continue
       }
-      availableStorageCapacity += STORAGE_CAPACITY - entity.inventory.length
+
+      switch (entity.type) {
+        case EntityType.Storage: {
+          availableStorageCapacity += STORAGE_CAPACITY - entity.inventory.length
+          break
+        }
+      }
     }
 
     agent.hunger += AGENT_HUNGER_PER_TICK
@@ -184,6 +196,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     const info: TickJobArgs<unknown>['info'] = {
       availableStorageCapacity,
+      itemRequests,
     }
 
     switch (job.type) {
