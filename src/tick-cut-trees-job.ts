@@ -49,8 +49,6 @@ export const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
     updates.agentIds.add(agent.id)
   }
 
-  agent.inventory = {
-    ...agent.inventory,
-    [ItemType.Wood]: (agent.inventory.wood ?? 0) + 1,
-  }
+  invariant(agent.inventory?.itemType === ItemType.Wood)
+  agent.inventory.count += 1
 }

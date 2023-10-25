@@ -21,23 +21,18 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
     return
   }
 
-  invariant(Object.keys(agent.inventory).length > 0)
+  invariant(agent.inventory)
+  invariant(agent.inventory.count > 0)
 
-  for (const entry of Object.entries(agent.inventory)) {
-    const [itemType, count] = entry as [ItemType, number]
+  storage.inventory.push(agent.inventory.itemType)
 
-    invariant(count > 0)
-    storage.inventory.push(itemType)
-
-    if (count === 1) {
-      delete agent.inventory[itemType]
-    } else {
-      agent.inventory[itemType] = count - 1
-    }
+  agent.inventory.count -= 1
+  if (agent.inventory.count === 0) {
+    agent.inventory = null
   }
 
   if (
-    Object.keys(agent.inventory).length === 0 ||
+    agent.inventory === null ||
     storage.inventory.length === STORAGE_CAPACITY
   ) {
     delete agent.jobId

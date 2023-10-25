@@ -1,11 +1,6 @@
 import { Container, Sprite, Texture } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import {
-  FARM_DEAD_THRESHOLD,
-  FARM_MATURITY_THRESHOLD,
-  FARM_SIZE,
-  MAX_CELL_SIZE,
-} from './const.js'
+import { FARM_MATURITY_THRESHOLD, FARM_SIZE, MAX_CELL_SIZE } from './const.js'
 import { EntityContainer } from './entity-container.js'
 import { Entity, EntityType, TextureType, Textures } from './types.js'
 
@@ -48,10 +43,8 @@ export class FarmContainer extends EntityContainer {
         texture = this.textures[TextureType.FarmCell2]
       } else if (maturity < FARM_MATURITY_THRESHOLD) {
         texture = this.textures[TextureType.FarmCell3]
-      } else if (maturity < FARM_DEAD_THRESHOLD) {
-        texture = this.textures[TextureType.FarmCell4]
       } else {
-        texture = this.textures[TextureType.FarmCell5]
+        texture = this.textures[TextureType.FarmCell4]
       }
 
       const container = new Container()

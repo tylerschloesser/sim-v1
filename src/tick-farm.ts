@@ -1,26 +1,20 @@
 import invariant from 'tiny-invariant'
 import {
-  FARM_DEAD_THRESHOLD,
   FARM_GROW_RATE,
   FARM_MATURITY_THRESHOLD,
-  FARM_SIZE,
   FARM_WATER_CONSUMPTION_RATE,
   FARM_WATER_FACTOR,
 } from './const.js'
-import { move } from './tick-util.js'
 import {
-  EntityType,
   FarmEntity,
-  ItemType,
   JobType,
   PickGardenJob,
-  TickJobFn,
   WaterGardenJob,
+  WaterGardenJobState,
   World,
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
-import { Vec2 } from './vec2.js'
 
 export function tickFarm(
   world: World,
@@ -49,6 +43,7 @@ export function tickFarm(
           cellIndexes: new Set(),
           entityId: farm.id,
           id: getNextJobId(),
+          state: WaterGardenJobState.PickUpWaterBucket,
         }
         farm.waterJobId = job.id
         world.jobs[job.id] = job
@@ -91,53 +86,4 @@ export function tickFarm(
 
   // TODO only update when needed?
   updates.entityIds.add(farm.id)
-}
-
-export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
-  world,
-  updates,
-  job,
-  agent,
-}) => {
-  // get the first
-  const [cellIndex] = job.cellIndexes
-  invariant(typeof cellIndex === 'number')
-
-  const farm = world.entities[job.entityId]
-  invariant(farm?.type === EntityType.Farm)
-
-  const cell = farm.cells[cellIndex]
-  invariant(cell)
-
-  const cellPosition = farm.position.add(
-    new Vec2(cellIndex % FARM_SIZE.x, Math.floor(cellIndex / FARM_SIZE.y)),
-  )
-
-  const { arrived } = move(agent, cellPosition)
-  updates.agentIds.add(agent.id)
-
-  if (!arrived) {
-    return
-  }
-
-  invariant(cell.maturity >= FARM_MATURITY_THRESHOLD)
-  if (cell.maturity < FARM_DEAD_THRESHOLD) {
-    agent.inventory[ItemType.Food] = (agent.inventory[ItemType.Food] ?? 0) + 1
-  } else {
-    agent.inventory[ItemType.Trash] = (agent.inventory[ItemType.Trash] ?? 0) + 1
-  }
-
-  cell.maturity = 0
-
-  invariant(job.cellIndexes.size >= 1)
-  job.cellIndexes.delete(cellIndex)
-
-  if (job.cellIndexes.size === 0) {
-    delete world.jobs[job.id]
-    farm.pickJobId = null
-    delete agent.jobId
-  }
-
-  updates.jobIds.add(job.id)
-  updates.entityIds.add(job.entityId)
 }

@@ -19,18 +19,28 @@ export const tickBuildJob: TickJobFn<BuildJob> = ({
     return
   }
 
-  Object.entries(entity.state.materials).forEach((entry) => {
-    const [itemType, count] = entry as [ItemType, number]
-    invariant((agent.inventory[itemType] ?? 0) >= count)
-    agent.inventory[itemType]! -= count
-    if (agent.inventory[itemType] === 0) {
-      delete agent.inventory[itemType]
-    }
-  })
-  world.entities[entity.id] = {
-    ...entity,
-    state: { type: EntityStateType.Active },
+  invariant(
+    Object.keys(entity.state.materials).length === 1,
+    'TODO support multiple build materials',
+  )
+
+  const [itemType, count] = Object.entries(entity.state.materials)[0] as [
+    ItemType,
+    number,
+  ]
+
+  invariant(agent.inventory?.itemType === itemType)
+  invariant(agent.inventory.count >= count)
+
+  agent.inventory.count -= count
+  if (agent.inventory.count === 0) {
+    agent.inventory = null
   }
+
+  entity.state = {
+    type: EntityStateType.Active,
+  }
+
   delete world.jobs[job.id]
   delete agent.jobId
 

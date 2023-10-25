@@ -122,7 +122,10 @@ export interface Agent {
   id: AgentId
   position: Vec2
   jobId?: JobId
-  inventory: Partial<Record<ItemType, number>>
+  inventory: {
+    itemType: ItemType
+    count: number
+  } | null
   fatigue: number
   hunger: number
   home: EntityId | null
@@ -183,10 +186,17 @@ export interface DropOffItemsJob extends BaseJob {
   entityId: EntityId
 }
 
+export enum WaterGardenJobState {
+  PickUpWaterBucket = 'pick-up-water-bucket',
+  WaterGarden = 'water-garden',
+  DropOffWaterBucket = 'drop-off-water-bucket',
+}
+
 export interface WaterGardenJob extends BaseJob {
   type: JobType.WaterGarden
   entityId: EntityId
   cellIndexes: Set<number>
+  state: WaterGardenJobState
 }
 
 export type Job =

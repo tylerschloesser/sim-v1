@@ -8,7 +8,7 @@ import { agents$, chunks$, entities$, jobs$ } from './state.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { tickBuildJob } from './tick-build-job.js'
 import { tickCutTreesJob } from './tick-cut-trees-job.js'
-import { tickFarm, tickPickGardenJob } from './tick-farm.js'
+import { tickFarm } from './tick-farm.js'
 import {
   AgentRestJob,
   DropOffItemsJob,
@@ -24,6 +24,7 @@ import { getNextJobId } from './util.js'
 import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
 import { tickWaterGardenJob } from './tick-water-garden-job.js'
 import { Vec2 } from './vec2.js'
+import { tickPickGardenJob } from './tick-pick-garden.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
@@ -55,9 +56,40 @@ function tickAgents(world: World, updates: WorldUpdates): void {
       // don't gain fatigue while home
     }
 
+    let availableStorageCapacity = 0
+    for (let entity of Object.values(world.entities)) {
+      if (entity.type !== EntityType.Storage) {
+        continue
+      }
+      availableStorageCapacity += STORAGE_CAPACITY - entity.inventory.length
+    }
+
     agent.hunger += AGENT_HUNGER_PER_TICK
 
-    if (agent.fatigue > 1) {
+    if (!agent.jobId && agent.inventory) {
+      // TODO pick the closest
+      const storage = Object.values(world.entities)
+        .filter(
+          (entity): entity is StorageEntity =>
+            entity.type === EntityType.Storage,
+        )
+        .find((storage) => storage.inventory.length < STORAGE_CAPACITY)
+
+      if (storage) {
+        const job: DropOffItemsJob = {
+          id: getNextJobId(),
+          type: JobType.DropOffItems,
+          entityId: storage.id,
+        }
+        agent.jobId = job.id
+        world.jobs[job.id] = job
+      } else {
+        console.warn('no storage available, entity is stuck...')
+        return
+      }
+    }
+
+    if (agent.fatigue > 1 && agent.jobId === undefined) {
       updates.agentIds.add(agent.id)
 
       let job: AgentRestJob | undefined
@@ -75,11 +107,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
           type: JobType.AgentRest,
         }
         world.jobs[job.id] = job
-
-        if (agent.jobId) {
-          // agent no longer assigned to this job
-          updates.jobIds.add(agent.jobId)
-        }
 
         agent.jobId = job.id
         updates.jobIds.add(job.id)
@@ -99,20 +126,28 @@ function tickAgents(world: World, updates: WorldUpdates): void {
             invariant(entity)
             invariant(entity.state.type === EntityStateType.Build)
 
+            invariant(
+              Object.keys(entity.state.materials).length === 1,
+              'TODO support multiple build materials',
+            )
+            const [itemType, count] = Object.entries(
+              entity.state.materials,
+            )[0] as [ItemType, number]
             if (
-              Object.entries(entity.state.materials).every(
-                ([itemType, count]) =>
-                  (agent.inventory[itemType as ItemType] ?? 0) >= count,
-              )
+              agent.inventory?.itemType === itemType &&
+              agent.inventory.count >= count
             ) {
               agent.jobId = job.id
               updates.agentIds.add(agent.id)
             }
+
             break
           }
           case JobType.PickGarden: {
-            agent.jobId = job.id
-            updates.agentIds.add(agent.id)
+            if (availableStorageCapacity > 0) {
+              agent.jobId = job.id
+              updates.agentIds.add(agent.id)
+            }
             break
           }
           case JobType.WaterGarden: {
@@ -125,26 +160,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         if (agent.jobId) {
           break
         }
-      }
-    }
-
-    if (!agent.jobId && Object.keys(agent.inventory).length > 0) {
-      // TODO pick the closest
-      const storage = Object.values(world.entities)
-        .filter(
-          (entity): entity is StorageEntity =>
-            entity.type === EntityType.Storage,
-        )
-        .find((storage) => storage.inventory.length < STORAGE_CAPACITY)
-
-      if (storage) {
-        const job: DropOffItemsJob = {
-          id: getNextJobId(),
-          type: JobType.DropOffItems,
-          entityId: storage.id,
-        }
-        agent.jobId = job.id
-        world.jobs[job.id] = job
       }
     }
 

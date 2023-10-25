@@ -5,6 +5,7 @@ import {
   ItemType,
   TickJobFn,
   WaterGardenJob,
+  WaterGardenJobState,
   WellEntity,
 } from './types.js'
 import { Vec2 } from './vec2.js'
@@ -16,72 +17,121 @@ export const tickWaterGardenJob: TickJobFn<WaterGardenJob> = ({
   job,
   agent,
 }) => {
-  if ((agent.inventory[ItemType.WaterBucket] ?? 0) === 0) {
-    // go to well
+  switch (job.state) {
+    case WaterGardenJobState.PickUpWaterBucket: {
+      invariant(agent.inventory === null)
 
-    let well: WellEntity | undefined
-    for (const entity of Object.values(world.entities)) {
-      // TODO choose closest
-      if (entity.type === EntityType.Well) {
-        well = entity
-        break
+      let well: WellEntity | undefined
+      for (const entity of Object.values(world.entities)) {
+        // TODO choose closest
+        if (entity.type === EntityType.Well) {
+          well = entity
+          break
+        }
       }
+
+      if (!well) {
+        // TODO notify
+        return
+      }
+
+      const { arrived } = move(agent, well.position)
+      updates.agentIds.add(agent.id)
+
+      if (!arrived) {
+        return
+      }
+
+      agent.inventory = { itemType: ItemType.WaterBucket, count: 1 }
+      updates.agentIds.add(agent.id)
+
+      job.state = WaterGardenJobState.WaterGarden
+      updates.jobIds.add(job.id)
+
+      break
     }
+    case WaterGardenJobState.WaterGarden: {
+      invariant(
+        agent.inventory?.itemType === ItemType.WaterBucket &&
+          agent.inventory.count === 1,
+      )
 
-    if (!well) {
-      // TODO notify
-      return
+      const [cellIndex] = job.cellIndexes
+      invariant(typeof cellIndex === 'number')
+
+      const farm = world.entities[job.entityId]
+      invariant(farm?.type === EntityType.Farm)
+
+      const cell = farm.cells[cellIndex]
+      invariant(cell)
+
+      const cellPosition = farm.position.add(
+        new Vec2(cellIndex % FARM_SIZE.x, Math.floor(cellIndex / FARM_SIZE.y)),
+      )
+
+      const { arrived } = move(agent, cellPosition)
+      updates.agentIds.add(agent.id)
+
+      if (!arrived) {
+        return
+      }
+
+      invariant(cell.water === 0)
+      cell.water = 1
+      updates.entityIds.add(farm.id)
+
+      job.cellIndexes.delete(cellIndex)
+      updates.jobIds.add(job.id)
+
+      if (job.cellIndexes.size === 0) {
+        // delete world.jobs[job.id]
+        // farm.waterJobId = null
+        // delete agent.jobId
+
+        job.state = WaterGardenJobState.DropOffWaterBucket
+        updates.agentIds.add(agent.id)
+      }
+      break
     }
+    case WaterGardenJobState.DropOffWaterBucket: {
+      invariant(
+        agent.inventory?.itemType === ItemType.WaterBucket &&
+          agent.inventory.count === 1,
+      )
 
-    const { arrived } = move(agent, well.position)
-    updates.agentIds.add(agent.id)
+      let well: WellEntity | undefined
+      for (const entity of Object.values(world.entities)) {
+        // TODO choose closest
+        if (entity.type === EntityType.Well) {
+          well = entity
+          break
+        }
+      }
 
-    if (!arrived) {
-      return
-    }
+      invariant(well)
 
-    // TODO don't hardcode this
-    agent.inventory[ItemType.WaterBucket] = 16
-  } else {
-    const [cellIndex] = job.cellIndexes
-    invariant(typeof cellIndex === 'number')
+      const { arrived } = move(agent, well.position)
+      updates.agentIds.add(agent.id)
 
-    const farm = world.entities[job.entityId]
-    invariant(farm?.type === EntityType.Farm)
+      if (!arrived) {
+        return
+      }
 
-    const cell = farm.cells[cellIndex]
-    invariant(cell)
+      agent.inventory = null
 
-    const cellPosition = farm.position.add(
-      new Vec2(cellIndex % FARM_SIZE.x, Math.floor(cellIndex / FARM_SIZE.y)),
-    )
-
-    const { arrived } = move(agent, cellPosition)
-    updates.agentIds.add(agent.id)
-
-    if (!arrived) {
-      return
-    }
-
-    invariant(cell.water === 0)
-    cell.water = 1
-    updates.entityIds.add(farm.id)
-
-    job.cellIndexes.delete(cellIndex)
-    if (job.cellIndexes.size === 0) {
       delete world.jobs[job.id]
+      updates.jobIds.add(job.id)
+
+      const farm = world.entities[job.entityId]
+      invariant(farm?.type === EntityType.Farm)
+
       farm.waterJobId = null
+      updates.entityIds.add(farm.id)
+
       delete agent.jobId
       updates.agentIds.add(agent.id)
-    }
-    updates.jobIds.add(job.id)
 
-    const count = agent.inventory[ItemType.WaterBucket]
-    invariant(typeof count === 'number' && count > 0)
-    if (count === 1) {
-      delete agent.inventory[ItemType.WaterBucket]
-    } else {
-      agent.inventory[ItemType.WaterBucket] = count - 1
+      break
     }
   }
 }
