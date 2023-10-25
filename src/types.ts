@@ -263,7 +263,6 @@ export interface TickJobArgs<T> {
   agent: Agent
   info: {
     availableStorageCapacity: number
-    itemRequests: Record<ItemType, number>
   }
 }
 

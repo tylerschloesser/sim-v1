@@ -8,7 +8,10 @@ import { agents$, chunks$, entities$, jobs$ } from './state.js'
 import { tickAgentRestJob } from './tick-agent-rest.js'
 import { tickBuildJob } from './tick-build-job.js'
 import { tickCutTreesJob } from './tick-cut-trees-job.js'
+import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
 import { tickFarm } from './tick-farm.js'
+import { tickPickGardenJob } from './tick-pick-garden.js'
+import { tickWaterGardenJob } from './tick-water-garden-job.js'
 import {
   AgentRestJob,
   DropOffItemsJob,
@@ -22,10 +25,7 @@ import {
   WorldUpdates,
 } from './types.js'
 import { getNextJobId } from './util.js'
-import { tickDropOffItemsJob } from './tick-drop-off-items-job.js'
-import { tickWaterGardenJob } from './tick-water-garden-job.js'
 import { Vec2 } from './vec2.js'
-import { tickPickGardenJob } from './tick-pick-garden.js'
 
 function tickEntities(world: World, updates: WorldUpdates): void {
   for (const entity of Object.values(world.entities)) {
@@ -58,12 +58,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     let availableStorageCapacity = 0
-    let itemRequests: TickJobArgs<unknown>['info']['itemRequests'] = {
-      [ItemType.Food]: 0,
-      [ItemType.Trash]: 0,
-      [ItemType.WaterBucket]: 0,
-      [ItemType.Wood]: 0,
-    }
     for (let entity of Object.values(world.entities)) {
       if (entity.state.type === EntityStateType.Build) {
         continue
@@ -196,7 +190,6 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     const info: TickJobArgs<unknown>['info'] = {
       availableStorageCapacity,
-      itemRequests,
     }
 
     switch (job.type) {
