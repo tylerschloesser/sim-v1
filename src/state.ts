@@ -17,16 +17,12 @@ import { generateChunk, generateInitialChunks } from './chunk-gen.js'
 import {
   CHUNK_SIZE,
   ENTITY_MATERIALS,
-  FARM_SIZE,
-  HOUSE_SIZE,
+  ENTITY_TYPE_TO_SIZE,
   INITIAL_ZOOM,
   MAX_CELL_SIZE,
   MAX_ZOOM,
   MIN_CELL_SIZE,
   MIN_ZOOM,
-  STORAGE_SIZE,
-  TREE_SIZE,
-  WELL_SIZE,
   WHEEL_SCALE,
 } from './const.js'
 import { Graphics } from './graphics.js'
@@ -43,7 +39,6 @@ import {
   EntityStateType,
   EntityType,
   FarmCell,
-  ItemType,
   Job,
   JobId,
   JobType,
@@ -464,25 +459,7 @@ combineLatest([buildEntityType$, camera$, chunks$]).subscribe(
       return
     }
 
-    let size: Vec2
-    switch (entityType) {
-      case EntityType.Farm:
-        size = FARM_SIZE
-        break
-      case EntityType.House:
-        size = HOUSE_SIZE
-        break
-      case EntityType.Storage:
-        size = STORAGE_SIZE
-        break
-      case EntityType.Tree:
-        size = TREE_SIZE
-        break
-      case EntityType.Well:
-        size = WELL_SIZE
-        break
-    }
-
+    const size = ENTITY_TYPE_TO_SIZE[entityType]
     const buildPosition = camera.position.sub(size.div(2)).round()
 
     let valid = true
@@ -581,6 +558,21 @@ confirmBuild$
             type: EntityStateType.Build,
             materials: ENTITY_MATERIALS[EntityType.Well],
           },
+        }
+        break
+      }
+      case EntityType.Stockpile: {
+        entity = {
+          id: entityId,
+          chunkIds,
+          type: EntityType.Stockpile,
+          position: build.position,
+          size: build.size,
+          state: {
+            type: EntityStateType.Build,
+            materials: ENTITY_MATERIALS[EntityType.Stockpile],
+          },
+          inventory: [],
         }
         break
       }

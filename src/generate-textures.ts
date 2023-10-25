@@ -3,19 +3,19 @@ import {
   FARM_SIZE,
   HOUSE_SIZE,
   MAX_CELL_SIZE,
+  STOCKPILE_SIZE,
   STORAGE_SIZE,
   WELL_SIZE,
 } from './const.js'
 import { TextureType, Textures } from './types.js'
+import { Vec2 } from './vec2.js'
 
 export function generateTextures(app: Application): Textures {
   return {
     ...generateTreeTextures(app),
     ...generateFarmTextures(app),
-    ...generateHouseTextures(app),
     ...generateAgentTextures(app),
-    ...generateStorageTextures(app),
-    ...generateWellTextures(app),
+    ...generateSimpleEntityTextures(app),
     ...generateItemTextures(app),
   }
 }
@@ -23,15 +23,6 @@ export function generateTextures(app: Application): Textures {
 type GenerateTexturesFn<T extends keyof Textures> = (
   app: Application,
 ) => Pick<Textures, T>
-
-const generateWellTextures: GenerateTexturesFn<TextureType.Well> = (app) => {
-  const g = new Graphics()
-  g.beginFill('grey')
-  g.drawRect(0, 0, MAX_CELL_SIZE * WELL_SIZE.x, MAX_CELL_SIZE * WELL_SIZE.y)
-  return {
-    [TextureType.Well]: app.renderer.generateTexture(g),
-  }
-}
 
 const generateTreeTextures: GenerateTexturesFn<TextureType.Tree> = (app) => {
   const g = new Graphics()
@@ -112,17 +103,6 @@ const generateFarmTextures: GenerateTexturesFn<
   }
 }
 
-const generateHouseTextures: GenerateTexturesFn<TextureType.House> = (app) => {
-  const g = new Graphics()
-  g.beginFill('hsl(36, 87%, 20%)')
-  g.drawRect(0, 0, MAX_CELL_SIZE * HOUSE_SIZE.x, MAX_CELL_SIZE * HOUSE_SIZE.y)
-  const texture = app.renderer.generateTexture(g)
-
-  return {
-    [TextureType.House]: texture,
-  }
-}
-
 const generateAgentTextures: GenerateTexturesFn<
   | TextureType.Agent
   | TextureType.AgentFatigueHigh
@@ -187,19 +167,23 @@ const generateAgentTextures: GenerateTexturesFn<
   }
 }
 
-const generateStorageTextures: GenerateTexturesFn<TextureType.Storage> = (
-  app,
-) => {
-  const g = new Graphics()
-  g.beginFill('hsl(0, 0%, 40%)')
-  g.drawRect(
-    0,
-    0,
-    STORAGE_SIZE.x * MAX_CELL_SIZE,
-    STORAGE_SIZE.y * MAX_CELL_SIZE,
-  )
+const generateSimpleEntityTextures: GenerateTexturesFn<
+  | TextureType.Storage
+  | TextureType.Stockpile
+  | TextureType.Well
+  | TextureType.House
+> = (app) => {
+  function buildTexture(color: string, size: Vec2) {
+    const g = new Graphics()
+    g.beginFill(color)
+    g.drawRect(0, 0, size.x * MAX_CELL_SIZE, size.y * MAX_CELL_SIZE)
+    return app.renderer.generateTexture(g)
+  }
   return {
-    [TextureType.Storage]: app.renderer.generateTexture(g),
+    [TextureType.Storage]: buildTexture('hsl(0, 0%, 40%)', STORAGE_SIZE),
+    [TextureType.Stockpile]: buildTexture('hsl(0, 0%, 60%)', STOCKPILE_SIZE),
+    [TextureType.Well]: buildTexture('grey', WELL_SIZE),
+    [TextureType.House]: buildTexture('hsl(36, 87%, 20%)', HOUSE_SIZE),
   }
 }
 

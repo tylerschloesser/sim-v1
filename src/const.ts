@@ -18,6 +18,16 @@ export const FARM_SIZE = new Vec2(4)
 export const HOUSE_SIZE = new Vec2(2)
 export const STORAGE_SIZE = new Vec2(8, 4)
 export const WELL_SIZE = new Vec2(2)
+export const STOCKPILE_SIZE = new Vec2(8, 4)
+
+export const ENTITY_TYPE_TO_SIZE: Record<EntityType, Vec2> = {
+  [EntityType.Tree]: TREE_SIZE,
+  [EntityType.Farm]: FARM_SIZE,
+  [EntityType.House]: HOUSE_SIZE,
+  [EntityType.Storage]: STORAGE_SIZE,
+  [EntityType.Well]: WELL_SIZE,
+  [EntityType.Stockpile]: STOCKPILE_SIZE,
+}
 
 // how much area around the starting point [0,0] is clear from water and trees
 export const INITIAL_CLEAR_RADIUS = CHUNK_SIZE / 2
@@ -70,4 +80,5 @@ export const ENTITY_MATERIALS: Record<
     [ItemType.Wood]: 4,
   },
   [EntityType.Tree]: {},
+  [EntityType.Stockpile]: {},
 }

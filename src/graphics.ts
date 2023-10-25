@@ -49,6 +49,7 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.House]: 'pink',
   [EntityType.Storage]: 'pink',
   [EntityType.Well]: 'pink',
+  [EntityType.Stockpile]: 'pink',
 }
 
 export class Graphics {
@@ -284,12 +285,11 @@ class SimpleEntityContainer extends EntityContainer {
     sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
     this.addChild(sprite)
   }
-  update(entity: Entity): void {}
+  update(_entity: Entity): void {}
 }
 
 function newEntityContainer({
   entity,
-  app,
   textures,
 }: {
   entity: Entity
@@ -312,6 +312,9 @@ function newEntityContainer({
       break
     case EntityType.Well:
       container = new SimpleEntityContainer(textures.well)
+      break
+    case EntityType.Stockpile:
+      container = new SimpleEntityContainer(textures.stockpile)
       break
   }
   container.setTransform(entity.position.x, entity.position.y)

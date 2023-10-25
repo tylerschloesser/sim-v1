@@ -36,6 +36,7 @@ export enum EntityType {
   Farm = 'farm',
   Storage = 'storage',
   Well = 'well',
+  Stockpile = 'stockpile',
 }
 
 export interface BuildState {
@@ -109,12 +110,18 @@ export interface WellEntity extends BaseEntity {
   type: EntityType.Well
 }
 
+export interface StockpileEntity extends BaseEntity {
+  type: EntityType.Stockpile
+  inventory: ItemType[]
+}
+
 export type Entity =
   | HouseEntity
   | TreeEntity
   | FarmEntity
   | StorageEntity
   | WellEntity
+  | StockpileEntity
 
 export type AgentId = string
 
@@ -225,6 +232,7 @@ export enum TextureType {
   Agent = 'agent',
   Storage = 'storage',
   Well = 'well',
+  Stockpile = 'stockpile',
 
   AgentFatigueHigh = 'agent-fatigue-high',
   AgentFatigueMedium = 'agent-fatigue-medium',
