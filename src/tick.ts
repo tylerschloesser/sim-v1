@@ -17,6 +17,7 @@ import {
   ItemType,
   JobType,
   StorageEntity,
+  TickJobArgs,
   World,
   WorldUpdates,
 } from './types.js'
@@ -179,24 +180,28 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     const job = world.jobs[agent.jobId]
     invariant(job)
 
+    const info: TickJobArgs<unknown>['info'] = {
+      availableStorageCapacity,
+    }
+
     switch (job.type) {
       case JobType.CutTrees:
-        tickCutTreesJob({ world, updates, job, agent })
+        tickCutTreesJob({ world, updates, job, agent, info })
         break
       case JobType.Build:
-        tickBuildJob({ world, updates, job, agent })
+        tickBuildJob({ world, updates, job, agent, info })
         break
       case JobType.PickGarden:
-        tickPickGardenJob({ world, updates, job, agent })
+        tickPickGardenJob({ world, updates, job, agent, info })
         break
       case JobType.AgentRest:
-        tickAgentRestJob({ world, updates, job, agent })
+        tickAgentRestJob({ world, updates, job, agent, info })
         break
       case JobType.DropOffItems:
-        tickDropOffItemsJob({ world, updates, job, agent })
+        tickDropOffItemsJob({ world, updates, job, agent, info })
         break
       case JobType.WaterGarden:
-        tickWaterGardenJob({ world, updates, job, agent })
+        tickWaterGardenJob({ world, updates, job, agent, info })
         break
     }
   }

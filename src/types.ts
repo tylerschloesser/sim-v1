@@ -256,9 +256,14 @@ export interface WorldUpdates {
   chunkIds: Set<ChunkId>
 }
 
-export type TickJobFn<T extends Job> = (args: {
+export interface TickJobArgs<T> {
   world: World
   updates: WorldUpdates
   job: T
   agent: Agent
-}) => void
+  info: {
+    availableStorageCapacity: number
+  }
+}
+
+export type TickJobFn<T extends Job> = (args: TickJobArgs<T>) => void
