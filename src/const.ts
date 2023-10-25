@@ -36,6 +36,10 @@ export const STORAGE_CAPACITY: number =
   (STORAGE_SIZE.x * 2 - 1) * STORAGE_SIZE.y
 invariant(STORAGE_CAPACITY % STORAGE_SIZE.y === 0)
 
+export const STOCKPILE_CAPACITY: number =
+  (STOCKPILE_SIZE.x * 2 - 1) * STOCKPILE_SIZE.y
+invariant(STOCKPILE_CAPACITY % STOCKPILE_SIZE.y === 0)
+
 // How much fatigue is gained (per tick)
 export const AGENT_FATIGUE_PER_TICK = 1 / 200
 

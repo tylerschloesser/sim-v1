@@ -2,6 +2,8 @@ import invariant from 'tiny-invariant'
 import {
   AGENT_FATIGUE_PER_TICK,
   AGENT_HUNGER_PER_TICK,
+  STOCKPILE_CAPACITY,
+  STOCKPILE_SIZE,
   STORAGE_CAPACITY,
 } from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
@@ -58,6 +60,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     }
 
     let availableStorageCapacity = 0
+    let availableStockpileCapacity = 0
     for (let entity of Object.values(world.entities)) {
       if (entity.state.type === EntityStateType.Build) {
         continue
@@ -66,6 +69,11 @@ function tickAgents(world: World, updates: WorldUpdates): void {
       switch (entity.type) {
         case EntityType.Storage: {
           availableStorageCapacity += STORAGE_CAPACITY - entity.inventory.length
+          break
+        }
+        case EntityType.Stockpile: {
+          availableStorageCapacity +=
+            STOCKPILE_CAPACITY - entity.inventory.length
           break
         }
       }
@@ -190,6 +198,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     const info: TickJobArgs<unknown>['info'] = {
       availableStorageCapacity,
+      availableStockpileCapacity,
     }
 
     switch (job.type) {
