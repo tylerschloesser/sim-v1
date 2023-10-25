@@ -36,6 +36,7 @@ import {
   Config,
   Entity,
   EntityId,
+  EntityState,
   EntityStateType,
   EntityType,
   FarmCell,
@@ -489,6 +490,14 @@ confirmBuild$
     const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
     const chunkIds = getChunkIds(build.position, build.size)
 
+    const materials = ENTITY_MATERIALS[build.entityType]
+    let state: EntityState
+    if (build.force || Object.keys(materials).length === 0) {
+      state = { type: EntityStateType.Active }
+    } else {
+      state = { type: EntityStateType.Build, materials }
+    }
+
     switch (build.entityType) {
       case EntityType.House:
         entity = {
@@ -497,10 +506,7 @@ confirmBuild$
           type: EntityType.House,
           position: build.position,
           size: build.size,
-          state: {
-            type: EntityStateType.Build,
-            materials: ENTITY_MATERIALS[EntityType.House],
-          },
+          state,
         }
         break
       case EntityType.Farm: {
@@ -520,10 +526,7 @@ confirmBuild$
           type: EntityType.Farm,
           position: build.position,
           size: build.size,
-          state: {
-            type: EntityStateType.Build,
-            materials: ENTITY_MATERIALS[EntityType.Farm],
-          },
+          state,
           cells,
           pickJobId: null,
           waterJobId: null,
@@ -539,10 +542,7 @@ confirmBuild$
           type: EntityType.Storage,
           position: build.position,
           size: build.size,
-          state: {
-            type: EntityStateType.Build,
-            materials: ENTITY_MATERIALS[EntityType.Storage],
-          },
+          state,
           inventory: [],
         }
         break
@@ -554,10 +554,7 @@ confirmBuild$
           type: EntityType.Well,
           position: build.position,
           size: build.size,
-          state: {
-            type: EntityStateType.Build,
-            materials: ENTITY_MATERIALS[EntityType.Well],
-          },
+          state,
         }
         break
       }
@@ -568,18 +565,11 @@ confirmBuild$
           type: EntityType.Stockpile,
           position: build.position,
           size: build.size,
-          state: {
-            type: EntityStateType.Build,
-            materials: ENTITY_MATERIALS[EntityType.Stockpile],
-          },
+          state,
           inventory: [],
         }
         break
       }
-    }
-
-    if (build.force) {
-      entity.state = { type: EntityStateType.Active }
     }
 
     for (let x = 0; x < entity.size.x; x++) {
@@ -589,7 +579,7 @@ confirmBuild$
       }
     }
 
-    if (!build.force) {
+    if (entity.state.type === EntityStateType.Build) {
       const jobId = getNextJobId()
       invariant(jobs[jobId] === undefined)
       jobs[jobId] = {

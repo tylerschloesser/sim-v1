@@ -7,6 +7,7 @@ const ENTITY_TYPES: EntityType[] = [
   EntityType.Farm,
   EntityType.Storage,
   EntityType.Well,
+  EntityType.Stockpile,
 ]
 
 export function ConfigureBuild() {
