@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
+import { STOCKPILE_CAPACITY, STORAGE_CAPACITY } from './const.js'
 import { move } from './tick-util.js'
 import { DropOffItemsJob, EntityType, ItemType, TickJobFn } from './types.js'
-import { STORAGE_CAPACITY } from './const.js'
 
 export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
   agent,
@@ -9,22 +9,31 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
   updates,
   world,
 }) => {
-  const storage = world.entities[job.entityId]
-  invariant(storage?.type === EntityType.Storage)
+  const entity = world.entities[job.entityId]
+  invariant(
+    entity?.type === EntityType.Storage ||
+      entity?.type === EntityType.Stockpile,
+  )
 
-  invariant(storage.inventory.length < STORAGE_CAPACITY)
+  if (entity.type === EntityType.Storage) {
+    invariant(entity.inventory.length < STORAGE_CAPACITY)
+    invariant(agent.inventory?.itemType === ItemType.Food)
+  } else {
+    invariant(entity.type === EntityType.Stockpile)
+    invariant(entity.inventory.length < STOCKPILE_CAPACITY)
+    invariant(agent.inventory?.itemType === ItemType.Wood)
+  }
 
-  const { arrived } = move(agent, storage.position)
+  const { arrived } = move(agent, entity.position)
   updates.agentIds.add(agent.id)
 
   if (!arrived) {
     return
   }
 
-  invariant(agent.inventory)
   invariant(agent.inventory.count > 0)
 
-  storage.inventory.push(agent.inventory.itemType)
+  entity.inventory.push(agent.inventory.itemType)
 
   agent.inventory.count -= 1
   if (agent.inventory.count === 0) {
@@ -33,12 +42,12 @@ export const tickDropOffItemsJob: TickJobFn<DropOffItemsJob> = ({
 
   if (
     agent.inventory === null ||
-    storage.inventory.length === STORAGE_CAPACITY
+    entity.inventory.length === STORAGE_CAPACITY
   ) {
     delete agent.jobId
     delete world.jobs[job.id]
     updates.jobIds.add(job.id)
   }
 
-  updates.entityIds.add(storage.id)
+  updates.entityIds.add(entity.id)
 }

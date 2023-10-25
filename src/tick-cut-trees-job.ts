@@ -20,9 +20,9 @@ export const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
   invariant(
     agent.inventory === null || agent.inventory.itemType === ItemType.Wood,
   )
-  invariant((agent.inventory?.count ?? 0) <= info.availableStorageCapacity)
+  invariant((agent.inventory?.count ?? 0) <= info.availableStockpileCapacity)
 
-  if ((agent.inventory?.count ?? 0) === info.availableStorageCapacity) {
+  if ((agent.inventory?.count ?? 0) === info.availableStockpileCapacity) {
     delete agent.jobId
     updates.agentIds.add(agent.id)
     return

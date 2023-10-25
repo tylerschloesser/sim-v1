@@ -20,6 +20,7 @@ import {
   EntityType,
   ItemType,
   JobType,
+  StockpileEntity,
   StorageEntity,
   TickJobArgs,
   World,
@@ -71,7 +72,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
           break
         }
         case EntityType.Stockpile: {
-          availableStorageCapacity +=
+          availableStockpileCapacity +=
             STOCKPILE_CAPACITY - entity.inventory.length
           break
         }
@@ -82,24 +83,36 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     if (!agent.jobId && agent.inventory) {
       // TODO pick the closest
-      const storage = Object.values(world.entities)
-        .filter(
-          (entity): entity is StorageEntity =>
-            entity.type === EntityType.Storage,
-        )
-        .find((storage) => storage.inventory.length < STORAGE_CAPACITY)
 
-      if (storage) {
+      const entity = Object.values(world.entities)
+        .filter((entity): entity is StorageEntity | StockpileEntity => {
+          invariant(agent.inventory?.itemType)
+          if (agent.inventory.itemType === ItemType.Food) {
+            return entity.type === EntityType.Storage
+          } else {
+            invariant(agent.inventory.itemType === ItemType.Wood)
+            return entity.type === EntityType.Stockpile
+          }
+        })
+        .find((entity) => {
+          if (entity.type === EntityType.Storage) {
+            return entity.inventory.length < STORAGE_CAPACITY
+          } else {
+            invariant(entity.type === EntityType.Stockpile)
+            return entity.inventory.length < STOCKPILE_CAPACITY
+          }
+        })
+
+      if (entity) {
         const job: DropOffItemsJob = {
           id: getNextJobId(),
           type: JobType.DropOffItems,
-          entityId: storage.id,
+          entityId: entity.id,
         }
         agent.jobId = job.id
         world.jobs[job.id] = job
       } else {
-        console.warn('no storage available, entity is stuck...')
-        return
+        invariant(false, 'no storage available, entity is stuck...')
       }
     }
 
@@ -131,7 +144,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
       for (const job of Object.values(world.jobs)) {
         switch (job.type) {
           case JobType.CutTrees: {
-            if (availableStorageCapacity > 0) {
+            if (availableStockpileCapacity > 0) {
               agent.jobId = job.id
               updates.agentIds.add(agent.id)
             }
