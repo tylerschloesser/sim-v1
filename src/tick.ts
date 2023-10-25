@@ -118,8 +118,10 @@ function tickAgents(world: World, updates: WorldUpdates): void {
       for (const job of Object.values(world.jobs)) {
         switch (job.type) {
           case JobType.CutTrees: {
-            agent.jobId = job.id
-            updates.agentIds.add(agent.id)
+            if (availableStorageCapacity > 0) {
+              agent.jobId = job.id
+              updates.agentIds.add(agent.id)
+            }
             break
           }
           case JobType.Build: {

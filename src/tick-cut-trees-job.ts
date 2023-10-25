@@ -9,12 +9,24 @@ export const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
   updates,
   job,
   agent,
+  info,
 }) => {
   const entityId = job.entityIds.at(0)
   invariant(entityId)
 
   const entity = world.entities[entityId]
   invariant(entity)
+
+  invariant(
+    agent.inventory === null || agent.inventory.itemType === ItemType.Wood,
+  )
+  invariant((agent.inventory?.count ?? 0) <= info.availableStorageCapacity)
+
+  if ((agent.inventory?.count ?? 0) === info.availableStorageCapacity) {
+    delete agent.jobId
+    updates.agentIds.add(agent.id)
+    return
+  }
 
   const { arrived } = move(agent, entity.position)
   updates.agentIds.add(agent.id)
