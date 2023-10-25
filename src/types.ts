@@ -272,6 +272,7 @@ export interface TickJobArgs<T> {
   info: {
     availableStorageCapacity: number
     availableStockpileCapacity: number
+    stockpileTotals: Pick<Record<ItemType, number>, ItemType.Wood>
   }
 }
 

@@ -61,6 +61,9 @@ function tickAgents(world: World, updates: WorldUpdates): void {
 
     let availableStorageCapacity = 0
     let availableStockpileCapacity = 0
+    const stockpileTotals: TickJobArgs<unknown>['info']['stockpileTotals'] = {
+      [ItemType.Wood]: 0,
+    }
     for (let entity of Object.values(world.entities)) {
       if (entity.state.type === EntityStateType.Build) {
         continue
@@ -74,6 +77,10 @@ function tickAgents(world: World, updates: WorldUpdates): void {
         case EntityType.Stockpile: {
           availableStockpileCapacity +=
             STOCKPILE_CAPACITY - entity.inventory.length
+          for (const itemType of entity.inventory) {
+            invariant(itemType === ItemType.Wood)
+            stockpileTotals[itemType] += 1
+          }
           break
         }
       }
@@ -211,6 +218,7 @@ function tickAgents(world: World, updates: WorldUpdates): void {
     const info: TickJobArgs<unknown>['info'] = {
       availableStorageCapacity,
       availableStockpileCapacity,
+      stockpileTotals,
     }
 
     switch (job.type) {
