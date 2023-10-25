@@ -38,7 +38,7 @@ export function World() {
       )
 
       updates$.next(updates)
-    }, 100)
+    }, 10)
     return () => {
       window.clearInterval(interval)
     }

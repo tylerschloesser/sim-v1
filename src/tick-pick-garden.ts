@@ -9,6 +9,7 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
   updates,
   job,
   agent,
+  info,
 }) => {
   // get the first
   const [cellIndex] = job.cellIndexes
@@ -16,6 +17,17 @@ export const tickPickGardenJob: TickJobFn<PickGardenJob> = ({
 
   const farm = world.entities[job.entityId]
   invariant(farm?.type === EntityType.Farm)
+
+  invariant(
+    agent.inventory === null || agent.inventory.itemType === ItemType.Food,
+  )
+  invariant((agent.inventory?.count ?? 0) <= info.availableStorageCapacity)
+
+  if ((agent.inventory?.count ?? 0) === info.availableStorageCapacity) {
+    delete agent.jobId
+    updates.agentIds.add(agent.id)
+    return
+  }
 
   const cell = farm.cells[cellIndex]
   invariant(cell)
