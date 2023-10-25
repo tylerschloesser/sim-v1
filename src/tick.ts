@@ -3,7 +3,6 @@ import {
   AGENT_FATIGUE_PER_TICK,
   AGENT_HUNGER_PER_TICK,
   STOCKPILE_CAPACITY,
-  STOCKPILE_SIZE,
   STORAGE_CAPACITY,
 } from './const.js'
 import { agents$, chunks$, entities$, jobs$ } from './state.js'
