@@ -308,7 +308,10 @@ function newEntityContainer({
       container = new HouseContainer(textures)
       break
     case EntityType.Storage:
-      container = new StorageContainer(textures)
+      container = new StorageContainer(textures, entity.type)
+      break
+    case EntityType.Stockpile:
+      container = new StorageContainer(textures, entity.type)
       break
     case EntityType.Well:
       container = new SimpleEntityContainer(textures.well)
