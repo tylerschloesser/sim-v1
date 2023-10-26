@@ -45,6 +45,10 @@ export class CdnStack extends Stack {
       'OriginAccessIdentity',
     )
 
+    // If the request doesn't match a list of extensions we
+    // get from the webpack manifest, assume it's a client
+    // side route and return the index.html
+    //
     const defaultToIndexHtmlFunction = new Function(
       this,
       'DefaultToIndexHtmlFunction',
