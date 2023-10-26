@@ -2,6 +2,10 @@ import { Stack } from 'aws-cdk-lib'
 import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
 import {
   Distribution,
+  Function,
+  FunctionAssociation,
+  FunctionCode,
+  FunctionEventType,
   OriginAccessIdentity,
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
@@ -15,6 +19,7 @@ import { CommonStackProps } from './types.js'
 import {
   WEBPACK_MANIFEST_FILE_NAME,
   getDefaultRootObject,
+  getExtensions,
   getWebpackDistPath,
 } from './webpack-manifest.js'
 
@@ -40,10 +45,34 @@ export class CdnStack extends Stack {
       'OriginAccessIdentity',
     )
 
+    const defaultToIndexHtmlFunction = new Function(
+      this,
+      'DefaultToIndexHtmlFunction',
+      {
+        code: FunctionCode.fromInline(`
+          function handler(event) {
+            var request = event.request
+            var uri = request.uri
+            if (uri.match(/\.(${getExtensions().join('|')})$/)) {
+              return request
+            }
+            request.uri = '/'
+            return request
+          }
+        `),
+      },
+    )
+
     const distribution = new Distribution(this, 'Distribution', {
       defaultBehavior: {
         origin: new S3Origin(bucket, { originAccessIdentity }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+        functionAssociations: [
+          {
+            function: defaultToIndexHtmlFunction,
+            eventType: FunctionEventType.VIEWER_REQUEST,
+          },
+        ],
       },
       defaultRootObject: getDefaultRootObject(),
       domainNames: [domain.demo],

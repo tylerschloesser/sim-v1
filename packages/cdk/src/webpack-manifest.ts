@@ -31,5 +31,26 @@ export function getDefaultRootObject(): string {
   // should look like /index.9c763277af2205a9b76d.html
   invariant(manifest['index.html'].match(/^\/index\.[a-z0-9]{20}\.html$/))
 
-  return manifest['index.html'].replace(/^\//, '')
+  return path.basename(manifest['index.html'])
+}
+
+export function getExtensions(): string[] {
+  const manifest = getWebpackManifest()
+  const extensions = new Set<string>()
+
+  for (const name of Object.values(manifest)) {
+    const ext = path.extname(name)
+    invariant(ext)
+    if (ext !== 'html') {
+      extensions.add(ext)
+    }
+  }
+
+  // sanity check some we know that should/shouldn't be there
+  invariant(extensions.has('js'))
+  invariant(extensions.has('webmanifest'))
+  invariant(!extensions.has('html'))
+  invariant(!extensions.has(''))
+
+  return [...extensions]
 }
