@@ -2,6 +2,7 @@ import invariant from 'tiny-invariant'
 import {
   AGENT_FATIGUE_PER_TICK,
   AGENT_HUNGER_PER_TICK,
+  ENTITY_MATERIALS,
   STOCKPILE_CAPACITY,
   STORAGE_CAPACITY,
 } from './const.js'
@@ -162,17 +163,20 @@ function tickAgents(world: World, updates: WorldUpdates): void {
             invariant(entity)
             invariant(entity.state.type === EntityStateType.Build)
 
+            const required = ENTITY_MATERIALS[entity.type]
             invariant(
-              Object.keys(entity.state.materials).length === 1,
+              Object.keys(required).length === 1,
               'TODO support multiple build materials',
             )
-            const [itemType, count] = Object.entries(
-              entity.state.materials,
-            )[0] as [ItemType, number]
-            if (
-              agent.inventory?.itemType === itemType &&
-              agent.inventory.count >= count
-            ) {
+
+            const [itemType, count] = Object.entries(required)[0] as [
+              ItemType,
+              number,
+            ]
+
+            invariant(itemType === ItemType.Wood)
+
+            if ((stockpileTotals[itemType] ?? 0) >= count) {
               agent.jobId = job.id
               updates.agentIds.add(agent.id)
             }

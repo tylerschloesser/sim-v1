@@ -29,6 +29,7 @@ import { Graphics } from './graphics.js'
 import {
   Agent,
   AgentId,
+  BuildJobState,
   BuildState,
   Camera,
   Chunk,
@@ -40,6 +41,7 @@ import {
   EntityStateType,
   EntityType,
   FarmCell,
+  ItemType,
   Job,
   JobId,
   JobType,
@@ -490,12 +492,18 @@ confirmBuild$
     const entityId: EntityId = `entity.${build.position.x}.${build.position.y}`
     const chunkIds = getChunkIds(build.position, build.size)
 
-    const materials = ENTITY_MATERIALS[build.entityType]
+    const materials = {
+      // copy because we change values to zero later
+      ...ENTITY_MATERIALS[build.entityType],
+    }
     let state: EntityState
     if (build.force || Object.keys(materials).length === 0) {
       state = { type: EntityStateType.Active }
     } else {
       state = { type: EntityStateType.Build, materials }
+      for (const itemType of Object.keys(materials) as ItemType[]) {
+        materials[itemType] = 0
+      }
     }
 
     switch (build.entityType) {
@@ -586,6 +594,7 @@ confirmBuild$
         id: jobId,
         type: JobType.Build,
         entityId: entity.id,
+        state: BuildJobState.PickUpMaterials,
       }
       jobs$.next(jobs)
       jobUpdates$.next(new Set([jobId]))

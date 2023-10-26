@@ -173,9 +173,16 @@ export interface CutTreesJob extends BaseJob {
   entityIds: EntityId[]
 }
 
+export enum BuildJobState {
+  PickUpMaterials = 'pick-up-materials',
+  DropOffMaterials = 'drop-off-materials',
+  Build = 'build',
+}
+
 export interface BuildJob extends BaseJob {
   type: JobType.Build
   entityId: EntityId
+  state: BuildJobState
 }
 
 export interface PickGardenJob extends BaseJob {

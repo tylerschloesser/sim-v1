@@ -9,7 +9,13 @@ import { useEventListeners, useResizeObserver } from './world.hooks.js'
 import styles from './world.module.scss'
 import { logTickDuration } from './debug.js'
 import { DebugOverlay } from './debug-overlay.js'
-import { FARM_SIZE, HOUSE_SIZE, STORAGE_SIZE, WELL_SIZE } from './const.js'
+import {
+  FARM_SIZE,
+  HOUSE_SIZE,
+  STOCKPILE_SIZE,
+  STORAGE_SIZE,
+  WELL_SIZE,
+} from './const.js'
 
 export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)
@@ -70,6 +76,13 @@ export function World() {
       entityType: EntityType.Storage,
       position: new Vec2(-4, 4),
       size: STORAGE_SIZE,
+      valid: true,
+      force: true,
+    })
+    confirmBuild({
+      entityType: EntityType.Stockpile,
+      position: new Vec2(6, 4),
+      size: STOCKPILE_SIZE,
       valid: true,
       force: true,
     })
