@@ -63,6 +63,7 @@ export const tickBuildJob: TickJobFn<BuildJob> = ({
       invariant(target)
 
       const { arrived } = move(agent, target.position)
+      updates.agentIds.add(agent.id)
 
       if (!arrived) {
         return
@@ -89,12 +90,14 @@ export const tickBuildJob: TickJobFn<BuildJob> = ({
         // TODO this won't work with multiple materials
 
         job.state = BuildJobState.DropOffMaterials
+        updates.jobIds.add(job.id)
       }
 
       break
     }
     case BuildJobState.DropOffMaterials: {
       const { arrived } = move(agent, entity.position)
+      updates.agentIds.add(agent.id)
 
       if (!arrived) {
         return
@@ -118,19 +121,22 @@ export const tickBuildJob: TickJobFn<BuildJob> = ({
         }
       }
 
+      updates.entityIds.add(entity.id)
+
       if (complete) {
         job.state = BuildJobState.Build
+        updates.jobIds.add(job.id)
       }
 
       break
     }
     case BuildJobState.Build: {
       entity.state = { type: EntityStateType.Active }
+      updates.entityIds.add(entity.id)
+
       delete world.jobs[job.id]
       delete agent.jobId
-
       updates.jobIds.add(job.id)
-      updates.entityIds.add(entity.id)
       break
     }
   }
