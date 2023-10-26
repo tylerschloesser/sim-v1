@@ -4,121 +4,153 @@ import {
   CertificateValidation,
 } from 'aws-cdk-lib/aws-certificatemanager'
 import {
+  Distribution,
+  OriginAccessIdentity,
+  ViewerProtocolPolicy,
+} from 'aws-cdk-lib/aws-cloudfront'
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
+import {
+  ARecord,
+  HostedZone,
   PublicHostedZone,
   RecordSet,
   RecordTarget,
   RecordType,
 } from 'aws-cdk-lib/aws-route53'
+import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
 import { Construct } from 'constructs'
 import invariant from 'tiny-invariant'
+import { CommonStackProps, Domain, Region } from './types.js'
 
 const app = new App()
 
-interface Domain {
-  root: string
-  demo: string
-}
+class DnsStack extends Stack {
+  public readonly demoHostedZone: HostedZone
 
-interface SharedConstructProps {
-  domain: Domain
-}
-
-interface SharedStackProps extends StackProps {
-  domain: Domain
-}
-
-class DnsConstruct extends Construct {
-  constructor(scope: Construct, id: string, { domain }: SharedConstructProps) {
-    super(scope, id)
-
-    const root = PublicHostedZone.fromLookup(this, 'Zone-Root', {
-      domainName: domain.root,
-    })
-
-    const demo = new PublicHostedZone(this, 'Zone-Demo', {
-      zoneName: domain.demo,
-    })
-    new CfnOutput(this, 'Output-DemoHostedZoneId', {
-      exportName: 'demoHostedZoneId',
-      value: demo.hostedZoneId,
-    })
-
-    invariant(demo.hostedZoneNameServers)
-    new RecordSet(this, 'DnsRecord-NS-Demo', {
-      recordType: RecordType.NS,
-      recordName: demo.zoneName,
-      target: RecordTarget.fromValues(...demo.hostedZoneNameServers),
-      zone: root,
-    })
-  }
-}
-
-class CdnConstruct extends Construct {
-  constructor(scope: Construct, id: string, { domain }: SharedConstructProps) {
-    super(scope, id)
-
-    // new Bucket(this, 'Bucket', {
-    //   bucketName: domain.demo,
-    // })
-  }
-}
-
-class RootStack extends Stack {
   constructor(
     scope: Construct,
     id: string,
-    { domain, ...props }: SharedStackProps,
+    { domain, ...props }: CommonStackProps,
   ) {
     super(scope, id, props)
-    new DnsConstruct(this, 'DnsConstruct', { domain })
-    new CdnConstruct(this, 'CdnConstruct', { domain })
+
+    const rootHostedZone = PublicHostedZone.fromLookup(
+      this,
+      'HostedZone-Root',
+      {
+        domainName: domain.root,
+      },
+    )
+
+    this.demoHostedZone = new PublicHostedZone(this, 'HostedZone-Demo', {
+      zoneName: domain.demo,
+    })
+
+    invariant(this.demoHostedZone.hostedZoneNameServers)
+    new RecordSet(this, 'DnsRecord-NS-Demo', {
+      recordType: RecordType.NS,
+      recordName: this.demoHostedZone.zoneName,
+      target: RecordTarget.fromValues(
+        ...this.demoHostedZone.hostedZoneNameServers,
+      ),
+      zone: rootHostedZone,
+    })
   }
+}
+
+interface CdnStackProps extends CommonStackProps {
+  certificate: Certificate
+  demoHostedZone: HostedZone
+}
+
+class CdnStack extends Stack {
+  constructor(
+    scope: Construct,
+    id: string,
+    { domain, certificate, demoHostedZone, ...props }: CdnStackProps,
+  ) {
+    super(scope, id, props)
+
+    const bucket = new Bucket(this, 'Bucket', {
+      bucketName: domain.demo,
+    })
+
+    const originAccessIdentity = new OriginAccessIdentity(
+      this,
+      'OriginAccessIdentity',
+    )
+
+    const distribution = new Distribution(this, 'Distribution', {
+      defaultBehavior: {
+        origin: new S3Origin(bucket, { originAccessIdentity }),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      domainNames: [domain.demo],
+      certificate,
+    })
+
+    new ARecord(this, 'AliasRecord', {
+      zone: demoHostedZone,
+      target: RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+    })
+  }
+}
+
+interface CertificateStackProps extends CommonStackProps {
+  demoHostedZone: HostedZone
+  env: Omit<Required<Environment>, 'region'> & { region: Region.US_EAST_1 }
 }
 
 class CertificateStack extends Stack {
+  public readonly certificate: Certificate
   constructor(
     scope: Construct,
     id: string,
-    { domain, ...props }: SharedStackProps,
+    { domain, demoHostedZone, ...props }: CertificateStackProps,
   ) {
     super(scope, id, props)
 
-    const demoHostedZoneId = Fn.importValue('demoHostedZoneId')
-
-    const root = PublicHostedZone.fromPublicHostedZoneId(
-      this,
-      'Zone-Root',
-      demoHostedZoneId,
-    )
-    new Certificate(this, 'Certificate', {
+    this.certificate = new Certificate(this, 'Certificate', {
       domainName: domain.demo,
-      validation: CertificateValidation.fromDns(root),
+      validation: CertificateValidation.fromDns(demoHostedZone),
     })
   }
 }
+
+const ACCOUNT_ID: string = '063257577013'
 
 const domain: Domain = {
   root: 'slg.dev',
   demo: 'sim-v1.slg.dev',
 }
 
-const ACCOUNT_ID: string = '063257577013'
-
-new RootStack(app, 'SimV1-Root', {
+const dnsStack = new DnsStack(app, 'SimV1-DNS', {
   env: {
     account: ACCOUNT_ID,
-    region: 'us-west-2',
+    region: Region.US_WEST_2,
   },
   crossRegionReferences: true,
   domain,
 })
 
-new CertificateStack(app, 'SimV1-Certificate', {
+const certificateStack = new CertificateStack(app, 'SimV1-Certificate', {
   env: {
     account: ACCOUNT_ID,
-    region: 'us-east-1',
+    region: Region.US_EAST_1,
   },
   crossRegionReferences: true,
   domain,
+  demoHostedZone: dnsStack.demoHostedZone,
+})
+
+new CdnStack(app, 'SimV1-CDN', {
+  env: {
+    account: ACCOUNT_ID,
+    region: Region.US_WEST_2,
+  },
+  crossRegionReferences: true,
+  domain,
+  certificate: certificateStack.certificate,
+  demoHostedZone: dnsStack.demoHostedZone,
 })
