@@ -1,8 +1,8 @@
 import invariant from 'tiny-invariant'
+import { move } from './tick-util.js'
 import { CutTreesJob, ItemType, TickJobFn } from './types.js'
 import { getCell, getChunkId } from './util.js'
 import { Vec2 } from './vec2.js'
-import { move } from './tick-util.js'
 
 export const tickCutTreesJob: TickJobFn<CutTreesJob> = ({
   world,

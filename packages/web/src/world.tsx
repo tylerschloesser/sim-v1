@@ -1,14 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Graphics } from './graphics.js'
-import { confirmBuild, navigate$, setGraphics, updates$ } from './state.js'
-import { tickWorld } from './tick.js'
-import { EntityType } from './types.js'
-import { Vec2 } from './vec2.js'
-import { useEventListeners, useResizeObserver } from './world.hooks.js'
-import styles from './world.module.scss'
-import { logTickDuration } from './debug.js'
-import { DebugOverlay } from './debug-overlay.js'
 import {
   FARM_SIZE,
   HOUSE_SIZE,
@@ -17,6 +8,15 @@ import {
   TICK_DURATION_MS,
   WELL_SIZE,
 } from './const.js'
+import { DebugOverlay } from './debug-overlay.js'
+import { logTickDuration } from './debug.js'
+import { Graphics } from './graphics.js'
+import { confirmBuild, navigate$, setGraphics, updates$ } from './state.js'
+import { tickWorld } from './tick.js'
+import { EntityType } from './types.js'
+import { Vec2 } from './vec2.js'
+import { useEventListeners, useResizeObserver } from './world.hooks.js'
+import styles from './world.module.scss'
 
 export function World() {
   const [container, setContainer] = useState<HTMLDivElement | null>(null)

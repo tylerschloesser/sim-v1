@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { FARM_SIZE } from './const.js'
 import { move } from './tick-util.js'
 import {
   EntityType,
@@ -9,7 +10,6 @@ import {
   WellEntity,
 } from './types.js'
 import { Vec2 } from './vec2.js'
-import { FARM_SIZE } from './const.js'
 
 export const tickWaterGardenJob: TickJobFn<WaterGardenJob> = ({
   world,

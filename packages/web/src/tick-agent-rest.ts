@@ -1,7 +1,7 @@
 import invariant from 'tiny-invariant'
+import { AGENT_FATIGUE_REPLENISH_PER_TICK } from './const.js'
 import { move } from './tick-util.js'
 import { AgentRestJob, EntityType, TickJobFn } from './types.js'
-import { AGENT_FATIGUE_REPLENISH_PER_TICK } from './const.js'
 
 export const tickAgentRestJob: TickJobFn<AgentRestJob> = ({
   world,

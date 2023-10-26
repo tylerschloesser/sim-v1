@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant'
-import { Vec2 } from './vec2.js'
 import { EntityType, ItemType } from './types.js'
+import { Vec2 } from './vec2.js'
 
 export const INITIAL_ZOOM = 0.2
 export const MIN_ZOOM = 0

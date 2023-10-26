@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { combineLatest } from 'rxjs'
 import invariant from 'tiny-invariant'
 import styles from './select.module.scss'
 import {
@@ -10,8 +12,6 @@ import {
 } from './state.js'
 import { CutTreesJob, Entity, EntityType, JobType } from './types.js'
 import { getNextJobId } from './util.js'
-import { useNavigate } from 'react-router-dom'
-import { combineLatest } from 'rxjs'
 
 const EMPTY_SET = new Set<string>()
 

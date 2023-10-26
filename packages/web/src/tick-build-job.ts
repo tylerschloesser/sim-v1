@@ -1,4 +1,5 @@
 import invariant from 'tiny-invariant'
+import { ENTITY_MATERIALS } from './const.js'
 import { move } from './tick-util.js'
 import {
   BuildJob,
@@ -9,7 +10,6 @@ import {
   StockpileEntity,
   TickJobFn,
 } from './types.js'
-import { ENTITY_MATERIALS } from './const.js'
 
 export const tickBuildJob: TickJobFn<BuildJob> = ({
   world,
