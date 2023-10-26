@@ -4,22 +4,23 @@ import { CertificateStack } from './certificate-stack.js'
 import { DnsStack } from './dns-stack.js'
 import { Domain, Region } from './types.js'
 
-const app = new App()
-
+const STACK_ID_PREFIX: string = 'SimV1'
 const ACCOUNT_ID: string = '063257577013'
-
 const DOMAIN: Domain = {
   root: 'slg.dev',
   demo: 'sim-v1.slg.dev',
 }
 
-const STACK_ID_PREFIX = 'SimV1'
+const app = new App()
 
 function stackId(...parts: string[]): string {
   return [STACK_ID_PREFIX, ...parts].join('-')
 }
 
-function stackProps<R extends Region, T>(region: R, extra: T) {
+function stackProps<R extends Region, T extends { region: R }>({
+  region,
+  ...props
+}: T) {
   return {
     env: {
       account: ACCOUNT_ID,
@@ -27,20 +28,23 @@ function stackProps<R extends Region, T>(region: R, extra: T) {
     },
     crossRegionReferences: true,
     domain: DOMAIN,
-    ...extra,
+    ...props,
   }
 }
 
 const dnsStack = new DnsStack(
   app,
   stackId('DNS'),
-  stackProps(Region.US_WEST_2, {}),
+  stackProps({
+    region: Region.US_WEST_2,
+  }),
 )
 
 const certificateStack = new CertificateStack(
   app,
   stackId('Certificate'),
-  stackProps(Region.US_EAST_1, {
+  stackProps({
+    region: Region.US_EAST_1,
     demoHostedZone: dnsStack.demoHostedZone,
   }),
 )
@@ -48,7 +52,8 @@ const certificateStack = new CertificateStack(
 new CdnStack(
   app,
   stackId('CDN'),
-  stackProps(Region.US_WEST_2, {
+  stackProps({
+    region: Region.US_WEST_2,
     certificate: certificateStack.certificate,
     demoHostedZone: dnsStack.demoHostedZone,
   }),
