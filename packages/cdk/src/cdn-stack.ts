@@ -53,7 +53,7 @@ export class CdnStack extends Stack {
     new BucketDeployment(this, 'BucketDeployment', {
       sources: [
         Source.asset(getWebpackDistPath(), {
-          exclude: [WEBPACK_MANIFEST_FILE_NAME],
+          exclude: [WEBPACK_MANIFEST_FILE_NAME, '*.LICENSE.txt'],
         }),
       ],
       destinationBucket: bucket,
