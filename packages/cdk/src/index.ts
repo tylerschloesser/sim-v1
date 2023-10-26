@@ -8,37 +8,48 @@ const app = new App()
 
 const ACCOUNT_ID: string = '063257577013'
 
-const domain: Domain = {
+const DOMAIN: Domain = {
   root: 'slg.dev',
   demo: 'sim-v1.slg.dev',
 }
 
-const dnsStack = new DnsStack(app, 'SimV1-DNS', {
-  env: {
-    account: ACCOUNT_ID,
-    region: Region.US_WEST_2,
-  },
-  crossRegionReferences: true,
-  domain,
-})
+const STACK_ID_PREFIX = 'SimV1'
 
-const certificateStack = new CertificateStack(app, 'SimV1-Certificate', {
-  env: {
-    account: ACCOUNT_ID,
-    region: Region.US_EAST_1,
-  },
-  crossRegionReferences: true,
-  domain,
-  demoHostedZone: dnsStack.demoHostedZone,
-})
+function stackId(...parts: string[]): string {
+  return [STACK_ID_PREFIX, ...parts].join('-')
+}
 
-new CdnStack(app, 'SimV1-CDN', {
-  env: {
-    account: ACCOUNT_ID,
-    region: Region.US_WEST_2,
-  },
-  crossRegionReferences: true,
-  domain,
-  certificate: certificateStack.certificate,
-  demoHostedZone: dnsStack.demoHostedZone,
-})
+function stackProps<R extends Region, T>(region: R, extra: T) {
+  return {
+    env: {
+      account: ACCOUNT_ID,
+      region,
+    },
+    crossRegionReferences: true,
+    domain: DOMAIN,
+    ...extra,
+  }
+}
+
+const dnsStack = new DnsStack(
+  app,
+  stackId('DNS'),
+  stackProps(Region.US_WEST_2, {}),
+)
+
+const certificateStack = new CertificateStack(
+  app,
+  stackId('Certificate'),
+  stackProps(Region.US_EAST_1, {
+    demoHostedZone: dnsStack.demoHostedZone,
+  }),
+)
+
+new CdnStack(
+  app,
+  stackId('CDN'),
+  stackProps(Region.US_WEST_2, {
+    certificate: certificateStack.certificate,
+    demoHostedZone: dnsStack.demoHostedZone,
+  }),
+)
