@@ -1,13 +1,22 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
+import invariant from 'tiny-invariant'
 import { Configuration } from 'webpack'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import 'webpack-dev-server'
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin'
 
-export default (_env: unknown, argv: { mode: Configuration['mode'] }) => {
+export default (
+  env: {
+    analyze?: boolean
+  },
+  argv: { mode: Configuration['mode'] },
+) => {
   const prod = argv.mode !== 'development'
   const mode = prod ? 'production' : 'development'
+
+  invariant(!env.analyze || mode === 'production')
 
   const config: Configuration = {
     stats: 'minimal',
@@ -73,12 +82,20 @@ export default (_env: unknown, argv: { mode: Configuration['mode'] }) => {
       }),
       new MiniCssExtractPlugin(),
       new WebpackManifestPlugin({}),
+      env.analyze && new BundleAnalyzerPlugin(),
     ],
     devServer: {
       hot: false,
       watchFiles: ['./src/index.html'],
       historyApiFallback: true,
       allowedHosts: ['.amazonaws.com'],
+    },
+    optimization: {
+      //
+      // disable module concatenation when analyzing
+      // https://github.com/webpack-contrib/webpack-bundle-analyzer/issues/466
+      //
+      concatenateModules: !env.analyze && mode === 'production',
     },
   }
   return config

@@ -3,10 +3,13 @@
   "type": "module",
   "scripts": {
     "build": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack",
-    "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve --mode=development"
+    "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve --mode=development",
+    "analyze": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack --env analyze"
   },
   "dependencies": {
+    "@types/webpack-bundle-analyzer": "^4.6.2",
     "mini-css-extract-plugin": "^2.7.6",
+    "webpack-bundle-analyzer": "^4.9.1",
     "webpack-manifest-plugin": "^5.0.0"
   }
 }
