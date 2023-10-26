@@ -1,6 +1,8 @@
 {
   "name": "@sim-v1/root",
   "scripts": {
+    "lint": "prettier --check .",
+    "deploy": "npm run deploy -w packages/cdk",
     "postinstall": "patch-package"
   },
   "dependencies": {
