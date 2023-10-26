@@ -3,7 +3,6 @@ import { Certificate } from 'aws-cdk-lib/aws-certificatemanager'
 import {
   Distribution,
   Function,
-  FunctionAssociation,
   FunctionCode,
   FunctionEventType,
   OriginAccessIdentity,
