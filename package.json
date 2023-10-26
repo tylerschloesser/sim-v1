@@ -1,8 +1,7 @@
 {
-  "name": "sim-v1",
+  "name": "@sim-v1/root",
   "type": "module",
   "scripts": {
-    "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve",
     "postinstall": "patch-package"
   },
   "dependencies": {
@@ -36,5 +35,8 @@
     "webpack": "^5.88.2",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^4.15.1"
-  }
+  },
+  "workspaces": [
+    "packages/web"
+  ]
 }

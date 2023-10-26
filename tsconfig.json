@@ -8,12 +8,6 @@
     "strict": true,
     "moduleResolution": "nodenext",
     "skipLibCheck": true,
-    "noUncheckedIndexedAccess": true,
-    "jsx": "react-jsx",
-    "plugins": [{ "name": "typescript-plugin-css-modules",
-      "options": {
-        "noUncheckedIndexedAccess": true
-      }
-    }]
+    "noUncheckedIndexedAccess": true
   }
 }
