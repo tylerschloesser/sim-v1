@@ -39,8 +39,12 @@ export function getExtensions(): string[] {
   const extensions = new Set<string>()
 
   for (const name of Object.values(manifest)) {
-    const ext = path.extname(name)
+    let ext = path.extname(name)
     invariant(ext)
+
+    // remove the starting "."
+    ext = ext.substring(1)
+
     if (ext !== 'html') {
       extensions.add(ext)
     }

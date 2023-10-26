@@ -2,7 +2,8 @@
   "name": "@sim-v1/cdk",
   "type": "module",
   "scripts": {
-    "deploy": "cdk deploy --all"
+    "deploy": "cdk deploy --all",
+    "debug": "node --loader ts-node/esm --inspect-brk src/index.ts"
   },
   "dependencies": {
     "aws-cdk": "^2.103.0",

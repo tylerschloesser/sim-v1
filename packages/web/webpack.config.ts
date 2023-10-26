@@ -1,25 +1,19 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
-import path from 'path'
-import { fileURLToPath } from 'url'
-import { Configuration as BaseConfiguration } from 'webpack'
-import { ServerConfiguration } from 'webpack-dev-server'
+import { Configuration } from 'webpack'
+import 'webpack-dev-server'
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin'
 
-type Configuration = BaseConfiguration & ServerConfiguration
+export default (_env: unknown, argv: { mode: Configuration['mode'] }) => {
+  const prod = argv.mode !== 'development'
+  const mode = prod ? 'production' : 'development'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
-
-const prod = process.env.PROD || !process.env.WEBPACK_SERVE
-
-export default () => {
   const config: Configuration = {
     stats: 'minimal',
-    mode: prod ? 'production' : 'development',
+    mode,
     entry: './src/index.tsx',
     devtool: prod ? 'source-map' : 'eval-source-map',
     output: {
-      // path: path.join(__dirname, 'dist'),
       filename: '[name].[contenthash].js',
       chunkFilename: '[name].[contenthash].chunk.js',
       clean: true,
@@ -66,7 +60,7 @@ export default () => {
     },
     plugins: [
       new HtmlWebpackPlugin({
-        filename: prod ? 'index.[contenthash].html' : 'index.html',
+        filename: 'index.[contenthash].html',
         template: './src/index.html',
       }),
       new CopyWebpackPlugin({
