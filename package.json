@@ -1,6 +1,5 @@
 {
   "name": "@sim-v1/root",
-  "type": "module",
   "scripts": {
     "postinstall": "patch-package"
   },
