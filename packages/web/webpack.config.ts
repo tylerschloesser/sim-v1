@@ -4,6 +4,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { Configuration as BaseConfiguration } from 'webpack'
 import { ServerConfiguration } from 'webpack-dev-server'
+import { WebpackManifestPlugin } from 'webpack-manifest-plugin'
 
 type Configuration = BaseConfiguration & ServerConfiguration
 
@@ -18,7 +19,7 @@ export default () => {
     entry: './src/index.tsx',
     devtool: prod ? 'source-map' : 'eval-source-map',
     output: {
-      path: path.join(__dirname, 'dist'),
+      // path: path.join(__dirname, 'dist'),
       filename: '[name].[contenthash].js',
       chunkFilename: '[name].[contenthash].chunk.js',
       clean: true,
@@ -71,10 +72,11 @@ export default () => {
       new CopyWebpackPlugin({
         patterns: [
           {
-            from: 'manifest.json',
+            from: 'app.webmanifest',
           },
         ],
       }),
+      new WebpackManifestPlugin({}),
     ],
     devServer: {
       hot: false,

@@ -2,6 +2,10 @@
   "name": "@sim-v1/web",
   "type": "module",
   "scripts": {
+    "build": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack",
     "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve"
+  },
+  "dependencies": {
+    "webpack-manifest-plugin": "^5.0.0"
   }
 }

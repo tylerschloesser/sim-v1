@@ -9,8 +9,14 @@ import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
 import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
+import { BucketDeployment, Source } from 'aws-cdk-lib/aws-s3-deployment'
 import { Construct } from 'constructs'
 import { CommonStackProps } from './types.js'
+import {
+  WEBPACK_MANIFEST_FILE_NAME,
+  getDefaultRootObject,
+  getWebpackDistPath,
+} from './webpack-manifest.js'
 
 export interface CdnStackProps extends CommonStackProps {
   certificate: Certificate
@@ -39,8 +45,18 @@ export class CdnStack extends Stack {
         origin: new S3Origin(bucket, { originAccessIdentity }),
         viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
       },
+      defaultRootObject: getDefaultRootObject(),
       domainNames: [domain.demo],
       certificate,
+    })
+
+    new BucketDeployment(this, 'BucketDeployment', {
+      sources: [
+        Source.asset(getWebpackDistPath(), {
+          exclude: [WEBPACK_MANIFEST_FILE_NAME],
+        }),
+      ],
+      destinationBucket: bucket,
     })
 
     new ARecord(this, 'AliasRecord', {
