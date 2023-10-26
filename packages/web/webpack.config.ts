@@ -70,7 +70,7 @@ export default (
     },
     plugins: [
       new HtmlWebpackPlugin({
-        filename: 'index.[contenthash].html',
+        filename: prod ? 'index.[contenthash].html' : 'index.html',
         template: './src/index.html',
       }),
       new CopyWebpackPlugin({

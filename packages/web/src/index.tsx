@@ -2,13 +2,8 @@ import { Subscribe } from '@react-rxjs/core'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom'
 import invariant from 'tiny-invariant'
-import { Build } from './build.js'
-import { ConfigureBuild } from './configure-build.js'
 import { ErrorPage } from './error-page.js'
 import './index.scss'
-import { Select } from './select.js'
-import { WorldRoot } from './world-root.js'
-import { World } from './world.js'
 
 const container = document.getElementById('root')
 invariant(container)
@@ -16,24 +11,30 @@ invariant(container)
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <World />,
+    lazy: () => import('./world.js').then((m) => ({ Component: m.World })),
     errorElement: <ErrorPage />,
     children: [
       {
         path: '/',
-        element: <WorldRoot />,
+        lazy: () =>
+          import('./world.js').then((m) => ({
+            Component: m.WorldRoot,
+          })),
       },
       {
         path: 'build',
-        element: <ConfigureBuild />,
+        lazy: () =>
+          import('./world.js').then((m) => ({
+            Component: m.ConfigureBuild,
+          })),
       },
       {
         path: 'build/:entityType',
-        element: <Build />,
+        lazy: () => import('./world.js').then((m) => ({ Component: m.Build })),
       },
       {
         path: '/select',
-        element: <Select />,
+        lazy: () => import('./world.js').then((m) => ({ Component: m.Select })),
       },
     ],
   },
