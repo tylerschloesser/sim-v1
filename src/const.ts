@@ -86,3 +86,5 @@ export const ENTITY_MATERIALS: Record<
   [EntityType.Tree]: {},
   [EntityType.Stockpile]: {},
 }
+
+export const TICK_DURATION_MS = 100

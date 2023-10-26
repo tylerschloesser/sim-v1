@@ -14,6 +14,7 @@ import {
   HOUSE_SIZE,
   STOCKPILE_SIZE,
   STORAGE_SIZE,
+  TICK_DURATION_MS,
   WELL_SIZE,
 } from './const.js'
 
@@ -44,7 +45,7 @@ export function World() {
       )
 
       updates$.next(updates)
-    }, 10)
+    }, TICK_DURATION_MS)
     return () => {
       window.clearInterval(interval)
     }
