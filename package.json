@@ -2,6 +2,7 @@
   "name": "@sim-v1/root",
   "scripts": {
     "lint": "prettier --check .",
+    "build": "npm run build -w packages/web",
     "deploy": "npm run deploy -w packages/cdk",
     "postinstall": "patch-package"
   },
