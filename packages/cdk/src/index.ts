@@ -1,4 +1,4 @@
-import { App, Stack, StackProps, CfnOutput, Fn, Environment } from 'aws-cdk-lib'
+import { App, Environment, Stack } from 'aws-cdk-lib'
 import {
   Certificate,
   CertificateValidation,
@@ -9,55 +9,14 @@ import {
   ViewerProtocolPolicy,
 } from 'aws-cdk-lib/aws-cloudfront'
 import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins'
-import {
-  ARecord,
-  HostedZone,
-  PublicHostedZone,
-  RecordSet,
-  RecordTarget,
-  RecordType,
-} from 'aws-cdk-lib/aws-route53'
+import { ARecord, HostedZone, RecordTarget } from 'aws-cdk-lib/aws-route53'
 import { CloudFrontTarget } from 'aws-cdk-lib/aws-route53-targets'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
 import { Construct } from 'constructs'
-import invariant from 'tiny-invariant'
+import { DnsStack } from './dns-stack.js'
 import { CommonStackProps, Domain, Region } from './types.js'
 
 const app = new App()
-
-class DnsStack extends Stack {
-  public readonly demoHostedZone: HostedZone
-
-  constructor(
-    scope: Construct,
-    id: string,
-    { domain, ...props }: CommonStackProps,
-  ) {
-    super(scope, id, props)
-
-    const rootHostedZone = PublicHostedZone.fromLookup(
-      this,
-      'HostedZone-Root',
-      {
-        domainName: domain.root,
-      },
-    )
-
-    this.demoHostedZone = new PublicHostedZone(this, 'HostedZone-Demo', {
-      zoneName: domain.demo,
-    })
-
-    invariant(this.demoHostedZone.hostedZoneNameServers)
-    new RecordSet(this, 'DnsRecord-NS-Demo', {
-      recordType: RecordType.NS,
-      recordName: this.demoHostedZone.zoneName,
-      target: RecordTarget.fromValues(
-        ...this.demoHostedZone.hostedZoneNameServers,
-      ),
-      zone: rootHostedZone,
-    })
-  }
-}
 
 interface CdnStackProps extends CommonStackProps {
   certificate: Certificate
