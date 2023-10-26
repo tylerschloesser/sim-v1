@@ -1,5 +1,6 @@
 import CopyWebpackPlugin from 'copy-webpack-plugin'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
+import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import { Configuration } from 'webpack'
 import 'webpack-dev-server'
 import { WebpackManifestPlugin } from 'webpack-manifest-plugin'
@@ -29,7 +30,7 @@ export default (_env: unknown, argv: { mode: Configuration['mode'] }) => {
         {
           test: /\.s[ac]ss$/i,
           use: [
-            'style-loader',
+            prod ? MiniCssExtractPlugin.loader : 'style-loader',
             {
               loader: 'css-loader',
               options: {
@@ -70,6 +71,7 @@ export default (_env: unknown, argv: { mode: Configuration['mode'] }) => {
           },
         ],
       }),
+      new MiniCssExtractPlugin(),
       new WebpackManifestPlugin({}),
     ],
     devServer: {
