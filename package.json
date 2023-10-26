@@ -1,16 +1,10 @@
 {
   "name": "sim-v1",
   "type": "module",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
   "scripts": {
     "start": "NODE_NO_WARNINGS=1 NODE_OPTIONS=\"--loader ts-node/esm\" webpack serve",
     "postinstall": "patch-package"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
     "@react-rxjs/core": "^0.10.7",
     "@react-rxjs/utils": "^0.9.7",
