@@ -57,6 +57,7 @@ export class CdnStack extends Stack {
         }),
       ],
       destinationBucket: bucket,
+      prune: true,
     })
 
     new ARecord(this, 'AliasRecord', {
