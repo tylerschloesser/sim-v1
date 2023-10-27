@@ -33,8 +33,6 @@ import {
 } from './types.js'
 import { Vec2 } from './vec2.js'
 
-const CHUNK_MODE: 'sprite' | 'graphics' = 'sprite'
-
 const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
   [CellType.Grass1]: 'hsl(121, 67%, 26%)',
   [CellType.Grass2]: 'hsl(121, 67%, 20%)',
@@ -200,7 +198,6 @@ export class Graphics {
         app: this.app,
         chunk,
         entities,
-        textures: this.textures,
       })
       this.lowResContainer.addChild(container)
       this.chunkIdToLowResContainer.set(chunk.id, container)
@@ -228,7 +225,6 @@ export class Graphics {
         app: this.app,
         chunk,
         entities,
-        textures: this.textures,
       })
       this.lowResContainer.addChild(container)
       this.chunkIdToLowResContainer.set(chunk.id, container)
@@ -367,12 +363,10 @@ function newLowResContainer({
   chunk,
   entities,
   app,
-  textures,
 }: {
   chunk: Chunk
   entities: Record<EntityId, Entity>
   app: Application
-  textures: Textures
 }): Container {
   const seenEntityIds = new Set<EntityId>()
   const g = new PixiGraphics()
