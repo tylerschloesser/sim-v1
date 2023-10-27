@@ -132,15 +132,12 @@ export class Graphics {
   }
 
   updateZoomLevel(zoomLevel: ZoomLevel): void {
-    if (zoomLevel === ZoomLevel.High) {
-      this.lowResContainer.visible = false
-      this.entityContainer.visible = true
-    } else {
-      invariant(zoomLevel === ZoomLevel.Low)
+    const lowRes = zoomLevel === ZoomLevel.Low
 
-      this.lowResContainer.visible = true
-      this.entityContainer.visible = false
-    }
+    this.lowResContainer.visible = lowRes
+
+    this.entityContainer.visible = !lowRes
+    this.chunkResourceContainer.visible = !lowRes
   }
 
   renderChunk({ chunk }: { chunk: Chunk }) {
@@ -203,6 +200,7 @@ export class Graphics {
         app: this.app,
         chunk,
         entities,
+        textures: this.textures,
       })
       this.lowResContainer.addChild(container)
       this.chunkIdToLowResContainer.set(chunk.id, container)
@@ -230,6 +228,7 @@ export class Graphics {
         app: this.app,
         chunk,
         entities,
+        textures: this.textures,
       })
       this.lowResContainer.addChild(container)
       this.chunkIdToLowResContainer.set(chunk.id, container)
@@ -368,31 +367,58 @@ function newLowResContainer({
   chunk,
   entities,
   app,
+  textures,
 }: {
   chunk: Chunk
   entities: Record<EntityId, Entity>
   app: Application
+  textures: Textures
 }): Container {
-  const entityIds = new Set<EntityId>()
-  for (const entityId of chunk.cells
-    .map((cell) => cell.entityId)
-    .filter((entityId): entityId is EntityId => !!entityId)) {
-    const entity = entities[entityId]
-    invariant(entity)
-    if (entity.chunkIds.has(chunk.id)) {
-      entityIds.add(entityId)
-    }
-  }
-
+  const seenEntityIds = new Set<EntityId>()
   const g = new PixiGraphics()
-  for (const entityId of entityIds) {
-    const entity = entities[entityId]
-    invariant(entity)
-    const color = ENTITY_TYPE_TO_LOW_RES_COLOR[entity.type]
-    const position = entity.position.sub(chunk.position).mul(TEXTURE_SCALE)
-    const size = entity.size.mul(TEXTURE_SCALE)
-    g.beginFill(color)
-    g.drawRect(position.x, position.y, size.x, size.y)
+
+  for (let i = 0; i < chunk.cells.length; i++) {
+    const cell = chunk.cells[i]
+
+    invariant(cell)
+    invariant(!cell.entityId || !cell.resource)
+
+    let rect:
+      | {
+          color: string
+          position: Vec2
+          size: Vec2
+        }
+      | undefined
+
+    if (cell.entityId && !seenEntityIds.has(cell.entityId)) {
+      seenEntityIds.add(cell.entityId)
+
+      const entity = entities[cell.entityId]
+      invariant(entity)
+
+      rect = {
+        color: ENTITY_TYPE_TO_LOW_RES_COLOR[entity.type],
+        position: entity.position.sub(chunk.position).mul(TEXTURE_SCALE),
+        size: entity.size.mul(TEXTURE_SCALE),
+      }
+    } else if (cell.resource) {
+      const position = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
+        .floor()
+        .mul(TEXTURE_SCALE)
+
+      rect = {
+        color: RESOURCE_TYPE_TO_LOW_RES_COLOR[cell.resource.type],
+        position,
+        size: new Vec2(1).mul(TEXTURE_SCALE),
+      }
+    }
+
+    if (rect) {
+      const { color, position, size } = rect
+      g.beginFill(color)
+      g.drawRect(position.x, position.y, size.x, size.y)
+    }
   }
 
   const texture = app.renderer.generateTexture(g, {
