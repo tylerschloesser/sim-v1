@@ -186,7 +186,7 @@ chunkUpdates$
       const visible = visibleChunkIds.has(chunkId)
       const chunk = chunks[chunkId]
       invariant(chunk)
-      graphics.updateLowResEntities({
+      graphics.updateLowResChunk({
         chunk,
         entities,
         visible: visible && zoomLevel === ZoomLevel.Low,
@@ -541,8 +541,6 @@ confirmBuild$
         }
         break
       }
-      case EntityType.Tree:
-        invariant(false, `cannot build ${build.entityType}`)
       case EntityType.Storage: {
         entity = {
           id: entityId,
@@ -715,13 +713,13 @@ combineLatest([graphics$, updatedChunkIds$])
     for (const chunkId of updatedChunkIds.show) {
       const chunk = chunks[chunkId]
       invariant(chunk)
-      graphics.renderLowResEntities({ chunk, entities })
+      graphics.renderLowResChunk({ chunk, entities })
     }
 
     for (const chunkId of updatedChunkIds.hide) {
       const chunk = chunks[chunkId]
       invariant(chunk)
-      graphics.hideLowResEntities({ chunk })
+      graphics.hideLowResChunk({ chunk })
     }
   })
 
@@ -737,9 +735,9 @@ combineLatest([graphics$, zoomLevel$])
       const chunk = chunks[chunkId]
       invariant(chunk)
       if (zoomLevel === ZoomLevel.Low) {
-        graphics.renderLowResEntities({ chunk, entities })
+        graphics.renderLowResChunk({ chunk, entities })
       } else {
-        graphics.hideLowResEntities({ chunk })
+        graphics.hideLowResChunk({ chunk })
       }
     }
   })

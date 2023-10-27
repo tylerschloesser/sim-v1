@@ -27,7 +27,6 @@ export const WELL_SIZE = new Vec2(2)
 export const STOCKPILE_SIZE = new Vec2(8, 4)
 
 export const ENTITY_TYPE_TO_SIZE: Record<EntityType, Vec2> = {
-  [EntityType.Tree]: TREE_SIZE,
   [EntityType.Farm]: FARM_SIZE,
   [EntityType.House]: HOUSE_SIZE,
   [EntityType.Storage]: STORAGE_SIZE,
@@ -89,7 +88,6 @@ export const ENTITY_MATERIALS: Record<
   [EntityType.Well]: {
     [ItemType.Wood]: 4,
   },
-  [EntityType.Tree]: {},
   [EntityType.Stockpile]: {},
 }
 

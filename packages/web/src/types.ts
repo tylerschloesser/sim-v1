@@ -14,9 +14,18 @@ export enum CellType {
   WaterShallow = 'water-shallow',
 }
 
+export enum ResourceType {
+  Tree = 'tree',
+}
+
+export interface Resource {
+  type: ResourceType
+}
+
 export interface Cell {
   type: CellType
   entityId?: EntityId
+  resource?: Resource
 }
 
 export type ChunkId = string
@@ -32,7 +41,6 @@ export interface Config {
 
 export enum EntityType {
   House = 'house',
-  Tree = 'tree',
   Farm = 'farm',
   Storage = 'storage',
   Well = 'well',
@@ -85,10 +93,6 @@ export interface HouseEntity extends BaseEntity {
   type: EntityType.House
 }
 
-export interface TreeEntity extends BaseEntity {
-  type: EntityType.Tree
-}
-
 export interface FarmCell {
   water: number
   maturity: number
@@ -117,7 +121,6 @@ export interface StockpileEntity extends BaseEntity {
 
 export type Entity =
   | HouseEntity
-  | TreeEntity
   | FarmEntity
   | StorageEntity
   | WellEntity

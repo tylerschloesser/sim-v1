@@ -7,15 +7,13 @@ import {
   ChunkId,
   Entity,
   EntityId,
-  EntityStateType,
-  EntityType,
-  TreeEntity,
+  Resource,
+  ResourceType,
 } from './types.js'
-import { chunkIdToPosition, getChunkIds } from './util.js'
+import { chunkIdToPosition } from './util.js'
 import { Vec2 } from './vec2.js'
 
 const INITIAL_CHUNK_RADIUS = 3
-const TREE_SIZE = new Vec2(1)
 
 export function generateInitialChunks(): {
   chunks: Record<ChunkId, Chunk>
@@ -64,6 +62,7 @@ export function generateChunk(chunkId: ChunkId): {
 
     let cellType: CellType
     let entityId: undefined | EntityId
+    let resource: undefined | Resource
 
     // grass
     {
@@ -112,22 +111,13 @@ export function generateChunk(chunkId: ChunkId): {
           noise = (noise - 0.5) * 2
 
           if (noise * noise3d(x * 1, y * 1, 50) > 0.2) {
-            const tree: TreeEntity = {
-              id: `${x}.${y}`,
-              chunkIds: getChunkIds(cellPosition, TREE_SIZE),
-              position: cellPosition,
-              size: TREE_SIZE,
-              type: EntityType.Tree,
-              state: { type: EntityStateType.Active },
-            }
-            entities[tree.id] = tree
-            entityId = tree.id
+            resource = { type: ResourceType.Tree }
           }
         }
       }
     }
 
-    cells[i] = { type: cellType, entityId }
+    cells[i] = { type: cellType, entityId, resource }
   }
 
   return {

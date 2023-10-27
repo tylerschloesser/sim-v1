@@ -15,7 +15,6 @@ import { generateTextures } from './generate-textures.js'
 import { HouseContainer } from './house-container.js'
 import { SelectContainer } from './select-container.js'
 import { StorageContainer } from './storage-container.js'
-import { TreeContainer } from './tree-container.js'
 import {
   Agent,
   AgentId,
@@ -27,6 +26,7 @@ import {
   EntityId,
   EntityStateType,
   EntityType,
+  ResourceType,
   Select,
   Textures,
   ZoomLevel,
@@ -44,7 +44,6 @@ const CELL_TYPE_TO_COLOR: Record<CellType, string> = {
 }
 
 const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
-  [EntityType.Tree]: 'hsl(121, 67%, 8%)',
   [EntityType.Farm]: 'pink',
   [EntityType.House]: 'pink',
   [EntityType.Storage]: 'pink',
@@ -52,11 +51,16 @@ const ENTITY_TYPE_TO_LOW_RES_COLOR: Record<EntityType, string> = {
   [EntityType.Stockpile]: 'pink',
 }
 
+const RESOURCE_TYPE_TO_LOW_RES_COLOR: Record<ResourceType, string> = {
+  [ResourceType.Tree]: 'hsl(121, 67%, 8%)',
+}
+
 export class Graphics {
   private readonly app: Application
   private readonly world: Container
 
   private readonly chunkContainer: Container
+  private readonly chunkResourceContainer: Container
   private readonly lowResContainer: Container
   private readonly entityContainer: Container
   private readonly buildContainer: Container
@@ -64,10 +68,12 @@ export class Graphics {
   private readonly selectContainer: SelectContainer
 
   private readonly chunkIdToContainer: Map<ChunkId, Container> = new Map()
+  private readonly chunkIdToChunkResourceContainer: Map<ChunkId, Container> =
+    new Map()
+
   private readonly entityIdToContainer: Map<EntityId, EntityContainer> =
     new Map()
-  private readonly chunkIdToLowResEntitiesContainer: Map<ChunkId, Container> =
-    new Map()
+  private readonly chunkIdToLowResContainer: Map<ChunkId, Container> = new Map()
   private readonly agentIdToContainer: Map<AgentId, AgentContainer> = new Map()
 
   private readonly textures: Textures
@@ -95,6 +101,9 @@ export class Graphics {
 
     this.chunkContainer = new Container()
     this.world.addChild(this.chunkContainer)
+
+    this.chunkResourceContainer = new Container()
+    this.world.addChild(this.chunkResourceContainer)
 
     this.lowResContainer = new Container()
     this.world.addChild(this.lowResContainer)
@@ -135,44 +144,73 @@ export class Graphics {
   }
 
   renderChunk({ chunk }: { chunk: Chunk }) {
-    let container = this.chunkIdToContainer.get(chunk.id)
-    if (!container) {
-      container = newChunkContainer({ chunk, app: this.app })
-      this.chunkContainer.addChild(container)
-      this.chunkIdToContainer.set(chunk.id, container)
+    {
+      let container = this.chunkIdToContainer.get(chunk.id)
+      if (!container) {
+        container = newChunkContainer({ chunk, app: this.app })
+        this.chunkContainer.addChild(container)
+        this.chunkIdToContainer.set(chunk.id, container)
+      }
+      container.visible = true
     }
-    container.visible = true
+
+    {
+      let container = this.chunkIdToChunkResourceContainer.get(chunk.id)
+      if (!container) {
+        container = newChunkResouceContainer({
+          chunk,
+          app: this.app,
+          textures: this.textures,
+        })
+        this.chunkResourceContainer.addChild(container)
+        this.chunkIdToChunkResourceContainer.set(chunk.id, container)
+      }
+      container.visible = true
+    }
   }
 
   hideChunk({ chunk }: { chunk: Chunk }) {
-    let container = this.chunkIdToContainer.get(chunk.id)
-    if (!container) {
-      return
+    {
+      let container = this.chunkIdToContainer.get(chunk.id)
+      if (container) {
+        container.visible = false
+      }
     }
-    container.visible = false
+    {
+      let container = this.chunkIdToChunkResourceContainer.get(chunk.id)
+      if (container) {
+        container.visible = false
+      }
+    }
+    {
+      const container = this.chunkIdToLowResContainer.get(chunk.id)
+      if (container) {
+        container.visible = false
+      }
+    }
   }
 
-  renderLowResEntities({
+  renderLowResChunk({
     chunk,
     entities,
   }: {
     chunk: Chunk
     entities: Record<EntityId, Entity>
   }) {
-    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
+    let container = this.chunkIdToLowResContainer.get(chunk.id)
     if (!container) {
-      container = newLowResEntitiesContainer({
+      container = newLowResContainer({
         app: this.app,
         chunk,
         entities,
       })
       this.lowResContainer.addChild(container)
-      this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
+      this.chunkIdToLowResContainer.set(chunk.id, container)
     }
     container.visible = true
   }
 
-  updateLowResEntities({
+  updateLowResChunk({
     chunk,
     entities,
     visible,
@@ -181,25 +219,27 @@ export class Graphics {
     entities: Record<EntityId, Entity>
     visible: boolean
   }) {
-    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
-    if (container) {
-      this.lowResContainer.removeChild(container)
-      container.destroy(true)
+    {
+      let container = this.chunkIdToLowResContainer.get(chunk.id)
+      if (container) {
+        this.lowResContainer.removeChild(container)
+        container.destroy(true)
+      }
+
+      container = newLowResContainer({
+        app: this.app,
+        chunk,
+        entities,
+      })
+      this.lowResContainer.addChild(container)
+      this.chunkIdToLowResContainer.set(chunk.id, container)
+
+      container.visible = visible
     }
-
-    container = newLowResEntitiesContainer({
-      app: this.app,
-      chunk,
-      entities,
-    })
-    this.lowResContainer.addChild(container)
-    this.chunkIdToLowResEntitiesContainer.set(chunk.id, container)
-
-    container.visible = visible
   }
 
-  hideLowResEntities({ chunk }: { chunk: Chunk }) {
-    let container = this.chunkIdToLowResEntitiesContainer.get(chunk.id)
+  hideLowResChunk({ chunk }: { chunk: Chunk }) {
+    let container = this.chunkIdToLowResContainer.get(chunk.id)
     if (!container) {
       return
     }
@@ -301,9 +341,6 @@ function newEntityContainer({
 }): EntityContainer {
   let container: EntityContainer
   switch (entity.type) {
-    case EntityType.Tree:
-      container = new TreeContainer(textures)
-      break
     case EntityType.Farm:
       container = new FarmContainer(textures)
       break
@@ -327,7 +364,7 @@ function newEntityContainer({
   return container
 }
 
-function newLowResEntitiesContainer({
+function newLowResContainer({
   chunk,
   entities,
   app,
@@ -377,6 +414,44 @@ function newLowResEntitiesContainer({
   return sprite
 }
 
+function newChunkResouceContainer({
+  chunk,
+  textures,
+}: {
+  chunk: Chunk
+  app: Application
+  textures: Textures
+}): Container {
+  const container = new Container()
+
+  container.setTransform(chunk.position.x, chunk.position.y)
+
+  for (let i = 0; i < chunk.cells.length; i++) {
+    const cell = chunk.cells[i]
+    invariant(cell)
+
+    if (!cell.resource) {
+      continue
+    }
+
+    let sprite: Sprite
+    switch (cell.resource.type) {
+      case ResourceType.Tree:
+        sprite = new Sprite(textures.tree)
+        break
+    }
+
+    const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor()
+    sprite.setTransform(x, y, 1 / TEXTURE_SCALE, 1 / TEXTURE_SCALE)
+
+    container.addChild(sprite)
+  }
+
+  // TODO convert to texture/sprite?
+
+  return container
+}
+
 function newChunkContainer({
   chunk,
   app,
@@ -387,41 +462,24 @@ function newChunkContainer({
   const g = new PixiGraphics()
   invariant(chunk.cells.length === CHUNK_SIZE ** 2)
 
-  // using graphics is slightly better than sprites,
-  // but neither are as crisp as graphics via react/pixi...
-  //
-  if (CHUNK_MODE === 'sprite') {
-    for (let i = 0; i < chunk.cells.length; i++) {
-      const cell = chunk.cells[i]
-      invariant(cell)
-      g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
-      const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
-        .floor()
-        .mul(TEXTURE_SCALE)
-      g.drawRect(x, y, TEXTURE_SCALE, TEXTURE_SCALE)
-    }
-    const texture = app.renderer.generateTexture(g)
-
-    const sprite = new Sprite(texture)
-    sprite.setTransform(
-      chunk.position.x,
-      chunk.position.y,
-      1 / TEXTURE_SCALE,
-      1 / TEXTURE_SCALE,
-    )
-
-    return sprite
-  } else {
-    invariant(CHUNK_MODE === 'graphics')
-
-    for (let i = 0; i < chunk.cells.length; i++) {
-      const cell = chunk.cells[i]
-      invariant(cell)
-      g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
-      const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE).floor()
-      g.drawRect(x, y, 1, 1)
-    }
-    g.setTransform(chunk.position.x, chunk.position.y)
-    return g
+  for (let i = 0; i < chunk.cells.length; i++) {
+    const cell = chunk.cells[i]
+    invariant(cell)
+    g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
+    const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
+      .floor()
+      .mul(TEXTURE_SCALE)
+    g.drawRect(x, y, TEXTURE_SCALE, TEXTURE_SCALE)
   }
+  const texture = app.renderer.generateTexture(g)
+
+  const sprite = new Sprite(texture)
+  sprite.setTransform(
+    chunk.position.x,
+    chunk.position.y,
+    1 / TEXTURE_SCALE,
+    1 / TEXTURE_SCALE,
+  )
+
+  return sprite
 }
