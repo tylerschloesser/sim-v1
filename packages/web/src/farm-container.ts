@@ -1,6 +1,6 @@
 import { Container, Sprite, Texture } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { FARM_MATURITY_THRESHOLD, FARM_SIZE, MAX_CELL_SIZE } from './const.js'
+import { FARM_MATURITY_THRESHOLD, FARM_SIZE, TEXTURE_SCALE } from './const.js'
 import { EntityContainer } from './entity-container.js'
 import { Entity, EntityType, TextureType, Textures } from './types.js'
 
@@ -14,7 +14,7 @@ export class FarmContainer extends EntityContainer {
     super()
 
     const base = new Sprite(textures[TextureType.FarmBase])
-    base.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    base.setTransform(0, 0, 1 / TEXTURE_SCALE, 1 / TEXTURE_SCALE)
     this.addChild(base)
 
     this.base = base
@@ -49,8 +49,8 @@ export class FarmContainer extends EntityContainer {
 
       const container = new Container()
       container.setTransform(
-        (i % FARM_SIZE.x) * MAX_CELL_SIZE,
-        Math.floor(i / FARM_SIZE.y) * MAX_CELL_SIZE,
+        (i % FARM_SIZE.x) * TEXTURE_SCALE,
+        Math.floor(i / FARM_SIZE.y) * TEXTURE_SCALE,
       )
 
       if (cell.water > 0) {

@@ -2,12 +2,18 @@ import invariant from 'tiny-invariant'
 import { EntityType, ItemType } from './types.js'
 import { Vec2 } from './vec2.js'
 
+// TODO fix performance issues
+// export const DPR = window.devicePixelRatio
+export const DPR = 1
+
 export const INITIAL_ZOOM = 0.2
 export const MIN_ZOOM = 0
 export const MAX_ZOOM = 1
 
 export const MAX_CELL_SIZE = 64
 export const MIN_CELL_SIZE = 4
+
+export const TEXTURE_SCALE = MAX_CELL_SIZE * DPR
 
 export const CHUNK_SIZE = 32
 

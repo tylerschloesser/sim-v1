@@ -1,7 +1,7 @@
 .world-root {
   position: absolute;
   left: 0;
-  bottom: 0;
+  bottom: env(safe-area-inset-bottom);
   width: 100dvw;
   display: flex;
   flex-direction: row-reverse;

@@ -8,7 +8,7 @@ import {
 } from 'pixi.js'
 import invariant from 'tiny-invariant'
 import { AgentContainer } from './agent-container.js'
-import { CHUNK_SIZE, MAX_CELL_SIZE } from './const.js'
+import { CHUNK_SIZE, DPR, TEXTURE_SCALE } from './const.js'
 import { EntityContainer } from './entity-container.js'
 import { FarmContainer } from './farm-container.js'
 import { generateTextures } from './generate-textures.js'
@@ -85,7 +85,10 @@ export class Graphics {
       // TODO verify this improves performance
       eventMode: 'none',
       // antialias: true,
+      resolution: DPR,
     })
+
+    this.app.stage.setTransform(0, 0, 1 / DPR, 1 / DPR)
 
     this.world = new Container()
     this.app.stage.addChild(this.world)
@@ -282,7 +285,7 @@ class SimpleEntityContainer extends EntityContainer {
   constructor(texture: Texture) {
     super()
     const sprite = new Sprite(texture)
-    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    sprite.setTransform(0, 0, 1 / TEXTURE_SCALE, 1 / TEXTURE_SCALE)
     this.addChild(sprite)
   }
   update(_entity: Entity): void {}
@@ -349,8 +352,8 @@ function newLowResEntitiesContainer({
     const entity = entities[entityId]
     invariant(entity)
     const color = ENTITY_TYPE_TO_LOW_RES_COLOR[entity.type]
-    const position = entity.position.sub(chunk.position).mul(MAX_CELL_SIZE)
-    const size = entity.size.mul(MAX_CELL_SIZE)
+    const position = entity.position.sub(chunk.position).mul(TEXTURE_SCALE)
+    const size = entity.size.mul(TEXTURE_SCALE)
     g.beginFill(color)
     g.drawRect(position.x, position.y, size.x, size.y)
   }
@@ -359,8 +362,8 @@ function newLowResEntitiesContainer({
     region: new Rectangle(
       0,
       0,
-      CHUNK_SIZE * MAX_CELL_SIZE,
-      CHUNK_SIZE * MAX_CELL_SIZE,
+      CHUNK_SIZE * TEXTURE_SCALE,
+      CHUNK_SIZE * TEXTURE_SCALE,
     ),
   })
 
@@ -368,8 +371,8 @@ function newLowResEntitiesContainer({
   sprite.setTransform(
     chunk.position.x,
     chunk.position.y,
-    1 / MAX_CELL_SIZE,
-    1 / MAX_CELL_SIZE,
+    1 / TEXTURE_SCALE,
+    1 / TEXTURE_SCALE,
   )
   return sprite
 }
@@ -394,8 +397,8 @@ function newChunkContainer({
       g.beginFill(CELL_TYPE_TO_COLOR[cell.type])
       const { x, y } = new Vec2(i % CHUNK_SIZE, i / CHUNK_SIZE)
         .floor()
-        .mul(MAX_CELL_SIZE)
-      g.drawRect(x, y, MAX_CELL_SIZE, MAX_CELL_SIZE)
+        .mul(TEXTURE_SCALE)
+      g.drawRect(x, y, TEXTURE_SCALE, TEXTURE_SCALE)
     }
     const texture = app.renderer.generateTexture(g)
 
@@ -403,8 +406,8 @@ function newChunkContainer({
     sprite.setTransform(
       chunk.position.x,
       chunk.position.y,
-      1 / MAX_CELL_SIZE,
-      1 / MAX_CELL_SIZE,
+      1 / TEXTURE_SCALE,
+      1 / TEXTURE_SCALE,
     )
 
     return sprite

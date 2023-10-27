@@ -1,5 +1,5 @@
 import { Container, Sprite } from 'pixi.js'
-import { MAX_CELL_SIZE } from './const.js'
+import { TEXTURE_SCALE } from './const.js'
 import { Agent, TextureType, Textures } from './types.js'
 
 export class AgentContainer extends Container {
@@ -20,8 +20,8 @@ export class AgentContainer extends Container {
     this.setTransform(
       agent.position.x,
       agent.position.y,
-      1 / MAX_CELL_SIZE,
-      1 / MAX_CELL_SIZE,
+      1 / TEXTURE_SCALE,
+      1 / TEXTURE_SCALE,
     )
 
     this.updateFatigue(agent)

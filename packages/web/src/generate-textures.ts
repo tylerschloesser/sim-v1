@@ -2,7 +2,7 @@ import { Application, Graphics, Rectangle } from 'pixi.js'
 import {
   FARM_SIZE,
   HOUSE_SIZE,
-  MAX_CELL_SIZE,
+  TEXTURE_SCALE,
   STOCKPILE_SIZE,
   STORAGE_SIZE,
   WELL_SIZE,
@@ -30,14 +30,14 @@ const generateTreeTextures: GenerateTexturesFn<TextureType.Tree> = (app) => {
 
   g.beginFill('hsl(121, 67%, 8%)')
   g.drawRect(
-    padding * MAX_CELL_SIZE,
-    padding * MAX_CELL_SIZE,
-    MAX_CELL_SIZE * (1 - padding * 2),
-    MAX_CELL_SIZE * (1 - padding * 2),
+    padding * TEXTURE_SCALE,
+    padding * TEXTURE_SCALE,
+    TEXTURE_SCALE * (1 - padding * 2),
+    TEXTURE_SCALE * (1 - padding * 2),
   )
 
   const texture = app.renderer.generateTexture(g, {
-    region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+    region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
   })
   return {
     [TextureType.Tree]: texture,
@@ -56,21 +56,21 @@ const generateFarmTextures: GenerateTexturesFn<
   function buildCellTexture(radius: number, fill: string) {
     const g = new Graphics()
     g.beginFill(fill)
-    g.lineStyle(MAX_CELL_SIZE * 0.02, 'black')
-    const x = MAX_CELL_SIZE * (1 / 2 - radius)
+    g.lineStyle(TEXTURE_SCALE * 0.02, 'black')
+    const x = TEXTURE_SCALE * (1 / 2 - radius)
     const y = x
-    const w = MAX_CELL_SIZE * radius * 2
+    const w = TEXTURE_SCALE * radius * 2
     const h = w
     g.drawRect(x, y, w, h)
     return app.renderer.generateTexture(g, {
-      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+      region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
     })
   }
 
   const baseTexture = (() => {
     const g = new Graphics()
     g.beginFill('hsl(27, 54%, 35%)')
-    g.drawRect(0, 0, MAX_CELL_SIZE * FARM_SIZE.x, MAX_CELL_SIZE * FARM_SIZE.y)
+    g.drawRect(0, 0, TEXTURE_SCALE * FARM_SIZE.x, TEXTURE_SCALE * FARM_SIZE.y)
     return app.renderer.generateTexture(g)
   })()
 
@@ -82,10 +82,10 @@ const generateFarmTextures: GenerateTexturesFn<
         if (x % 2 === y % 2) continue
         g.beginFill('hsl(240, 20%, 50%)')
         g.drawRect(
-          x * (MAX_CELL_SIZE / n),
-          y * (MAX_CELL_SIZE / n),
-          MAX_CELL_SIZE / n,
-          MAX_CELL_SIZE / n,
+          x * (TEXTURE_SCALE / n),
+          y * (TEXTURE_SCALE / n),
+          TEXTURE_SCALE / n,
+          TEXTURE_SCALE / n,
         )
       }
     }
@@ -114,11 +114,11 @@ const generateAgentTextures: GenerateTexturesFn<
 > = (app) => {
   const g = new Graphics()
   g.beginFill('magenta')
-  g.lineStyle(MAX_CELL_SIZE * 0.02, 'black')
+  g.lineStyle(TEXTURE_SCALE * 0.02, 'black')
   g.drawCircle(
-    MAX_CELL_SIZE * 0.5,
-    MAX_CELL_SIZE * 0.5,
-    (MAX_CELL_SIZE / 2) * 0.8,
+    TEXTURE_SCALE * 0.5,
+    TEXTURE_SCALE * 0.5,
+    (TEXTURE_SCALE / 2) * 0.8,
   )
 
   function buildFatigueTexture(color: string) {
@@ -126,14 +126,14 @@ const generateAgentTextures: GenerateTexturesFn<
     const r = 0.15
     g.clear()
     g.beginFill(color)
-    g.lineStyle(r * 0.1 * MAX_CELL_SIZE, 'black')
+    g.lineStyle(r * 0.1 * TEXTURE_SCALE, 'black')
     g.drawCircle(
-      (1 - r - padding) * MAX_CELL_SIZE,
-      (r + padding) * MAX_CELL_SIZE,
-      r * MAX_CELL_SIZE,
+      (1 - r - padding) * TEXTURE_SCALE,
+      (r + padding) * TEXTURE_SCALE,
+      r * TEXTURE_SCALE,
     )
     return app.renderer.generateTexture(g, {
-      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+      region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
     })
   }
 
@@ -142,20 +142,20 @@ const generateAgentTextures: GenerateTexturesFn<
     const r = 0.15
     g.clear()
     g.beginFill(color)
-    g.lineStyle(r * 0.1 * MAX_CELL_SIZE, 'black')
+    g.lineStyle(r * 0.1 * TEXTURE_SCALE, 'black')
     g.drawCircle(
-      (r + padding) * MAX_CELL_SIZE,
-      (r + padding) * MAX_CELL_SIZE,
-      r * MAX_CELL_SIZE,
+      (r + padding) * TEXTURE_SCALE,
+      (r + padding) * TEXTURE_SCALE,
+      r * TEXTURE_SCALE,
     )
     return app.renderer.generateTexture(g, {
-      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+      region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
     })
   }
 
   return {
     [TextureType.Agent]: app.renderer.generateTexture(g, {
-      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+      region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
     }),
     [TextureType.AgentFatigueHigh]: buildFatigueTexture('red'),
     [TextureType.AgentFatigueMedium]: buildFatigueTexture('orange'),
@@ -176,7 +176,7 @@ const generateSimpleEntityTextures: GenerateTexturesFn<
   function buildTexture(color: string, size: Vec2) {
     const g = new Graphics()
     g.beginFill(color)
-    g.drawRect(0, 0, size.x * MAX_CELL_SIZE, size.y * MAX_CELL_SIZE)
+    g.drawRect(0, 0, size.x * TEXTURE_SCALE, size.y * TEXTURE_SCALE)
     return app.renderer.generateTexture(g)
   }
   return {
@@ -193,14 +193,14 @@ const generateItemTextures: GenerateTexturesFn<
   function buildTexture(color: string) {
     const g = new Graphics()
     g.beginFill(color)
-    g.lineStyle(0.05 * MAX_CELL_SIZE, 'black')
-    const x = 0.15 * MAX_CELL_SIZE
+    g.lineStyle(0.05 * TEXTURE_SCALE, 'black')
+    const x = 0.15 * TEXTURE_SCALE
     const y = x
-    const w = 0.7 * MAX_CELL_SIZE
+    const w = 0.7 * TEXTURE_SCALE
     const h = w
     g.drawRect(x, y, w, h)
     return app.renderer.generateTexture(g, {
-      region: new Rectangle(0, 0, MAX_CELL_SIZE, MAX_CELL_SIZE),
+      region: new Rectangle(0, 0, TEXTURE_SCALE, TEXTURE_SCALE),
     })
   }
 

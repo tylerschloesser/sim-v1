@@ -1,6 +1,6 @@
 import { Container, Sprite, Texture } from 'pixi.js'
 import invariant from 'tiny-invariant'
-import { MAX_CELL_SIZE } from './const.js'
+import { TEXTURE_SCALE } from './const.js'
 import { EntityContainer } from './entity-container.js'
 import { Entity, EntityType, ItemType, TextureType, Textures } from './types.js'
 
@@ -27,7 +27,7 @@ export class StorageContainer extends EntityContainer {
         break
     }
     const sprite = new Sprite(texture)
-    sprite.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    sprite.setTransform(0, 0, 1 / TEXTURE_SCALE, 1 / TEXTURE_SCALE)
     this.addChild(sprite)
   }
 
@@ -41,7 +41,7 @@ export class StorageContainer extends EntityContainer {
 
     this.inventory = new Container()
     this.addChild(this.inventory)
-    this.inventory.setTransform(0, 0, 1 / MAX_CELL_SIZE, 1 / MAX_CELL_SIZE)
+    this.inventory.setTransform(0, 0, 1 / TEXTURE_SCALE, 1 / TEXTURE_SCALE)
 
     for (let i = 0; i < entity.inventory.length; i++) {
       const itemType = entity.inventory[i]
@@ -64,8 +64,8 @@ export class StorageContainer extends EntityContainer {
 
       const sprite = new Sprite(this.textures[textureType])
       sprite.setTransform(
-        (i % (entity.size.x * 2 - 1)) * 0.5 * MAX_CELL_SIZE,
-        Math.floor(i / (entity.size.x * 2 - 1)) * MAX_CELL_SIZE,
+        (i % (entity.size.x * 2 - 1)) * 0.5 * TEXTURE_SCALE,
+        Math.floor(i / (entity.size.x * 2 - 1)) * TEXTURE_SCALE,
       )
       this.inventory.addChild(sprite)
     }
