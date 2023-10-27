@@ -649,7 +649,6 @@ export const [useSelectedEntityIds] = bind(selectedEntityIds$)
 combineLatest([graphics$, camera$, viewport$]).subscribe(
   ([graphics, camera, viewport]) => {
     const cellSize = getCellSize(camera.zoom)
-    console.log(viewport)
     graphics.transformWorld({
       translate: camera.position.mul(cellSize * -1).add(viewport.div(2)),
       scale: cellSize,
